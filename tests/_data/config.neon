@@ -1,0 +1,3 @@
+application:
+    mapping:
+        *: App\*Module\Presenters\*Presenter
