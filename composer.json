@@ -4,7 +4,12 @@
   "description": "Component for WebChemistry\\Forms\\Form",
   "keywords": ["nette", "webchemistry", "forms", "multiplier"],
   "require": {
-    "webchemistry/forms": "~1.0@dev"
+    "webchemistry/forms": "^1.2",
+    "nette/forms": "^2.3"
+  },
+  "require-dev" : {
+    "codeception/codeception": "^2.1",
+    "nette/application": "^2.3"
   },
   "autoload": {
     "classmap": ["src/"]

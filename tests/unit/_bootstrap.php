@@ -1,2 +1,9 @@
 <?php
-// Here you can initialize variables that will be available to your tests
+
+class MockLatte implements \Nette\Application\UI\ITemplateFactory {
+
+	public function createTemplate(\Nette\Application\UI\Control $control = NULL) {
+
+	}
+
+}

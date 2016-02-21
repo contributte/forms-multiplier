@@ -2,10 +2,15 @@
 
 namespace WebChemistry\Forms\Controls;
 
-use Nette;
-use WebChemistry;
+use Nette\Application\IPresenter;
+use Nette\ComponentModel\IComponent;
+use Nette\Forms\IControl;
+use Nette\InvalidArgumentException;
+use Nette\Utils\Callback;
+use WebChemistry\Forms\Container;
+use Nette\Forms;
 
-class Multiplier extends WebChemistry\Forms\Container {
+class Multiplier extends Container {
 
 	const SUBMIT_CREATE_NAME = 'multiplier_creator';
 	const SUBMIT_REMOVE_NAME = 'multiplier_remover';
@@ -50,13 +55,13 @@ class Multiplier extends WebChemistry\Forms\Container {
 	protected $totalCopies = 0;
 
 	/**
-	 * @param callback $callback
+	 * @param callback $factory
 	 * @param int      $copyNumber
 	 * @param int      $maxCopies
 	 * @param bool     $createForce
 	 */
-	public function __construct($callback, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
-		$this->factory = $callback;
+	public function __construct($factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
+		$this->factory = Callback::check($factory);
 		$this->copyNumber = $copyNumber;
 		$this->createForce = $createForce;
 		$this->maxCopies = $maxCopies;
@@ -64,10 +69,20 @@ class Multiplier extends WebChemistry\Forms\Container {
 		$this->monitor('Nette\Application\IPresenter');
 	}
 
+	/**
+	 * @param callable $factory
+	 * @return self
+	 */
+	public function setFactory($factory) {
+		$this->factory = Callback::check($factory);
+
+		return $this;
+	}
+
 	protected function attached($obj) {
 		parent::attached($obj);
 
-		if ($obj instanceof Nette\Application\IPresenter) {
+		if ($obj instanceof IPresenter) {
 			$this->isAttached();
 		}
 	}
@@ -183,11 +198,11 @@ class Multiplier extends WebChemistry\Forms\Container {
 	/**
 	 * Create container before submit buttons
 	 *
-	 * @param $name
-	 * @return Nette\ComponentModel\IComponent
+	 * @param string $name
+	 * @return IComponent
 	 */
 	public function addContainer($name) {
-		$control = new WebChemistry\Forms\Container;
+		$control = new Container;
 		$control->currentGroup = $this->currentGroup;
 		$this->addComponent($control, $name, $this->getFirstSubmit());
 
@@ -203,7 +218,6 @@ class Multiplier extends WebChemistry\Forms\Container {
 	 */
 	protected function createNumber() {
 		$count = iterator_count($this->getComponents(FALSE, 'Nette\Forms\Form'));
-
 		while ($this->getComponent($count, FALSE)) {
 			$count++;
 		}
@@ -218,9 +232,7 @@ class Multiplier extends WebChemistry\Forms\Container {
 		if (!is_numeric($number)) {
 			$number = $this->createNumber();
 		}
-
 		$this->totalCopies++;
-
 		$container = $this->addContainer($number);
 
 		call_user_func($this->factory, $container);
@@ -314,6 +326,15 @@ class Multiplier extends WebChemistry\Forms\Container {
 	/************************* Nette\Forms\Container **************************/
 
 	/**
+	 * @return \ArrayIterator
+	 */
+	public function getControls() {
+		$this->createCopies();
+
+		return parent::getControls();
+	}
+
+	/**
 	 * @param array|\Traversable $values
 	 * @return Multiplier
 	 */
@@ -322,11 +343,11 @@ class Multiplier extends WebChemistry\Forms\Container {
 			$values = iterator_to_array($values);
 
 		} elseif (!is_array($values)) {
-			throw new Nette\InvalidArgumentException(sprintf('First parameter must be an array, %s given.', gettype($values)));
+			throw new InvalidArgumentException(sprintf('First parameter must be an array, %s given.', gettype($values)));
 		}
 
 		foreach ($this->getComponents() as $name => $control) {
-			if ($control instanceof Nette\Forms\IControl) {
+			if ($control instanceof IControl) {
 				if (array_key_exists($name, $values)) {
 					$control->setValue($values[$name]);
 
@@ -334,7 +355,7 @@ class Multiplier extends WebChemistry\Forms\Container {
 					$control->setValue(NULL);
 				}
 
-			} elseif ($control instanceof Nette\Forms\Container) {
+			} elseif ($control instanceof Forms\Container) {
 				if (array_key_exists($name, $values)) {
 					$control->setValues($values[$name], $this->erase);
 
@@ -348,10 +369,14 @@ class Multiplier extends WebChemistry\Forms\Container {
 
 	/**
 	 * @param array|\Traversable $values
-	 * @param bool               $erase
+	 * @param bool $erase
+	 * @return self
 	 */
 	public function setValues($values, $erase = FALSE) {
 		$this->values = $values;
 		$this->erase = $erase;
+
+		return $this;
 	}
+
 }
