@@ -1,11 +1,10 @@
-# Multiplier pro WebChemistry\Forms\Form
+# Formulářový multiplier
+
+[![Build Status](https://travis-ci.org/WebChemistry/Forms-Multiplier.svg?branch=master)](https://travis-ci.org/WebChemistry/Forms-Multiplier)
 
 ## Instalace
-
-**Composer**
-
 ```
-composer require forms-multiplier
+composer require webchemistry/forms-multiplier
 ```
 
 ## Použití
