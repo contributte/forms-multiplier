@@ -54,6 +54,9 @@ class Multiplier extends Container {
 	/** @var int */
 	protected $totalCopies = 0;
 
+	/** @var bool */
+	protected $defaultValuesForce = TRUE;
+
 	/**
 	 * @param callback $factory
 	 * @param int      $copyNumber
@@ -79,6 +82,16 @@ class Multiplier extends Container {
 		return $this;
 	}
 
+	/**
+	 * @param bool $defaultValuesForce
+	 * @return self
+	 */
+	public function setDefaultValuesForce($defaultValuesForce = TRUE) {
+		$this->defaultValuesForce = $defaultValuesForce;
+
+		return $this;
+	}
+
 	protected function attached($obj) {
 		parent::attached($obj);
 
@@ -89,7 +102,6 @@ class Multiplier extends Container {
 
 	protected function isAttached() {
 		$this->loadHttpData();
-
 		$this->createCopies();
 
 		if (!$this->getForm()->isSubmitted()) {
@@ -136,26 +148,35 @@ class Multiplier extends Container {
 	/**
 	 * @internal
 	 */
-	public function onSubmit() {
-		$this->getForm()->cleanErrors(TRUE);
-	}
-
-	/**
-	 * @internal
-	 */
 	public function onCreateSubmit() {
 		$this->getForm()->onSuccess = array();
 		$this->getForm()->onError = array();
-
-		$this->getForm()->onSubmit = array(
-			array($this, 'onSubmit')
-		);
+		$this->getForm()->onSubmit = array();
 
 		if ($this->maxCopies === NULL || iterator_count($this->getComponents(FALSE, 'Nette\Forms\Container')) < $this->maxCopies) {
-			$this->addCopy();
+			$container = $this->addCopy();
+			if ($this->defaultValuesForce) {
+				$this->applyDefaultValues($container);
+			}
 		}
 
 		$this->checkSubmitButtons();
+	}
+
+	/**
+	 * @param Container $container
+	 */
+	public function applyDefaultValues(Container $container) {
+		$factoryContainer = new Container();
+		call_user_func($this->factory, $factoryContainer);
+
+		foreach ($factoryContainer->getControls() as $name => $control) {
+			/** @var IControl $component */
+			$component = $container->getComponent($name, FALSE);
+			if ($component) {
+				$component->setValue($control->getValue());
+			}
+		}
 	}
 
 	/**
@@ -164,16 +185,12 @@ class Multiplier extends Container {
 	public function onRemoveSubmit() {
 		$this->getForm()->onSuccess = array();
 		$this->getForm()->onError = array();
-
-		$this->getForm()->onSubmit = array(
-			array($this, 'onSubmit')
-		);
+		$this->getForm()->onSubmit = array();
 
 		$components = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Container'));
 
 		if (count($components) > 1) {
 			$this->removeComponent(end($components));
-
 			$this->totalCopies--;
 		}
 
@@ -187,7 +204,6 @@ class Multiplier extends Container {
 	 */
 	protected function getFirstSubmit() {
 		$submits = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Controls\SubmitButton'));
-
 		if ($submits) {
 			return reset($submits)->getName();
 		}
@@ -227,6 +243,7 @@ class Multiplier extends Container {
 
 	/**
 	 * @param int $number
+	 * @return Container
 	 */
 	protected function addCopy($number = NULL) {
 		if (!is_numeric($number)) {
@@ -236,6 +253,8 @@ class Multiplier extends Container {
 		$container = $this->addContainer($number);
 
 		call_user_func($this->factory, $container);
+
+		return $container;
 	}
 
 	/**
@@ -249,7 +268,11 @@ class Multiplier extends Container {
 		// Create submit buttons
 		foreach ($this->buttons as $name => $values) {
 			$submit = $this->addSubmit($name, $values[0]);
-			$submit->setValidationScope(FALSE);
+			if ($name === self::SUBMIT_REMOVE_NAME) {
+				$submit->setValidationScope(FALSE);
+			} else {
+				$submit->setValidationScope(array($this));
+			}
 			$submit->onClick[] = array($this, $values[1]);
 			$submit->onInvalidClick[] = array($this, $values[1]);
 		}
@@ -303,7 +326,7 @@ class Multiplier extends Container {
 	protected function loadHttpData() {
 		if ($this->getForm()->isSubmitted() && $this->getForm()->isAnchored()) {
 			$values = $this->getForm()
-						   ->getHttpData();
+				->getHttpData();
 
 			foreach ($this->getHtmlName() as $name) {
 				if (!array_key_exists($name, $values)) {
@@ -323,6 +346,17 @@ class Multiplier extends Container {
 	}
 
 	/************************* Nette\Forms\Container **************************/
+
+	/**
+	 * @param $name
+	 * @param bool $need
+	 * @return IComponent
+	 */
+	public function getComponent($name, $need = TRUE) {
+		$this->createCopies();
+
+		return parent::getComponent($name, $need);
+	}
 
 	/**
 	 * @return \ArrayIterator
