@@ -7,9 +7,14 @@
 composer require webchemistry/forms-multiplier
 ```
 
+```php
+WebChemistry\Forms\Controls\Multiplier::register();
+```
+
 ## Použití
 
 ```php
+$form = new Nette\Forms\Form;
 $copies = 1;
 $maxCopies = 10;
 

@@ -6,9 +6,9 @@ use Nette\Application\IPresenter;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\IControl;
 use Nette\InvalidArgumentException;
+use Nette\Object;
 use Nette\Utils\Callback;
-use WebChemistry\Forms\Container;
-use Nette\Forms;
+use Nette\Forms\Container;
 
 class Multiplier extends Container {
 
@@ -388,7 +388,7 @@ class Multiplier extends Container {
 					$control->setValue(NULL);
 				}
 
-			} elseif ($control instanceof Forms\Container) {
+			} elseif ($control instanceof Container) {
 				if (array_key_exists($name, $values)) {
 					$control->setValues($values[$name], $this->erase);
 
@@ -410,6 +410,15 @@ class Multiplier extends Container {
 		$this->erase = $erase;
 
 		return $this;
+	}
+
+	/**
+	 * @param string $name
+	 */
+	public static function register($name = 'addMultiplier') {
+		Object::extensionMethod('Nette\Forms\Container::addMultiplier', function ($form, $name, $factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
+			return $form[$name] = new Multiplier($factory, $copyNumber, $maxCopies, $createForce);
+		});
 	}
 
 }

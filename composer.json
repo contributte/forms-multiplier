@@ -1,10 +1,9 @@
 {
   "name": "webchemistry/forms-multiplier",
   "type": "library",
-  "description": "Component for WebChemistry\\Forms\\Form",
+  "description": "Multiplier for nette forms",
   "keywords": ["nette", "webchemistry", "forms", "multiplier"],
   "require": {
-    "webchemistry/forms": "^1.2",
     "nette/forms": "^2.3"
   },
   "require-dev" : {

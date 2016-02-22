@@ -1,8 +1,7 @@
 <?php
 
-use WebChemistry\Forms\Container;
+use Nette\Forms\Container;
 use WebChemistry\Forms\Controls\Multiplier;
-use WebChemistry\Forms\Form;
 
 class MultiplierTest extends \Codeception\TestCase\Test {
 
@@ -21,7 +20,7 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$multiplier = $this->getControl(NULL);
 
 		$this->assertCount(2, $multiplier->getControls());
-		$this->assertInstanceOf('WebChemistry\Forms\Container', $multiplier[0]);
+		$this->assertInstanceOf('Nette\Forms\Container', $multiplier[0]);
 		$this->assertInstanceOf('Nette\Forms\Controls\TextInput', $multiplier[0]['first']);
 		$this->assertInstanceOf('Nette\Forms\Controls\TextInput', $multiplier[0]['second']);
 
@@ -190,6 +189,14 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 				'second' => ''
 			),
 		), $multiplier->getValues(TRUE));
+	}
+
+	public function testRegistration() {
+		Multiplier::register();
+		$form = new \Nette\Forms\Form();
+
+		$this->assertInstanceOf(Multiplier::class, $form->addMultiplier('name', function () {}));
+		$this->assertInstanceOf(Multiplier::class, $form['name']);
 	}
 
 	/************************* Helpers **************************/
