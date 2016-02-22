@@ -249,8 +249,7 @@ class Multiplier extends Container {
 		// Create submit buttons
 		foreach ($this->buttons as $name => $values) {
 			$submit = $this->addSubmit($name, $values[0]);
-			$submit->getControlPrototype()
-				   ->data('novalidate', '');
+			$submit->setValidationScope(FALSE);
 			$submit->onClick[] = array($this, $values[1]);
 			$submit->onInvalidClick[] = array($this, $values[1]);
 		}
