@@ -305,7 +305,9 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 		$this->assertTrue($form->hasErrors());
 		$this->assertSame(array(
-			'first' => 'value'
+			'multiplier' => array(
+				array('first' => 'value')
+			)
 		), $form->getValues(TRUE));
 	}
 

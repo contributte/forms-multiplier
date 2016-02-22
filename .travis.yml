@@ -20,6 +20,3 @@ install:
     - composer install --no-interaction
 
 script: php vendor/codeception/codeception/codecept run
-
-after_failure:
-  - 'for i in $(find ./tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done'
