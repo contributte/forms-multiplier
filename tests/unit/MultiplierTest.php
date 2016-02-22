@@ -195,8 +195,8 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		Multiplier::register();
 		$form = new \Nette\Forms\Form();
 
-		$this->assertInstanceOf(Multiplier::class, $form->addMultiplier('name', function () {}));
-		$this->assertInstanceOf(Multiplier::class, $form['name']);
+		$this->assertInstanceOf('WebChemistry\Forms\Controls\Multiplier', $form->addMultiplier('name', function () {}));
+		$this->assertInstanceOf('WebChemistry\Forms\Controls\Multiplier', $form['name']);
 	}
 
 	/************************* Helpers **************************/
