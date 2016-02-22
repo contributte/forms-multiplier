@@ -293,7 +293,7 @@ class Multiplier extends Container {
 		}
 
 		// Create defaults components
-		if (!$this->isSubmitted() && (!$this->values || $this->createForce)) {
+		if ($this->createForce || (!$this->isSubmitted() && !$this->values)) {
 			for ($i = 0; $i < $this->copyNumber; $i++) {
 				if (!$this->checkMaxCopies()) {
 					break;

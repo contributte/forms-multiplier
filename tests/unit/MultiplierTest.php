@@ -2,6 +2,7 @@
 
 use Nette\Forms\Container;
 use WebChemistry\Forms\Controls\Multiplier;
+use Nette\Application\UI\Form;
 
 class MultiplierTest extends \Codeception\TestCase\Test {
 
@@ -199,6 +200,115 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$this->assertInstanceOf('WebChemistry\Forms\Controls\Multiplier', $form['name']);
 	}
 
+	/************************* Presenter test **************************/
+
+	public function testPresenterAdd() {
+		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
+			array('first' => 'value'),
+			Multiplier::SUBMIT_CREATE_NAME => 'submit'
+		)), function (Form $form) {
+			$form['multiplier'] = (new Multiplier(function (Container $container) {
+				$container->addText('first');
+			}))->addCreateSubmit();
+		});
+
+		/** @var Multiplier $multiplier */
+		$multiplier = $form['multiplier'];
+
+		$this->assertCount(2, $multiplier->getComponents(TRUE, 'Nette\Forms\Controls\TextInput'));
+	}
+
+	public function testPresenterRemove() {
+		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
+			array('first' => 'value'),
+			array('first' => 'value'),
+			array('first' => 'value'),
+			Multiplier::SUBMIT_REMOVE_NAME => 'submit'
+		)), function (Form $form) {
+			$form['multiplier'] = (new Multiplier(function (Container $container) {
+				$container->addText('first');
+			}))->addRemoveSubmit();
+		});
+
+		/** @var Multiplier $multiplier */
+		$multiplier = $form['multiplier'];
+
+		$this->assertCount(2, $multiplier->getComponents(TRUE, 'Nette\Forms\Controls\TextInput'));
+	}
+
+	public function testPresenterMaxCopies() {
+		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
+			array('first' => 'value'),
+			array('first' => 'value'),
+			array('first' => 'value'),
+			array('first' => 'value')
+		)), function (Form $form) {
+			$form['multiplier'] = (new Multiplier(function (Container $container) {
+				$container->addText('first');
+			}, 1, 2));
+		});
+
+		/** @var Multiplier $multiplier */
+		$multiplier = $form['multiplier'];
+
+		$this->assertCount(2, $multiplier->getComponents(TRUE, 'Nette\Forms\Controls\TextInput'));
+		$this->assertSame(array(
+			array('first' => 'value'),
+			array('first' => 'value')
+		), $multiplier->getValues(TRUE));
+	}
+
+	public function testDefaultValuesAfterAdd() {
+		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
+			array('first' => 'value'),
+			Multiplier::SUBMIT_CREATE_NAME => 'submit'
+		)), function (Form $form) {
+			$form['multiplier'] = (new Multiplier(function (Container $container) {
+				$container->addText('first')
+					->setDefaultValue('default');
+			}))->addCreateSubmit();
+		});
+
+		/** @var Multiplier $multiplier */
+		$multiplier = $form['multiplier'];
+
+		$this->assertSame(array(
+			array('first' => 'value'),
+			array('first' => 'default')
+		), $multiplier->getValues(TRUE));
+	}
+
+	public function testPresenterForceCreate() {
+		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
+			array('first' => 'value')
+		)), function (Form $form) {
+			$form['multiplier'] = (new Multiplier(function (Container $container) {
+				$container->addText('first');
+			}, 2, NULL, TRUE));
+		});
+
+		/** @var Multiplier $multiplier */
+		$multiplier = $form['multiplier'];
+
+		$this->assertCount(3, $multiplier->getControls());
+	}
+
+	public function testValidation() {
+		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
+			array('first' => 'value')
+		)), function (Form $form) {
+			$form['multiplier'] = (new Multiplier(function (Container $container) {
+				$container->addText('first')
+					->addRule(Form::MAX_LENGTH, NULL, 1);
+			}));
+		});
+
+		$this->assertTrue($form->hasErrors());
+		$this->assertSame(array(
+			'first' => 'value'
+		), $form->getValues(TRUE));
+	}
+
 	/************************* Helpers **************************/
 
 	/**
@@ -236,14 +346,21 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		return $presenterFactory->createPresenter($name);
 	}
 
-	protected function sendRequestToPresenter($controlName = 'multiplier', $post, $factory = NULL) {
-		$presenter = $this->createPresenter('Upload');
+	protected function sendRequestToPresenter($controlName = 'multiplier', $post, $factory = NULL, $submitter = NULL) {
+		if ($submitter) {
+			$submitter = array(
+				'multiplier' => array(
+					$submitter => 'submit'
+				)
+			);
+		}
+		$presenter = $this->createPresenter('Multiplier');
 		if (is_callable($factory)) {
 			$factory($presenter->getForm());
 		}
-		$presenter->run(new \Nette\Application\Request('Upload', 'POST', [
+		$presenter->run(new \Nette\Application\Request('Multiplier', 'POST', array_merge(array(
 			'do' => $controlName . '-submit'
-		], $post));
+		), (array) $submitter), $post));
 		/** @var \Nette\Application\UI\Form $form */
 		$form = $presenter[$controlName];
 
