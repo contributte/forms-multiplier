@@ -377,17 +377,17 @@ class Multiplier extends Container {
 	}
 
 	/**
-	 * @return IComponent
+	 * @return array
 	 */
-	public function getCreateButton() {
-		return $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE);
-	}
+	public function getButtons() {
+		$arr = [];
+		foreach ($this->buttons as $name => $void) {
+			if ($component = $this->getComponent($name, FALSE)) {
+				$arr[] = $component;
+			}
+		}
 
-	/**
-	 * @return IComponent
-	 */
-	public function getRemoveButton() {
-		return $this->getComponent(self::SUBMIT_REMOVE_NAME, FALSE);
+		return $arr;
 	}
 
 	/**
