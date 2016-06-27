@@ -368,6 +368,29 @@ class Multiplier extends Container {
 	}
 
 	/**
+	 * @return \ArrayIterator
+	 */
+	public function getContainers() {
+		$this->createCopies();
+
+		return $this->getComponents(FALSE, 'Nette\Forms\Container');
+	}
+
+	/**
+	 * @return IComponent
+	 */
+	public function getCreateButton() {
+		return $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE);
+	}
+
+	/**
+	 * @return IComponent
+	 */
+	public function getRemoveButton() {
+		return $this->getComponent(self::SUBMIT_REMOVE_NAME, FALSE);
+	}
+
+	/**
 	 * @param array|\Traversable $values
 	 * @return Multiplier
 	 */
