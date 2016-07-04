@@ -152,7 +152,7 @@ class Multiplier extends Container {
 		$this->getForm()->onError = [];
 		$this->getForm()->onSubmit = [];
 
-		if ($this->maxCopies === NULL || $this->getComponents(FALSE, 'Nette\Forms\Container')->count() < $this->maxCopies) {
+		if ($this->maxCopies === NULL || iterator_count($this->getComponents(FALSE, 'Nette\Forms\Container')) < $this->maxCopies) {
 			$container = $this->addCopy();
 			if ($this->defaultValuesForce) {
 				$this->applyDefaultValues($container);
@@ -231,7 +231,7 @@ class Multiplier extends Container {
 	 * @return int
 	 */
 	protected function createNumber() {
-		$count = $this->getComponents(FALSE, 'Nette\Forms\Form')->count();
+		$count = iterator_count($this->getComponents(FALSE, 'Nette\Forms\Form'));
 		while ($this->getComponent($count, FALSE)) {
 			$count++;
 		}
