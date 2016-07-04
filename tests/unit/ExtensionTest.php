@@ -15,7 +15,7 @@ class ExtensionTest extends \Codeception\TestCase\Test {
 	}
 
 	public function testInitializeMethod() {
-		$code = $this->compiler->compile();
+		$code = $this->fixCompile($this->compiler);
 		$this->assertContains('WebChemistry\Forms\Controls\Multiplier::register(\'addMultiplier\');', $code);
 	}
 
@@ -25,8 +25,21 @@ class ExtensionTest extends \Codeception\TestCase\Test {
 				'name' => 'addCustom'
 			]
 		]);
-		$code = $this->compiler->compile();
+		$code = $this->fixCompile($this->compiler);
 		$this->assertContains('WebChemistry\Forms\Controls\Multiplier::register(\'addCustom\');', $code);
+	}
+
+	/**
+	 * @param \Nette\DI\Compiler $compiler
+	 * @return string
+	 */
+	protected function fixCompile(\Nette\DI\Compiler $compiler) {
+		$code = $this->compiler->compile();
+		if (!is_array($code)) {
+			return $code;
+		}
+
+		return implode("\n\n\n", $code);
 	}
 
 }
