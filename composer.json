@@ -1,16 +1,24 @@
 {
-  "name": "webchemistry/forms-multiplier",
-  "type": "library",
-  "description": "Multiplier for nette forms",
-  "keywords": ["nette", "webchemistry", "forms", "multiplier"],
-  "require": {
-    "nette/forms": "^2.3"
-  },
-  "require-dev" : {
-    "codeception/codeception": "^2.1",
-    "nette/application": "^2.3"
-  },
-  "autoload": {
-    "classmap": ["src/"]
-  }
+	"name": "webchemistry/forms-multiplier",
+	"type": "library",
+	"description": "Multiplier for nette forms",
+	"keywords": [
+		"nette",
+		"webchemistry",
+		"forms",
+		"multiplier"
+	],
+	"require": {
+		"php": ">= 5.4",
+		"nette/forms": "^2.3"
+	},
+	"require-dev": {
+		"codeception/codeception": "^2.1",
+		"nette/application": "^2.3"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	}
 }

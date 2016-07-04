@@ -7,7 +7,6 @@ use Nette\ComponentModel\IComponent;
 use Nette\Forms\IControl;
 use Nette\InvalidArgumentException;
 use Nette\Object;
-use Nette\Utils\Callback;
 use Nette\Forms\Container;
 
 class Multiplier extends Container {
@@ -15,7 +14,7 @@ class Multiplier extends Container {
 	const SUBMIT_CREATE_NAME = 'multiplier_creator',
 		  SUBMIT_REMOVE_NAME = 'multiplier_remover';
 
-	/** @var callback */
+	/** @var callable */
 	protected $factory;
 
 	/** @var int */
@@ -28,7 +27,7 @@ class Multiplier extends Container {
 	protected $created = FALSE;
 
 	/** @var array */
-	protected $values = array();
+	protected $values = [];
 
 	/** @var bool */
 	protected $erase;
@@ -37,13 +36,13 @@ class Multiplier extends Container {
 	protected $createForce = FALSE;
 
 	/** @var array */
-	protected $components = array();
+	protected $components = [];
 
 	/** @var array */
-	protected $buttons = array();
+	protected $buttons = [];
 
 	/** @var array */
-	protected $httpData = array();
+	protected $httpData = [];
 
 	/** @var bool */
 	protected $returnFilled = TRUE;
@@ -58,13 +57,13 @@ class Multiplier extends Container {
 	protected $defaultValuesForce = TRUE;
 
 	/**
-	 * @param callback $factory
+	 * @param callable $factory
 	 * @param int $copyNumber
 	 * @param int $maxCopies
 	 * @param bool $createForce
 	 */
-	public function __construct($factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
-		$this->factory = Callback::check($factory);
+	public function __construct(callable $factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
+		$this->factory = $factory;
 		$this->copyNumber = $copyNumber;
 		$this->createForce = $createForce;
 		$this->maxCopies = $maxCopies;
@@ -76,8 +75,8 @@ class Multiplier extends Container {
 	 * @param callable $factory
 	 * @return self
 	 */
-	public function setFactory($factory) {
-		$this->factory = Callback::check($factory);
+	public function setFactory(callable $factory) {
+		$this->factory = $factory;
 
 		return $this;
 	}
@@ -130,7 +129,7 @@ class Multiplier extends Container {
 	 * @return Multiplier
 	 */
 	public function addCreateSubmit($caption = NULL) {
-		$this->buttons[self::SUBMIT_CREATE_NAME] = array($caption, 'onCreateSubmit');
+		$this->buttons[self::SUBMIT_CREATE_NAME] = [$caption, 'onCreateSubmit'];
 
 		return $this;
 	}
@@ -140,7 +139,7 @@ class Multiplier extends Container {
 	 * @return Multiplier
 	 */
 	public function addRemoveSubmit($caption = NULL) {
-		$this->buttons[self::SUBMIT_REMOVE_NAME] = array($caption, 'onRemoveSubmit');
+		$this->buttons[self::SUBMIT_REMOVE_NAME] = [$caption, 'onRemoveSubmit'];
 
 		return $this;
 	}
@@ -149,9 +148,9 @@ class Multiplier extends Container {
 	 * @internal
 	 */
 	public function onCreateSubmit() {
-		$this->getForm()->onSuccess = array();
-		$this->getForm()->onError = array();
-		$this->getForm()->onSubmit = array();
+		$this->getForm()->onSuccess = [];
+		$this->getForm()->onError = [];
+		$this->getForm()->onSubmit = [];
 
 		if ($this->maxCopies === NULL || iterator_count($this->getComponents(FALSE, 'Nette\Forms\Container')) < $this->maxCopies) {
 			$container = $this->addCopy();
@@ -183,9 +182,9 @@ class Multiplier extends Container {
 	 * @internal
 	 */
 	public function onRemoveSubmit() {
-		$this->getForm()->onSuccess = array();
-		$this->getForm()->onError = array();
-		$this->getForm()->onSubmit = array();
+		$this->getForm()->onSuccess = [];
+		$this->getForm()->onError = [];
+		$this->getForm()->onSubmit = [];
 
 		$components = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Container'));
 
@@ -271,14 +270,14 @@ class Multiplier extends Container {
 			if ($name === self::SUBMIT_REMOVE_NAME) {
 				$submit->setValidationScope(FALSE);
 			} else {
-				$submit->setValidationScope(array($this));
+				$submit->setValidationScope([$this]);
 			}
-			$submit->onClick[] = array($this, $values[1]);
-			$submit->onInvalidClick[] = array($this, $values[1]);
+			$submit->onClick[] = [$this, $values[1]];
+			$submit->onInvalidClick[] = [$this, $values[1]];
 		}
 
 		$this->created = TRUE;
-		$this->components = array();
+		$this->components = [];
 
 		// Create components with values
 		if ($this->values || $this->httpData) {
@@ -330,7 +329,7 @@ class Multiplier extends Container {
 
 			foreach ($this->getHtmlName() as $name) {
 				if (!array_key_exists($name, $values)) {
-					$values = array();
+					$values = [];
 					break;
 				}
 
@@ -416,7 +415,7 @@ class Multiplier extends Container {
 					$control->setValues($values[$name], $this->erase);
 
 				} elseif ($this->erase) {
-					$control->setValues(array(), $this->erase);
+					$control->setValues([], $this->erase);
 				}
 			}
 		}
