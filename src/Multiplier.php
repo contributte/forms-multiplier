@@ -152,7 +152,7 @@ class Multiplier extends Container {
 		$this->getForm()->onError = [];
 		$this->getForm()->onSubmit = [];
 
-		if ($this->maxCopies === NULL || iterator_count($this->getComponents(FALSE, 'Nette\Forms\Container')) < $this->maxCopies) {
+		if ($this->maxCopies === NULL || $this->getComponents(FALSE, 'Nette\Forms\Container')->count() < $this->maxCopies) {
 			$container = $this->addCopy();
 			if ($this->defaultValuesForce) {
 				$this->applyDefaultValues($container);
@@ -187,7 +187,6 @@ class Multiplier extends Container {
 		$this->getForm()->onSubmit = [];
 
 		$components = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Container'));
-
 		if (count($components) > 1) {
 			$this->removeComponent(end($components));
 			$this->totalCopies--;
@@ -232,7 +231,7 @@ class Multiplier extends Container {
 	 * @return int
 	 */
 	protected function createNumber() {
-		$count = iterator_count($this->getComponents(FALSE, 'Nette\Forms\Form'));
+		$count = $this->getComponents(FALSE, 'Nette\Forms\Form')->count();
 		while ($this->getComponent($count, FALSE)) {
 			$count++;
 		}
@@ -250,7 +249,6 @@ class Multiplier extends Container {
 		}
 		$this->totalCopies++;
 		$container = $this->addContainer($number);
-
 		call_user_func($this->factory, $container);
 
 		return $container;
@@ -324,8 +322,7 @@ class Multiplier extends Container {
 
 	protected function loadHttpData() {
 		if ($this->getForm()->isSubmitted() && $this->getForm()->isAnchored()) {
-			$values = $this->getForm()
-				->getHttpData();
+			$values = $this->getForm()->getHttpData();
 
 			foreach ($this->getHtmlName() as $name) {
 				if (!array_key_exists($name, $values)) {
