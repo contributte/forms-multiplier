@@ -1,14 +1,15 @@
 # Formulářový multiplier
 
-[![Build Status](https://travis-ci.org/WebChemistry/Forms-Multiplier.svg?branch=master)](https://travis-ci.org/WebChemistry/Forms-Multiplier)
+[![Build Status](https://travis-ci.org/WebChemistry/forms-multiplier.svg?branch=master)](https://travis-ci.org/WebChemistry/forms-multiplier)
 
 ## Instalace
 ```
 composer require webchemistry/forms-multiplier
 ```
 
-```php
-WebChemistry\Forms\Controls\Multiplier::register();
+```yaml
+extensions:
+    - WebChemistry\Forms\Controls\DI\MultiplierExtension
 ```
 
 ## Použití
