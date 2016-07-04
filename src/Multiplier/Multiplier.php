@@ -12,8 +12,8 @@ use Nette\Forms\Container;
 
 class Multiplier extends Container {
 
-	const SUBMIT_CREATE_NAME = 'multiplier_creator';
-	const SUBMIT_REMOVE_NAME = 'multiplier_remover';
+	const SUBMIT_CREATE_NAME = 'multiplier_creator',
+		  SUBMIT_REMOVE_NAME = 'multiplier_remover';
 
 	/** @var callback */
 	protected $factory;
@@ -59,9 +59,9 @@ class Multiplier extends Container {
 
 	/**
 	 * @param callback $factory
-	 * @param int      $copyNumber
-	 * @param int      $maxCopies
-	 * @param bool     $createForce
+	 * @param int $copyNumber
+	 * @param int $maxCopies
+	 * @param bool $createForce
 	 */
 	public function __construct($factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
 		$this->factory = Callback::check($factory);
