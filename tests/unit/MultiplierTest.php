@@ -49,16 +49,16 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 	public function testDefaults() {
 		$multiplier = $this->getControl(NULL, 2);
-		$multiplier->setDefaults(array(
-			0 => array(
+		$multiplier->setDefaults([
+			0 => [
 				'first' => 'First',
 				'second' => 'Second'
-			),
-			1 => array(
+			],
+			1 => [
 				'first' => 'First 2',
 				'second' => 'Second 2'
-			)
-		));
+			]
+		]);
 
 		$this->assertCount(4, $multiplier->getControls());
 
@@ -90,16 +90,16 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 				->setDefaultValue('Value');
 			$container->addText('second');
 		}, 1, NULL, TRUE);
-		$multiplier->setDefaults(array(
-			0 => array(
+		$multiplier->setDefaults([
+			0 => [
 				'first' => 'First',
 				'second' => 'Second'
-			),
-			1 => array(
+			],
+			1 => [
 				'first' => 'First 2',
 				'second' => 'Second 2'
-			)
-		));
+			]
+		]);
 		$multiplier->createCopies();
 
 		$this->assertCount(6, $multiplier->getControls());
@@ -111,16 +111,16 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 				->setDefaultValue('Value');
 			$container->addText('second');
 		}, 10, 3, TRUE);
-		$multiplier->setDefaults(array(
-			0 => array(
+		$multiplier->setDefaults([
+			0 => [
 				'first' => 'First',
 				'second' => 'Second'
-			),
-			1 => array(
+			],
+			1 => [
 				'first' => 'First 2',
 				'second' => 'Second 2'
-			)
-		));
+			]
+		]);
 		$multiplier->createCopies();
 
 		$this->assertCount(6, $multiplier->getControls());
@@ -172,24 +172,24 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$multiplier->onCreateSubmit();
 		$multiplier->createCopies();
 
-		$this->assertSame(array(
-			0 => array(
+		$this->assertSame([
+			0 => [
 				'first' => 'Value',
 				'second' => ''
-			),
-			1 => array(
+			],
+			1 => [
 				'first' => 'Value',
 				'second' => ''
-			),
-			2 => array(
+			],
+			2 => [
 				'first' => 'Value',
 				'second' => ''
-			),
-			3 => array(
+			],
+			3 => [
 				'first' => 'Value',
 				'second' => ''
-			),
-		), $multiplier->getValues(TRUE));
+			],
+		], $multiplier->getValues(TRUE));
 	}
 
 	public function testRegistration() {
@@ -203,10 +203,10 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 	/************************* Presenter test **************************/
 
 	public function testPresenterAdd() {
-		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
-			array('first' => 'value'),
+		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
+			['first' => 'value'],
 			Multiplier::SUBMIT_CREATE_NAME => 'submit'
-		)), function (Form $form) {
+		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
 			}))->addCreateSubmit();
@@ -219,12 +219,12 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 	}
 
 	public function testPresenterRemove() {
-		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
-			array('first' => 'value'),
-			array('first' => 'value'),
-			array('first' => 'value'),
+		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
+			['first' => 'value'],
+			['first' => 'value'],
+			['first' => 'value'],
 			Multiplier::SUBMIT_REMOVE_NAME => 'submit'
-		)), function (Form $form) {
+		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
 			}))->addRemoveSubmit();
@@ -237,12 +237,12 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 	}
 
 	public function testPresenterMaxCopies() {
-		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
-			array('first' => 'value'),
-			array('first' => 'value'),
-			array('first' => 'value'),
-			array('first' => 'value')
-		)), function (Form $form) {
+		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
+			['first' => 'value'],
+			['first' => 'value'],
+			['first' => 'value'],
+			['first' => 'value']
+		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
 			}, 1, 2));
@@ -252,17 +252,17 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$multiplier = $form['multiplier'];
 
 		$this->assertCount(2, $multiplier->getComponents(TRUE, 'Nette\Forms\Controls\TextInput'));
-		$this->assertSame(array(
-			array('first' => 'value'),
-			array('first' => 'value')
-		), $multiplier->getValues(TRUE));
+		$this->assertSame([
+			['first' => 'value'],
+			['first' => 'value']
+		], $multiplier->getValues(TRUE));
 	}
 
 	public function testDefaultValuesAfterAdd() {
-		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
-			array('first' => 'value'),
+		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
+			['first' => 'value'],
 			Multiplier::SUBMIT_CREATE_NAME => 'submit'
-		)), function (Form $form) {
+		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first')
 					->setDefaultValue('default');
@@ -272,16 +272,16 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		/** @var Multiplier $multiplier */
 		$multiplier = $form['multiplier'];
 
-		$this->assertSame(array(
-			array('first' => 'value'),
-			array('first' => 'default')
-		), $multiplier->getValues(TRUE));
+		$this->assertSame([
+			['first' => 'value'],
+			['first' => 'default']
+		], $multiplier->getValues(TRUE));
 	}
 
 	public function testPresenterForceCreate() {
-		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
-			array('first' => 'value')
-		)), function (Form $form) {
+		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
+			['first' => 'value']
+		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
 			}, 2, NULL, TRUE));
@@ -294,9 +294,9 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 	}
 
 	public function testValidation() {
-		$form = $this->sendRequestToPresenter('multiplier', array('multiplier' => array(
-			array('first' => 'value')
-		)), function (Form $form) {
+		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
+			['first' => 'value']
+		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first')
 					->addRule(Form::MAX_LENGTH, NULL, 1);
@@ -304,11 +304,11 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		});
 
 		$this->assertTrue($form->hasErrors());
-		$this->assertSame(array(
-			'multiplier' => array(
-				array('first' => 'value')
-			)
-		), $form->getValues(TRUE));
+		$this->assertSame([
+			'multiplier' => [
+				['first' => 'value']
+			]
+		], $form->getValues(TRUE));
 	}
 
 	/************************* Helpers **************************/
@@ -350,19 +350,19 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 	protected function sendRequestToPresenter($controlName = 'multiplier', $post, $factory = NULL, $submitter = NULL) {
 		if ($submitter) {
-			$submitter = array(
-				'multiplier' => array(
+			$submitter = [
+				'multiplier' => [
 					$submitter => 'submit'
-				)
-			);
+				]
+			];
 		}
 		$presenter = $this->createPresenter('Multiplier');
 		if (is_callable($factory)) {
 			$factory($presenter->getForm());
 		}
-		$presenter->run(new \Nette\Application\Request('Multiplier', 'POST', array_merge(array(
+		$presenter->run(new \Nette\Application\Request('Multiplier', 'POST', array_merge([
 			'do' => $controlName . '-submit'
-		), (array) $submitter), $post));
+		], (array) $submitter), $post));
 		/** @var \Nette\Application\UI\Form $form */
 		$form = $presenter[$controlName];
 
