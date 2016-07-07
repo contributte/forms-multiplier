@@ -71,7 +71,7 @@ class Multiplier extends Container {
 	 */
 	public function __construct(callable $factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
 		$this->factory = $factory;
-		$this->copyNumber = $copyNumber;
+		$this->minCopies = $this->copyNumber = $copyNumber;
 		$this->createForce = $createForce;
 		$this->maxCopies = $maxCopies;
 
