@@ -26,6 +26,6 @@ $multiplier = $form->addMultiplier('multiplier', function (Nette\Forms\Container
     $container->addEditor('editor', 'Editor');
 }, $copies, $maxCopies);
 
-$multiplier->setCreateSubmit('Nový');
-$multiplier->setRemoveSubmit('Vymazat');
+$multiplier->addCreateButton('Nový');
+$multiplier->addRemoveButton('Vymazat');
 ```

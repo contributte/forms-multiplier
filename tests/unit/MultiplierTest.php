@@ -125,8 +125,8 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 	public function testButtons() {
 		$multiplier = $this->getControl(NULL, 2);
-		$multiplier->setCreateSubmit();
-		$multiplier->setRemoveSubmit();
+		$multiplier->addCreateButton();
+		$multiplier->addRemoveButton();
 
 		$multiplier->createCopies();
 
@@ -187,7 +187,7 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
-			}))->setCreateSubmit();
+			}))->addCreateButton();
 		});
 
 		/** @var Multiplier $multiplier */
@@ -207,7 +207,7 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
-			}))->setRemoveSubmit('Send');
+			}))->addRemoveButton('Send');
 		}, 'submit');
 
 		/** @var Multiplier $multiplier */
@@ -246,7 +246,7 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first')
 					->setDefaultValue('default');
-			}))->setCreateSubmit();
+			}))->addCreateButton();
 		});
 
 		/** @var Multiplier $multiplier */

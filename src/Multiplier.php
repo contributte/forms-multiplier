@@ -166,7 +166,7 @@ class Multiplier extends Container {
 	 * @param string|bool $caption False = not showed
 	 * @return self
 	 */
-	public function setRemoveSubmit($caption = NULL) {
+	public function addRemoveButton($caption = NULL) {
 		$this->removeButton = $caption;
 
 		return $this;
@@ -176,7 +176,7 @@ class Multiplier extends Container {
 	 * @param string|bool $caption False = not showed
 	 * @return self
 	 */
-	public function setCreateSubmit($caption = NULL) {
+	public function addCreateButton($caption = NULL) {
 		$this->createButton = $caption;
 
 		return $this;
