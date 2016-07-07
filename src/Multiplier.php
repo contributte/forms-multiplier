@@ -9,6 +9,7 @@ use Nette\Forms\IControl;
 use Nette\InvalidArgumentException;
 use Nette\Object;
 use Nette\Forms\Container;
+use Nette\Utils\ArrayHash;
 
 class Multiplier extends Container {
 
@@ -63,6 +64,9 @@ class Multiplier extends Container {
 	/** @var int */
 	protected $minCopies = 1;
 
+	/** @var bool */
+	protected $resetKeys = TRUE;
+
 	/**
 	 * @param callable $factory
 	 * @param int $copyNumber
@@ -76,6 +80,16 @@ class Multiplier extends Container {
 		$this->maxCopies = $maxCopies;
 
 		$this->monitor('Nette\Application\IPresenter');
+	}
+
+	/**
+	 * @param bool $reset
+	 * @return self
+	 */
+	public function setResetKeys($reset = TRUE) {
+		$this->resetKeys = $reset;
+
+		return $this;
 	}
 
 	/**
@@ -364,6 +378,20 @@ class Multiplier extends Container {
 	}
 
 	/************************* Nette\Forms\Container **************************/
+
+	/**
+	 * @param bool $asArray
+	 * @return array|\Nette\Utils\ArrayHash
+	 */
+	public function getValues($asArray = FALSE) {
+		if (!$this->resetKeys) {
+			return parent::getValues($asArray);
+		}
+
+		$values = array_values(parent::getValues(TRUE));
+
+		return $asArray ? $values : ArrayHash::from($values);
+	}
 
 	/**
 	 * @param $name
