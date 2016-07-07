@@ -57,6 +57,9 @@ class Multiplier extends Container {
 	/** @var bool */
 	protected $defaultValuesForce = TRUE;
 
+	/** @var int */
+	protected $minCopies = 1;
+
 	/**
 	 * @param callable $factory
 	 * @param int $copyNumber
@@ -70,6 +73,16 @@ class Multiplier extends Container {
 		$this->maxCopies = $maxCopies;
 
 		$this->monitor('Nette\Application\IPresenter');
+	}
+
+	/**
+	 * @param int $minCopies
+	 * @return self
+	 */
+	public function setMinCopies($minCopies) {
+		$this->minCopies = $minCopies;
+
+		return $this;
 	}
 
 	/**
@@ -110,7 +123,7 @@ class Multiplier extends Container {
 	}
 
 	protected function checkSubmitButtons() {
-		if ($this->totalCopies === 1 && $this->getComponent(self::SUBMIT_REMOVE_NAME, FALSE)) {
+		if ($this->totalCopies <= $this->minCopies && $this->getComponent(self::SUBMIT_REMOVE_NAME, FALSE)) {
 			$this->removeComponent($this->getComponent(self::SUBMIT_REMOVE_NAME));
 		}
 
@@ -188,7 +201,7 @@ class Multiplier extends Container {
 		$this->getForm()->onSubmit = [];
 
 		$components = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Container'));
-		if (count($components) > 1) {
+		if (count($components) > $this->minCopies) {
 			$this->removeComponent(end($components));
 			$this->totalCopies--;
 		}
