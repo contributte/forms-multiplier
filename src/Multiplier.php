@@ -127,7 +127,7 @@ class Multiplier extends Container {
 			$this->removeComponent($this->getComponent(self::SUBMIT_REMOVE_NAME));
 		}
 
-		if ($this->totalCopies === $this->maxCopies && $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE)) {
+		if ($this->totalCopies >= $this->maxCopies && $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE)) {
 			$this->removeComponent($this->getComponent(self::SUBMIT_CREATE_NAME));
 		}
 	}
