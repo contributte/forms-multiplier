@@ -140,9 +140,9 @@ class Multiplier extends Container {
 	}
 
 	protected function checkSubmitButtons() {
-		if ($this->totalCopies <= $this->minCopies) {
+		if ($this->totalCopies <= $this->minCopies && $this->removeButton !== FALSE) {
 			foreach ($this->getContainers() as $container) {
-				if ($control = $container->getComponent(self::SUBMIT_REMOVE_NAME)) {
+				if ($control = $container->getComponent(self::SUBMIT_REMOVE_NAME, FALSE)) {
 					$container->removeComponent($control);
 				}
 			}
