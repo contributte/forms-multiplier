@@ -141,6 +141,14 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$this->assertCount(6, $multiplier->getControls());
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_CREATE_NAME]);
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_REMOVE_NAME]);
+		$this->assertCount(2, $multiplier->getButtons());
+		foreach ($multiplier->getButtons() as $button) {
+			$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $button);
+		}
+		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier->getRemoveButton());
+		$this->assertSame(Multiplier::SUBMIT_REMOVE_NAME, $multiplier->getRemoveButton()->getName());
+		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier->getCreateButton());
+		$this->assertSame(Multiplier::SUBMIT_REMOVE_NAME, $multiplier->getRemoveButton()->getName());
 
 		// Without remove button
 		$multiplier = $this->getControl(NULL, 1);
@@ -150,6 +158,10 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_CREATE_NAME]);
 		$this->assertNull($multiplier->getComponent(Multiplier::SUBMIT_REMOVE_NAME, FALSE));
 
+		$this->assertCount(1, $multiplier->getButtons());
+		$this->assertNotNull($multiplier->getCreateButton());
+		$this->assertNull($multiplier->getRemoveButton());
+
 		// Without submit button
 		$multiplier = $this->getControl(NULL, 5);
 		$multiplier->addRemoveSubmit();
@@ -157,6 +169,10 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$this->assertCount(11, $multiplier->getControls());
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_REMOVE_NAME]);
 		$this->assertNull($multiplier->getComponent(Multiplier::SUBMIT_CREATE_NAME, FALSE));
+
+		$this->assertCount(1, $multiplier->getButtons());
+		$this->assertNotNull($multiplier->getRemoveButton());
+		$this->assertNull($multiplier->getCreateButton());
 	}
 
 	public function testGetValues() {

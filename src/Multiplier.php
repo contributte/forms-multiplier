@@ -4,6 +4,7 @@ namespace WebChemistry\Forms\Controls;
 
 use Nette\Application\IPresenter;
 use Nette\ComponentModel\IComponent;
+use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\IControl;
 use Nette\InvalidArgumentException;
 use Nette\Object;
@@ -384,6 +385,20 @@ class Multiplier extends Container {
 		}
 
 		return $arr;
+	}
+
+	/**
+	 * @return SubmitButton|null
+	 */
+	public function getRemoveButton() {
+		return $this->getComponent(self::SUBMIT_REMOVE_NAME, FALSE);
+	}
+
+	/**
+	 * @return SubmitButton|null
+	 */
+	public function getCreateButton() {
+		return $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE);
 	}
 
 	/**
