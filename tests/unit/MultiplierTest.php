@@ -39,14 +39,6 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$this->assertCount(4, $multiplier->getControls());
 	}
 
-	public function testRemoveCopy() {
-		$multiplier = $this->getControl(NULL, 2);
-		$this->assertCount(4, $multiplier->getControls());
-
-		$multiplier->onRemoveSubmit(); // @internal
-		$this->assertCount(2, $multiplier->getControls());
-	}
-
 	public function testDefaults() {
 		$multiplier = $this->getControl(NULL, 2);
 		$multiplier->setDefaults([
@@ -133,46 +125,16 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 	public function testButtons() {
 		$multiplier = $this->getControl(NULL, 2);
-		$multiplier->addCreateSubmit();
-		$multiplier->addRemoveSubmit();
+		$multiplier->setCreateSubmit();
+		$multiplier->setRemoveSubmit();
 
 		$multiplier->createCopies();
 
-		$this->assertCount(6, $multiplier->getControls());
+		$this->assertCount(5, $multiplier->getControls());
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_CREATE_NAME]);
-		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_REMOVE_NAME]);
-		$this->assertCount(2, $multiplier->getButtons());
-		foreach ($multiplier->getButtons() as $button) {
-			$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $button);
-		}
-		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier->getRemoveButton());
-		$this->assertSame(Multiplier::SUBMIT_REMOVE_NAME, $multiplier->getRemoveButton()->getName());
+
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier->getCreateButton());
-		$this->assertSame(Multiplier::SUBMIT_REMOVE_NAME, $multiplier->getRemoveButton()->getName());
-
-		// Without remove button
-		$multiplier = $this->getControl(NULL, 1);
-		$multiplier->addCreateSubmit();
-
-		$this->assertCount(3, $multiplier->getControls());
-		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_CREATE_NAME]);
-		$this->assertNull($multiplier->getComponent(Multiplier::SUBMIT_REMOVE_NAME, FALSE));
-
-		$this->assertCount(1, $multiplier->getButtons());
-		$this->assertNotNull($multiplier->getCreateButton());
-		$this->assertNull($multiplier->getRemoveButton());
-
-		// Without submit button
-		$multiplier = $this->getControl(NULL, 5);
-		$multiplier->addRemoveSubmit();
-
-		$this->assertCount(11, $multiplier->getControls());
-		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_REMOVE_NAME]);
-		$this->assertNull($multiplier->getComponent(Multiplier::SUBMIT_CREATE_NAME, FALSE));
-
-		$this->assertCount(1, $multiplier->getButtons());
-		$this->assertNotNull($multiplier->getRemoveButton());
-		$this->assertNull($multiplier->getCreateButton());
+		$this->assertSame(Multiplier::SUBMIT_CREATE_NAME, $multiplier->getCreateButton()->getName());
 	}
 
 	public function testGetValues() {
@@ -225,7 +187,7 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
-			}))->addCreateSubmit();
+			}))->setCreateSubmit();
 		});
 
 		/** @var Multiplier $multiplier */
@@ -238,13 +200,15 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
 			['first' => 'value'],
 			['first' => 'value'],
-			['first' => 'value'],
-			Multiplier::SUBMIT_REMOVE_NAME => 'submit'
+			[
+				'first' => 'value',
+				Multiplier::SUBMIT_REMOVE_NAME => 'Send'
+			]
 		]], function (Form $form) {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first');
-			}))->addRemoveSubmit();
-		});
+			}))->setRemoveSubmit('Send');
+		}, 'submit');
 
 		/** @var Multiplier $multiplier */
 		$multiplier = $form['multiplier'];
@@ -282,7 +246,7 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 			$form['multiplier'] = (new Multiplier(function (Container $container) {
 				$container->addText('first')
 					->setDefaultValue('default');
-			}))->addCreateSubmit();
+			}))->setCreateSubmit();
 		});
 
 		/** @var Multiplier $multiplier */
@@ -364,21 +328,14 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		return $presenterFactory->createPresenter($name);
 	}
 
-	protected function sendRequestToPresenter($controlName = 'multiplier', $post, $factory = NULL, $submitter = NULL) {
-		if ($submitter) {
-			$submitter = [
-				'multiplier' => [
-					$submitter => 'submit'
-				]
-			];
-		}
+	protected function sendRequestToPresenter($controlName = 'multiplier', $post, $factory = NULL) {
 		$presenter = $this->createPresenter('Multiplier');
 		if (is_callable($factory)) {
 			$factory($presenter->getForm());
 		}
-		$presenter->run(new \Nette\Application\Request('Multiplier', 'POST', array_merge([
+		$presenter->run(new \Nette\Application\Request('Multiplier', 'POST', [
 			'do' => $controlName . '-submit'
-		], (array) $submitter), $post));
+		], $post));
 		/** @var \Nette\Application\UI\Form $form */
 		$form = $presenter[$controlName];
 

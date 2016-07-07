@@ -39,8 +39,11 @@ class Multiplier extends Container {
 	/** @var array */
 	protected $components = [];
 
-	/** @var array */
-	protected $buttons = [];
+	/** @var string|bool */
+	protected $createButton = FALSE;
+
+	/** @var string|bool */
+	protected $removeButton = FALSE;
 
 	/** @var array */
 	protected $httpData = [];
@@ -123,15 +126,22 @@ class Multiplier extends Container {
 	}
 
 	protected function checkSubmitButtons() {
-		if ($this->totalCopies <= $this->minCopies && $this->getComponent(self::SUBMIT_REMOVE_NAME, FALSE)) {
-			$this->removeComponent($this->getComponent(self::SUBMIT_REMOVE_NAME));
+		if ($this->totalCopies <= $this->minCopies) {
+			foreach ($this->getContainers() as $container) {
+				if ($control = $container->getComponent(self::SUBMIT_REMOVE_NAME)) {
+					$container->removeComponent($control);
+				}
+			}
 		}
 
-		if ($this->totalCopies >= $this->maxCopies && $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE)) {
+		if ($this->totalCopies === $this->maxCopies && $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE)) {
 			$this->removeComponent($this->getComponent(self::SUBMIT_CREATE_NAME));
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	protected function checkMaxCopies() {
 		return $this->maxCopies === NULL || $this->maxCopies > $this->totalCopies;
 	}
@@ -139,21 +149,21 @@ class Multiplier extends Container {
 	/************************* Buttons **************************/
 
 	/**
-	 * @param string $caption
-	 * @return Multiplier
+	 * @param string|bool $caption False = not showed
+	 * @return self
 	 */
-	public function addCreateSubmit($caption = NULL) {
-		$this->buttons[self::SUBMIT_CREATE_NAME] = [$caption, 'onCreateSubmit'];
+	public function setRemoveSubmit($caption = NULL) {
+		$this->removeButton = $caption;
 
 		return $this;
 	}
 
 	/**
-	 * @param string $caption
-	 * @return Multiplier
+	 * @param string|bool $caption False = not showed
+	 * @return self
 	 */
-	public function addRemoveSubmit($caption = NULL) {
-		$this->buttons[self::SUBMIT_REMOVE_NAME] = [$caption, 'onRemoveSubmit'];
+	public function setCreateSubmit($caption = NULL) {
+		$this->createButton = $caption;
 
 		return $this;
 	}
@@ -195,18 +205,16 @@ class Multiplier extends Container {
 	/**
 	 * @internal
 	 */
-	public function onRemoveSubmit() {
+	public function onRemoveSubmit(SubmitButton $submitButton) {
 		$this->getForm()->onSuccess = [];
 		$this->getForm()->onError = [];
 		$this->getForm()->onSubmit = [];
 
-		$components = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Container'));
-		if (count($components) > $this->minCopies) {
-			$this->removeComponent(end($components));
+		if ($this->maxCopies === NULL || iterator_count($this->getContainers()) < $this->maxCopies) {
+			$this->removeComponent($submitButton->getParent());
 			$this->totalCopies--;
+			$this->checkSubmitButtons();
 		}
-
-		$this->checkSubmitButtons();
 	}
 
 	/**
@@ -227,7 +235,7 @@ class Multiplier extends Container {
 	 * Create container before submit buttons
 	 *
 	 * @param string $name
-	 * @return IComponent
+	 * @return Container
 	 */
 	public function addContainer($name) {
 		$control = new Container;
@@ -265,6 +273,13 @@ class Multiplier extends Container {
 		$container = $this->addContainer($number);
 		call_user_func($this->factory, $container);
 
+		if ($this->removeButton) {
+			$submit = $container->addSubmit(self::SUBMIT_REMOVE_NAME, $this->removeButton)
+				->setValidationScope(FALSE)
+				->setOmitted();
+			$submit->onClick[] = $submit->onInvalidClick[] = [$this, 'onRemoveSubmit'];
+		}
+
 		return $container;
 	}
 
@@ -277,19 +292,15 @@ class Multiplier extends Container {
 		}
 
 		// Create submit buttons
-		foreach ($this->buttons as $name => $values) {
-			$submit = $this->addSubmit($name, $values[0]);
-			if ($name === self::SUBMIT_REMOVE_NAME) {
-				$submit->setValidationScope(FALSE);
-			} else {
-				$submit->setValidationScope([$this]);
-			}
-			$submit->onClick[] = [$this, $values[1]];
-			$submit->onInvalidClick[] = [$this, $values[1]];
+		if ($this->createButton !== FALSE) {
+			$submit = $this->addSubmit(self::SUBMIT_CREATE_NAME, $this->createButton)
+				->setValidationScope([$this])
+				->setOmitted();
+
+			$submit->onClick[] = $submit->onInvalidClick[] = [$this, 'onCreateSubmit'];
 		}
 
 		$this->created = TRUE;
-		$this->components = [];
 
 		// Create components with values
 		if ($this->values || $this->httpData) {
@@ -298,7 +309,6 @@ class Multiplier extends Container {
 					break;
 				}
 
-				$this->components[] = $number;
 				$this->addCopy($number);
 			}
 		}
@@ -310,7 +320,6 @@ class Multiplier extends Container {
 					break;
 				}
 
-				$this->components[] = $i;
 				$this->addCopy();
 			}
 		}
@@ -337,7 +346,6 @@ class Multiplier extends Container {
 	protected function loadHttpData() {
 		if ($this->getForm()->isSubmitted() && $this->getForm()->isAnchored()) {
 			$values = $this->getForm()->getHttpData();
-
 			foreach ($this->getHtmlName() as $name) {
 				if (!array_key_exists($name, $values)) {
 					$values = [];
@@ -347,8 +355,8 @@ class Multiplier extends Container {
 				$values = $values[$name];
 			}
 
-			foreach ($this->buttons as $name => $void) {
-				unset($values[$name]);
+			if (isset($values[self::SUBMIT_CREATE_NAME])) {
+				unset($values[self::SUBMIT_CREATE_NAME]);
 			}
 
 			$this->httpData = $values;
@@ -369,7 +377,7 @@ class Multiplier extends Container {
 	}
 
 	/**
-	 * @return \ArrayIterator
+	 * @return \ArrayIterator|IControl[]
 	 */
 	public function getControls() {
 		$this->createCopies();
@@ -378,33 +386,12 @@ class Multiplier extends Container {
 	}
 
 	/**
-	 * @return \ArrayIterator
+	 * @return Container[]|\ArrayIterator
 	 */
 	public function getContainers() {
 		$this->createCopies();
 
 		return $this->getComponents(FALSE, 'Nette\Forms\Container');
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getButtons() {
-		$arr = [];
-		foreach ($this->buttons as $name => $void) {
-			if ($component = $this->getComponent($name, FALSE)) {
-				$arr[] = $component;
-			}
-		}
-
-		return $arr;
-	}
-
-	/**
-	 * @return SubmitButton|null
-	 */
-	public function getRemoveButton() {
-		return $this->getComponent(self::SUBMIT_REMOVE_NAME, FALSE);
 	}
 
 	/**
