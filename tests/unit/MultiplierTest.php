@@ -130,7 +130,7 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 		$multiplier->createCopies();
 
-		$this->assertCount(5, $multiplier->getControls());
+		$this->assertCount(7, $multiplier->getControls());
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_CREATE_NAME]);
 
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier->getCreateButton());
@@ -258,21 +258,6 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		], $multiplier->getValues(TRUE));
 	}
 
-	public function testPresenterForceCreate() {
-		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
-			['first' => 'value']
-		]], function (Form $form) {
-			$form['multiplier'] = (new Multiplier(function (Container $container) {
-				$container->addText('first');
-			}, 2, NULL, TRUE));
-		});
-
-		/** @var Multiplier $multiplier */
-		$multiplier = $form['multiplier'];
-
-		$this->assertCount(3, $multiplier->getControls());
-	}
-
 	public function testValidation() {
 		$form = $this->sendRequestToPresenter('multiplier', ['multiplier' => [
 			['first' => 'value']
@@ -292,6 +277,10 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 	}
 
 	/************************* Helpers **************************/
+
+	protected function attachToForm(\Nette\Forms\Form $form, $factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
+		return $form['multiplier'] = new Multiplier($factory, $copyNumber, $maxCopies, $createForce);
+	}
 
 	/**
 	 * @return Multiplier

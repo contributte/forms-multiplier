@@ -148,7 +148,7 @@ class Multiplier extends Container {
 			}
 		}
 
-		if ($this->totalCopies === $this->maxCopies && $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE)) {
+		if ($this->maxCopies !== NULL && $this->totalCopies >= $this->maxCopies && $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE)) {
 			$this->removeComponent($this->getComponent(self::SUBMIT_CREATE_NAME));
 		}
 	}
@@ -205,7 +205,7 @@ class Multiplier extends Container {
 	 */
 	public function applyDefaultValues(Container $container) {
 		$factoryContainer = new Container();
-		call_user_func($this->factory, $factoryContainer);
+		$this->fillContainer($factoryContainer);
 
 		foreach ($factoryContainer->getControls() as $name => $control) {
 			/** @var IControl $component */
@@ -276,6 +276,13 @@ class Multiplier extends Container {
 	}
 
 	/**
+	 * @param Container $container
+	 */
+	protected function fillContainer(Container $container) {
+		call_user_func($this->factory, $container, $this->getForm());
+	}
+
+	/**
 	 * @param int $number
 	 * @return Container
 	 */
@@ -285,9 +292,9 @@ class Multiplier extends Container {
 		}
 		$this->totalCopies++;
 		$container = $this->addContainer($number);
-		call_user_func($this->factory, $container);
+		$this->fillContainer($container);
 
-		if ($this->removeButton) {
+		if ($this->removeButton !== FALSE) {
 			$submit = $container->addSubmit(self::SUBMIT_REMOVE_NAME, $this->removeButton)
 				->setValidationScope(FALSE)
 				->setOmitted();
@@ -304,6 +311,7 @@ class Multiplier extends Container {
 		if ($this->created === TRUE) {
 			return;
 		}
+		$this->created = TRUE;
 
 		// Create submit buttons
 		if ($this->createButton !== FALSE) {
@@ -314,10 +322,8 @@ class Multiplier extends Container {
 			$submit->onClick[] = $submit->onInvalidClick[] = [$this, 'onCreateSubmit'];
 		}
 
-		$this->created = TRUE;
-
 		// Create components with values
-		if ($this->values || $this->httpData) {
+		if (($this->values && !$this->isSubmitted()) || $this->httpData) {
 			foreach (array_keys($this->httpData ? : $this->values) as $number) {
 				if (!$this->checkMaxCopies()) {
 					break;
@@ -328,7 +334,7 @@ class Multiplier extends Container {
 		}
 
 		// Create defaults components
-		if ($this->createForce || (!$this->isSubmitted() && !$this->values)) {
+		if (!$this->isSubmitted() && ($this->createForce || !$this->values)) {
 			for ($i = 0; $i < $this->copyNumber; $i++) {
 				if (!$this->checkMaxCopies()) {
 					break;
