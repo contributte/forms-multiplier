@@ -32,11 +32,12 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 	}
 
 	public function testAddCopy() {
-		$multiplier = $this->getControl(NULL, 1);
-		$this->assertCount(2, $multiplier->getControls());
+		$multiplier = $this->getControl(NULL, 1)->addCreateButton();
+		$this->assertCount(3, $multiplier->getControls());
 
-		$multiplier->onCreateSubmit(); // @internal
-		$this->assertCount(4, $multiplier->getControls());
+		$buttons = $multiplier->getCreateButtons();
+		$multiplier->onCreateSubmit(current($buttons)); // @internal
+		$this->assertCount(5, $multiplier->getControls());
 	}
 
 	public function testDefaults() {
@@ -64,63 +65,17 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$multiplier = $this->getControl(function (Container $container) {
 			$container->addText('first')
 				->setDefaultValue('Value');
-		}, 2);
+		}, 2)->addCreateButton();
 		$multiplier->createCopies();
 
 		$this->assertSame('Value', $multiplier[0]['first']->getValue());
 		$this->assertSame('Value', $multiplier[1]['first']->getValue());
 
 		// Add copy
-		$multiplier->onCreateSubmit();
+		$buttons = $multiplier->getCreateButtons();
+		$multiplier->onCreateSubmit(current($buttons));
 
 		$this->assertSame('Value', $multiplier[2]['first']->getValue());
-	}
-
-	public function testForce() {
-		$multiplier = $this->getControl(function (Container $container) {
-			$container->addText('first')
-				->setDefaultValue('Value');
-			$container->addText('second');
-		}, 1, NULL, TRUE);
-		$multiplier->setDefaults([
-			0 => [
-				'first' => 'First',
-				'second' => 'Second'
-			],
-			1 => [
-				'first' => 'First 2',
-				'second' => 'Second 2'
-			]
-		]);
-		$multiplier->createCopies();
-
-		$this->assertCount(6, $multiplier->getControls());
-	}
-
-	public function testMaxCopies() {
-		$multiplier = $this->getControl(function (Container $container) {
-			$container->addText('first')
-				->setDefaultValue('Value');
-			$container->addText('second');
-		}, 10, 3, TRUE);
-		$multiplier->setDefaults([
-			0 => [
-				'first' => 'First',
-				'second' => 'Second'
-			],
-			1 => [
-				'first' => 'First 2',
-				'second' => 'Second 2'
-			]
-		]);
-		$multiplier->createCopies();
-
-		$this->assertCount(6, $multiplier->getControls());
-
-		// Add copy
-		$multiplier->onCreateSubmit();
-
-		$this->assertCount(6, $multiplier->getControls());
 	}
 
 	public function testButtons() {
@@ -133,8 +88,9 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$this->assertCount(7, $multiplier->getControls());
 		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier[Multiplier::SUBMIT_CREATE_NAME]);
 
-		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $multiplier->getCreateButton());
-		$this->assertSame(Multiplier::SUBMIT_CREATE_NAME, $multiplier->getCreateButton()->getName());
+		$buttons = $multiplier->getCreateButtons();
+		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', current($buttons));
+		$this->assertSame(Multiplier::SUBMIT_CREATE_NAME, current($buttons)->getName());
 	}
 
 	public function testGetValues() {
@@ -142,12 +98,13 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 			$container->addText('first')
 				->setDefaultValue('Value');
 			$container->addText('second');
-		}, 2);
+		}, 2)->addCreateButton();
 
 		// Add copy
-		$multiplier->onCreateSubmit();
+		$buttons = $multiplier->getCreateButtons();
+		$multiplier->onCreateSubmit(current($buttons));
 		// Add copy
-		$multiplier->onCreateSubmit();
+		$multiplier->onCreateSubmit(current($buttons));
 		$multiplier->createCopies();
 
 		$this->assertSame([

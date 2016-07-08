@@ -11,7 +11,7 @@ class IssuesTest extends \Codeception\TestCase\Test {
 		$multiplier = $this->getControl(NULL, 0)->addRemoveButton()->addCreateButton();
 
 		$this->assertCount(0, $multiplier->getContainers());
-		$this->assertNotNull($multiplier->getCreateButton());
+		$this->assertNotEmpty($multiplier->getCreateButtons());
 
 		// send request to presenter
 		$form = $this->sendRequestToPresenter('multiplier', [
@@ -30,7 +30,7 @@ class IssuesTest extends \Codeception\TestCase\Test {
 		$containers = iterator_to_array($multiplier->getContainers());
 		$this->assertCount(1, $containers);
 
-		$this->assertNotNull($multiplier->getCreateButton());
+		$this->assertNotEmpty($multiplier->getCreateButtons());
 		$this->assertNotNull($containers[0]->getComponent(Multiplier::SUBMIT_REMOVE_NAME, FALSE));
 	}
 

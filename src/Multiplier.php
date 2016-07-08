@@ -34,14 +34,11 @@ class Multiplier extends Container {
 	/** @var bool */
 	protected $erase;
 
-	/** @var bool */
-	protected $createForce = FALSE;
-
 	/** @var array */
 	protected $components = [];
 
-	/** @var string|bool */
-	protected $createButton = FALSE;
+	/** @var Submitter[] */
+	protected $createButtons = [];
 
 	/** @var string|bool */
 	protected $removeButton = FALSE;
@@ -71,12 +68,10 @@ class Multiplier extends Container {
 	 * @param callable $factory
 	 * @param int $copyNumber
 	 * @param int $maxCopies
-	 * @param bool $createForce
 	 */
-	public function __construct(callable $factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
+	public function __construct(callable $factory, $copyNumber = 1, $maxCopies = NULL) {
 		$this->factory = $factory;
 		$this->minCopies = $this->copyNumber = $copyNumber;
-		$this->createForce = $createForce;
 		$this->maxCopies = $maxCopies;
 
 		$this->monitor('Nette\Application\IPresenter');
@@ -174,10 +169,15 @@ class Multiplier extends Container {
 
 	/**
 	 * @param string|bool $caption False = not showed
+	 * @param int $copyCount
 	 * @return self
 	 */
-	public function addCreateButton($caption = NULL) {
-		$this->createButton = $caption;
+	public function addCreateButton($caption = NULL, $copyCount = 1) {
+		if ($caption !== FALSE) {
+			$this->createButtons[$copyCount] = new Submitter($caption, $copyCount);
+		} else {
+			unset($this->createButtons[$copyCount]);
+		}
 
 		return $this;
 	}
@@ -185,15 +185,22 @@ class Multiplier extends Container {
 	/**
 	 * @internal
 	 */
-	public function onCreateSubmit() {
+	public function onCreateSubmit(Submitter $submitter) {
 		$this->getForm()->onSuccess = [];
 		$this->getForm()->onError = [];
 		$this->getForm()->onSubmit = [];
+		$count = $submitter->getCopyCount();
 
 		if ($this->maxCopies === NULL || iterator_count($this->getComponents(FALSE, 'Nette\Forms\Container')) < $this->maxCopies) {
-			$container = $this->addCopy();
-			if ($this->defaultValuesForce) {
-				$this->applyDefaultValues($container);
+			while ($count >= 1) {
+				if (!$this->checkMaxCopies()) {
+					break;
+				}
+				$container = $this->addCopy();
+				if ($this->defaultValuesForce) {
+					$this->applyDefaultValues($container);
+				}
+				$count--;
 			}
 		}
 
@@ -314,12 +321,12 @@ class Multiplier extends Container {
 		$this->created = TRUE;
 
 		// Create submit buttons
-		if ($this->createButton !== FALSE) {
-			$submit = $this->addSubmit(self::SUBMIT_CREATE_NAME, $this->createButton)
-				->setValidationScope([$this])
+		foreach ($this->createButtons as $btn) {
+			$this->addComponent($btn, $btn->getOwnName());
+			$btn->setValidationScope([$this])
 				->setOmitted();
 
-			$submit->onClick[] = $submit->onInvalidClick[] = [$this, 'onCreateSubmit'];
+			$btn->onClick[] = $btn->onInvalidClick[] = [$this, 'onCreateSubmit'];
 		}
 
 		// Create components with values
@@ -334,7 +341,7 @@ class Multiplier extends Container {
 		}
 
 		// Create defaults components
-		if (!$this->isSubmitted() && ($this->createForce || !$this->values)) {
+		if (!$this->isSubmitted() && !$this->values) {
 			for ($i = 0; $i < $this->copyNumber; $i++) {
 				if (!$this->checkMaxCopies()) {
 					break;
@@ -375,8 +382,10 @@ class Multiplier extends Container {
 				$values = $values[$name];
 			}
 
-			if (isset($values[self::SUBMIT_CREATE_NAME])) {
-				unset($values[self::SUBMIT_CREATE_NAME]);
+			foreach ($this->createButtons as $btn) {
+				if (isset($values[$btn->getOwnName()])) {
+					unset($values[$btn->getOwnName()]);
+				}
 			}
 
 			$this->httpData = $values;
@@ -429,10 +438,10 @@ class Multiplier extends Container {
 	}
 
 	/**
-	 * @return SubmitButton|null
+	 * @return Submitter[]
 	 */
-	public function getCreateButton() {
-		return $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE);
+	public function getCreateButtons() {
+		return $this->createButtons;
 	}
 
 	/**
@@ -484,8 +493,8 @@ class Multiplier extends Container {
 	 * @param string $name
 	 */
 	public static function register($name = 'addMultiplier') {
-		Object::extensionMethod('Nette\Forms\Container::' . $name, function ($form, $name, $factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
-			return $form[$name] = new Multiplier($factory, $copyNumber, $maxCopies, $createForce);
+		Object::extensionMethod('Nette\Forms\Container::' . $name, function ($form, $name, $factory, $copyNumber = 1, $maxCopies = NULL) {
+			return $form[$name] = new Multiplier($factory, $copyNumber, $maxCopies);
 		});
 	}
 

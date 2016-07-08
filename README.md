@@ -29,3 +29,10 @@ $multiplier = $form->addMultiplier('multiplier', function (Nette\Forms\Container
 $multiplier->addCreateButton('Nový');
 $multiplier->addRemoveButton('Vymazat');
 ```
+
+## Více přidávacích buttonů
+
+```php
+$multiplier->addCreateButton('Přidat');
+$multiplier->addCreateButton('Přidat 5', 5);
+```
