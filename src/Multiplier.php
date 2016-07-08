@@ -137,8 +137,11 @@ class Multiplier extends Container {
 			}
 		}
 
-		if ($this->maxCopies !== NULL && $this->totalCopies >= $this->maxCopies && $this->getComponent(self::SUBMIT_CREATE_NAME, FALSE)) {
-			$this->removeComponent($this->getComponent(self::SUBMIT_CREATE_NAME));
+		if ($this->maxCopies !== NULL && $this->totalCopies >= $this->maxCopies && $this->createButtons) {
+			foreach ($this->createButtons as $btn) {
+				$this->removeComponent($btn);
+			}
+			$this->createButtons = [];
 		}
 	}
 
@@ -225,7 +228,7 @@ class Multiplier extends Container {
 		$this->getForm()->onError = [];
 		$this->getForm()->onSubmit = [];
 
-		if ($this->maxCopies === NULL || iterator_count($this->getContainers()) < $this->maxCopies) {
+		if ($this->minCopies === NULL || iterator_count($this->getContainers()) > $this->minCopies) {
 			$this->removeComponent($submitButton->getParent());
 			$this->totalCopies--;
 			$this->checkSubmitButtons();

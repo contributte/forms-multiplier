@@ -4,93 +4,60 @@ use WebChemistry\Forms\Controls\Multiplier;
 use Nette\Forms\Container;
 use Nette\Forms\Form;
 
-class MultipleCreateButtonsTest extends \Codeception\TestCase\Test {
+class RemoveTest extends \Codeception\TestCase\Test {
 
-	public function testAddTwoContainers() {
-		$control = $this->getControl()->addCreateButton(NULL, 2);
-
-		$this->assertCount(3, $control->getControls());
-
-		$control->onCreateSubmit(current($control->getCreateButtons()));
-
-		$this->assertCount(7, $control->getControls());
-	}
-
-	public function testAddTwoCreateButtons() {
-		$control = $this->getControl()->addCreateButton(NULL, 2)->addCreateButton();
-
-		$this->assertCount(4, $control->getControls());
-
-		$buttons = $control->getCreateButtons();
-
-		$control->onCreateSubmit($buttons[1]);
-		$this->assertCount(6, $control->getControls());
-
-		$control->onCreateSubmit($buttons[2]);
-		$this->assertCount(10, $control->getControls());
-	}
-
-	public function testCreateMaxCopies() {
-		$control = $this->getControl(NULL, 1, 10)->addCreateButton(NULL, 20);
-
-		$buttons = $control->getCreateButtons();
-
-		$control->onCreateSubmit($buttons[20]);
-		
-		$this->assertCount(20, $control->getControls());
-		$this->assertCount(0, $control->getCreateButtons());
-	}
-
-	public function testSubmitCreateTwoContainers() {
+	public function testDeleteBelowMinCopies() {
 		$form = $this->sendRequestToPresenter('multiplier', [
 			'multiplier' => [
-				Multiplier::SUBMIT_CREATE_NAME . '2' => 'submit'
+				['test' => 'val'],
+				[
+					'test' => 'val',
+					Multiplier::SUBMIT_REMOVE_NAME => 'submit'
+				]
 			]
 		], function (Form $form) {
 			$this->attachToForm($form, function (Container $container) {
 				$container->addText('test');
-			}, 0)->addCreateButton(NULL, 2);
+			}, 2)->addRemoveButton();
 		});
 
 		/** @var Multiplier $multiplier */
 		$multiplier = $form['multiplier'];
 
-		$this->assertCount(3, $multiplier->getControls());
+		$this->assertCount(2, $multiplier->getContainers());
 	}
 
-	public function testSubmitCreateTwoContainersWithDefaults() {
-		$defaults = [
-			['test' => 'val'],
-			['test' => 'val']
-		];
+	public function testDeleteMinCopies() {
 		$form = $this->sendRequestToPresenter('multiplier', [
 			'multiplier' => [
 				['test' => 'val'],
-				['test' => 'val'],
-				Multiplier::SUBMIT_CREATE_NAME . '2' => 'submit'
+				[
+					'test' => 'val',
+					Multiplier::SUBMIT_REMOVE_NAME => 'submit'
+				]
 			]
-		], function (Form $form) use ($defaults) {
+		], function (Form $form) {
 			$this->attachToForm($form, function (Container $container) {
 				$container->addText('test');
-			}, 0)->addCreateButton(NULL, 2)->setDefaults($defaults);
+			}, 2)->addRemoveButton()->setMinCopies(1);
 		});
 
 		/** @var Multiplier $multiplier */
 		$multiplier = $form['multiplier'];
 
-		$this->assertCount(5, $multiplier->getControls());
+		$this->assertCount(1, $multiplier->getContainers());
 	}
 
 	/************************* Helpers **************************/
 
-	protected function attachToForm(\Nette\Forms\Form $form, $factory, $copyNumber = 1, $maxCopies = NULL) {
-		return $form['multiplier'] = new Multiplier($factory, $copyNumber, $maxCopies);
+	protected function attachToForm(\Nette\Forms\Form $form, $factory, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
+		return $form['multiplier'] = new Multiplier($factory, $copyNumber, $maxCopies, $createForce);
 	}
 
 	/**
 	 * @return Multiplier
 	 */
-	protected function getControl($factory = NULL, $copyNumber = 1, $maxCopies = NULL) {
+	protected function getControl($factory = NULL, $copyNumber = 1, $maxCopies = NULL, $createForce = FALSE) {
 		$form = new \Nette\Forms\Form();
 
 		if ($factory === NULL) {
@@ -100,7 +67,7 @@ class MultipleCreateButtonsTest extends \Codeception\TestCase\Test {
 			};
 		}
 
-		return $form['multiplier'] = new Multiplier($factory, $copyNumber, $maxCopies);
+		return $form['multiplier'] = new Multiplier($factory, $copyNumber, $maxCopies, $createForce);
 	}
 
 	/**
