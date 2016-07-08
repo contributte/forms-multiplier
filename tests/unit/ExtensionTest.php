@@ -29,6 +29,22 @@ class ExtensionTest extends \Codeception\TestCase\Test {
 		$this->assertContains('WebChemistry\Forms\Controls\Multiplier::register(\'addCustom\');', $code);
 	}
 
+	public function testCreateViaForm() {
+		$code = $this->fixCompile($this->compiler);
+		eval($code);
+
+		/** @var \Nette\DI\Container $container */
+		$container = new \Container();
+
+		$container->initialize();
+
+		$form = new \Nette\Forms\Container();
+		$this->assertInstanceOf('WebChemistry\Forms\Controls\Multiplier', $form->addMultiplier('multiplier', function () {}));
+
+		$form = new \Nette\Forms\Form();
+		$this->assertInstanceOf('WebChemistry\Forms\Controls\Multiplier', $form->addMultiplier('multiplier', function () {}));
+	}
+
 	/**
 	 * @param \Nette\DI\Compiler $compiler
 	 * @return string
