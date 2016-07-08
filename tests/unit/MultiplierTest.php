@@ -31,6 +31,11 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		$this->assertCount(4, $multiplier->getControls());
 	}
 
+	public function testNetteFormInstance() {
+		$multiplier = $this->getControl(function (Container $container, \Nette\Forms\Form $form) {});
+		$multiplier->createCopies();
+	}
+
 	public function testAddCopy() {
 		$multiplier = $this->getControl(NULL, 1)->addCreateButton();
 		$this->assertCount(3, $multiplier->getControls());
