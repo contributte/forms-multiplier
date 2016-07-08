@@ -71,6 +71,16 @@ class Multiplier extends Container {
 		$this->monitor('Nette\Application\IPresenter');
 	}
 
+	protected function attached($obj) {
+		parent::attached($obj);
+
+		if ($obj instanceof IPresenter) {
+			$this->whenAttached();
+		}
+	}
+
+	/************************* setters **************************/
+
 	/**
 	 * @param bool $reset
 	 * @return self
@@ -111,46 +121,29 @@ class Multiplier extends Container {
 		return $this;
 	}
 
-	protected function attached($obj) {
-		parent::attached($obj);
+	/************************* getters **************************/
 
-		if ($obj instanceof IPresenter) {
-			$this->isAttached();
-		}
-	}
-
-	protected function isAttached() {
-		$this->loadHttpData();
-		$this->createCopies();
-
-		if (!$this->getForm()->isSubmitted()) {
-			$this->checkSubmitButtons();
-		}
-	}
-
-	protected function checkSubmitButtons() {
-		if ($this->totalCopies <= $this->minCopies && $this->removeButton !== FALSE) {
-			foreach ($this->getContainers() as $container) {
-				if ($control = $container->getComponent(self::SUBMIT_REMOVE_NAME, FALSE)) {
-					$container->removeComponent($control);
-				}
-			}
-		}
-
-		if ($this->maxCopies !== NULL && $this->totalCopies >= $this->maxCopies && $this->createButtons) {
-			foreach ($this->createButtons as $btn) {
-				$this->removeComponent($btn);
-			}
-			$this->createButtons = [];
-		}
+	/**
+	 * @return int|null
+	 */
+	public function getMaxCopies() {
+		return $this->maxCopies;
 	}
 
 	/**
-	 * @return bool
+	 * @return int
 	 */
-	protected function checkMaxCopies() {
-		return $this->maxCopies === NULL || $this->maxCopies > $this->totalCopies;
+	public function getMinCopies() {
+		return $this->minCopies;
 	}
+
+	/**
+	 * @return int
+	 */
+	public function getCopyNumber() {
+		return $this->copyNumber;
+	}
+
 
 	/************************* Buttons **************************/
 
@@ -180,6 +173,22 @@ class Multiplier extends Container {
 	}
 
 	/**
+	 * Return name of first submit button
+	 *
+	 * @return null|string
+	 */
+	protected function getFirstSubmit() {
+		$submits = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Controls\SubmitButton'));
+		if ($submits) {
+			return reset($submits)->getName();
+		}
+		return NULL;
+	}
+
+	/************************* Callbacks **************************/
+
+	/**
+	 * @param Submitter $submitter
 	 * @internal
 	 */
 	public function onCreateSubmit(Submitter $submitter) {
@@ -205,86 +214,22 @@ class Multiplier extends Container {
 	}
 
 	/**
-	 * @param Container $container
-	 */
-	public function applyDefaultValues(Container $container) {
-		$factoryContainer = new Container();
-		$this->fillContainer($factoryContainer);
-
-		foreach ($factoryContainer->getControls() as $name => $control) {
-			/** @var IControl $component */
-			$component = $container->getComponent($name, FALSE);
-			if ($component) {
-				$component->setValue($control->getValue());
-			}
-		}
-	}
-
-	/**
+	 * @param SubmitButton $submitter
 	 * @internal
 	 */
-	public function onRemoveSubmit(SubmitButton $submitButton) {
+	public function onRemoveSubmit(SubmitButton $submitter) {
 		$this->getForm()->onSuccess = [];
 		$this->getForm()->onError = [];
 		$this->getForm()->onSubmit = [];
 
 		if ($this->minCopies === NULL || iterator_count($this->getContainers()) > $this->minCopies) {
-			$this->removeComponent($submitButton->getParent());
+			$this->removeComponent($submitter->getParent());
 			$this->totalCopies--;
 			$this->checkSubmitButtons();
 		}
 	}
 
-	/**
-	 * Return name of first submit button
-	 *
-	 * @return null|string
-	 */
-	protected function getFirstSubmit() {
-		$submits = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Controls\SubmitButton'));
-		if ($submits) {
-			return reset($submits)->getName();
-		}
-
-		return NULL;
-	}
-
-	/**
-	 * Create container before submit buttons
-	 *
-	 * @param string $name
-	 * @return Container
-	 */
-	public function addContainer($name) {
-		$control = new Container;
-		$control->currentGroup = $this->currentGroup;
-		$this->addComponent($control, $name, $this->getFirstSubmit());
-
-		return $this[$name];
-	}
-
 	/************************* Copies **************************/
-
-	/**
-	 * Create unique number for container
-	 *
-	 * @return int
-	 */
-	protected function createNumber() {
-		$count = iterator_count($this->getComponents(FALSE, 'Nette\Forms\Form'));
-		while ($this->getComponent($count, FALSE)) {
-			$count++;
-		}
-
-		return $count;
-	}
-
-	/**
-	 * @param Container $container
-	 */
-	protected function fillContainer(Container $container) {
-		call_user_func($this->factory, $container, $this->getForm());
-	}
 
 	/**
 	 * @param int $number
@@ -360,13 +305,6 @@ class Multiplier extends Container {
 		return $this->getForm()->isSubmitted() && $this->getForm()->isAnchored();
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getHtmlName() {
-		return explode('-', $this->lookupPath('Nette\Forms\Form'));
-	}
-
 	protected function loadHttpData() {
 		if ($this->getForm()->isSubmitted() && $this->getForm()->isAnchored()) {
 			$values = $this->getForm()->getHttpData();
@@ -389,7 +327,100 @@ class Multiplier extends Container {
 		}
 	}
 
+	/************************* helpers **************************/
+
+	/**
+	 * @param Container $container
+	 */
+	protected function applyDefaultValues(Container $container) {
+		$factoryContainer = new Container();
+		$this->fillContainer($factoryContainer);
+
+		foreach ($factoryContainer->getControls() as $name => $control) {
+			/** @var IControl $component */
+			$component = $container->getComponent($name, FALSE);
+			if ($component) {
+				$component->setValue($control->getValue());
+			}
+		}
+	}
+
+	/**
+	 * Create unique number for container
+	 *
+	 * @return int
+	 */
+	protected function createNumber() {
+		$count = iterator_count($this->getComponents(FALSE, 'Nette\Forms\Form'));
+		while ($this->getComponent($count, FALSE)) {
+			$count++;
+		}
+
+		return $count;
+	}
+
+	/**
+	 * @param Container $container
+	 */
+	protected function fillContainer(Container $container) {
+		call_user_func($this->factory, $container, $this->getForm());
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getHtmlName() {
+		return explode('-', $this->lookupPath('Nette\Forms\Form'));
+	}
+
+	protected function whenAttached() {
+		$this->loadHttpData();
+		$this->createCopies();
+
+		if (!$this->getForm()->isSubmitted()) {
+			$this->checkSubmitButtons();
+		}
+	}
+
+	protected function checkSubmitButtons() {
+		if ($this->totalCopies <= $this->minCopies && $this->removeButton !== FALSE) {
+			foreach ($this->getContainers() as $container) {
+				if ($control = $container->getComponent(self::SUBMIT_REMOVE_NAME, FALSE)) {
+					$container->removeComponent($control);
+				}
+			}
+		}
+
+		if ($this->maxCopies !== NULL && $this->totalCopies >= $this->maxCopies && $this->createButtons) {
+			foreach ($this->createButtons as $btn) {
+				$this->removeComponent($btn);
+			}
+			$this->createButtons = [];
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function checkMaxCopies() {
+		return $this->maxCopies === NULL || $this->maxCopies > $this->totalCopies;
+	}
+
 	/************************* Nette\Forms\Container **************************/
+
+	/**
+	 * Create container before submit buttons
+	 *
+	 * @param string $name
+	 * @return Container
+	 */
+	public function addContainer($name) {
+		$control = new Container;
+		$control->currentGroup = $this->currentGroup;
+		$this->addComponent($control, $name, $this->getFirstSubmit());
+
+		return $this[$name];
+	}
 
 	/**
 	 * @param bool $asArray
