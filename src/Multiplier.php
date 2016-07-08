@@ -34,9 +34,6 @@ class Multiplier extends Container {
 	/** @var bool */
 	protected $erase;
 
-	/** @var array */
-	protected $components = [];
-
 	/** @var Submitter[] */
 	protected $createButtons = [];
 
@@ -45,9 +42,6 @@ class Multiplier extends Container {
 
 	/** @var array */
 	protected $httpData = [];
-
-	/** @var bool */
-	protected $returnFilled = TRUE;
 
 	/** @var int */
 	protected $maxCopies = NULL;
