@@ -1,8 +1,8 @@
-# Formulářový multiplier
+# Multiplier, replication for Nette\Forms
 
 [![Build Status](https://travis-ci.org/WebChemistry/forms-multiplier.svg?branch=master)](https://travis-ci.org/WebChemistry/forms-multiplier)
 
-## Instalace
+## Installation
 ```
 composer require webchemistry/forms-multiplier
 ```
@@ -12,27 +12,25 @@ extensions:
     - WebChemistry\Forms\Controls\DI\MultiplierExtension
 ```
 
-## Použití
+## Usage
 
 ```php
 $form = new Nette\Forms\Form;
 $copies = 1;
 $maxCopies = 10;
 
-$multiplier = $form->addMultiplier('multiplier', function (Nette\Forms\Container $container) {
+$multiplier = $form->addMultiplier('multiplier', function (Nette\Forms\Container $container, Nette\Forms\Form $form) {
     $container->addText('text', 'Text')
-                ->setDefaultValue('Moje hodnota');
-
-    $container->addEditor('editor', 'Editor');
+                ->setDefaultValue('My value');
 }, $copies, $maxCopies);
 
-$multiplier->addCreateButton('Nový');
-$multiplier->addRemoveButton('Vymazat');
+$multiplier->addCreateButton('Add');
+$multiplier->addRemoveButton('Remove');
 ```
 
-## Více přidávacích buttonů
+## More create buttons
 
 ```php
-$multiplier->addCreateButton('Přidat');
-$multiplier->addCreateButton('Přidat 5', 5);
+$multiplier->addCreateButton('Add'); // add one container
+$multiplier->addCreateButton('Add 5', 5); // add five containers
 ```
