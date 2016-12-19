@@ -338,7 +338,7 @@ class Multiplier extends Container {
 	 * @param Container $container
 	 */
 	protected function applyDefaultValues(Container $container) {
-		$factoryContainer = new Container();
+		$factoryContainer = (new Form())->addContainer('void');
 		$this->fillContainer($factoryContainer);
 
 		foreach ($factoryContainer->getControls() as $name => $control) {
