@@ -5,6 +5,7 @@ namespace WebChemistry\Forms\Controls;
 use Nette\Application\IPresenter;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\Controls\SubmitButton;
+use Nette\Forms\Form;
 use Nette\Forms\IControl;
 use Nette\InvalidArgumentException;
 use Nette\Forms\Container;
@@ -68,6 +69,7 @@ class Multiplier extends Container {
 		$this->maxCopies = $maxCopies;
 
 		$this->monitor('Nette\Application\IPresenter');
+		$this->monitor(Form::class);
 	}
 
 	protected function attached($obj) {
@@ -75,6 +77,10 @@ class Multiplier extends Container {
 
 		if ($obj instanceof IPresenter) {
 			$this->whenAttached();
+		} else if ($obj instanceof Form) {
+			$obj->onRender[] = function () {
+				$this->whenAttached();
+			};
 		}
 	}
 
