@@ -69,7 +69,7 @@ class Multiplier extends Container {
 		$this->maxCopies = $maxCopies;
 
 		$this->monitor('Nette\Application\IPresenter');
-		$this->monitor(Form::class);
+		$this->monitor('Nette\Forms\Form');
 	}
 
 	protected function attached($obj) {
