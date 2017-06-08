@@ -15,7 +15,9 @@
 	"require-dev": {
 		"codeception/codeception": "^2.1",
 		"nette/application": "^2.3",
-		"nette/di": "^2.3"
+		"nette/di": "^2.3",
+		"webchemistry/testing-helpers": "dev-master",
+		"latte/latte": "^2.3"
 	},
 	"autoload": {
 		"classmap": [
