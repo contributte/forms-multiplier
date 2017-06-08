@@ -80,6 +80,7 @@ class Multiplier extends Container {
 		} else if ($obj instanceof Form) {
 			$obj->onRender[] = function () {
 				$this->whenAttached();
+				$this->createCopies();
 			};
 		}
 	}
@@ -329,6 +330,8 @@ class Multiplier extends Container {
 			}
 
 			$this->httpData = $values;
+
+			$this->createCopies();
 		}
 	}
 
@@ -380,7 +383,6 @@ class Multiplier extends Container {
 
 	protected function whenAttached() {
 		$this->loadHttpData();
-		$this->createCopies();
 
 		if (!$this->getForm()->isSubmitted()) {
 			$this->checkSubmitButtons();
