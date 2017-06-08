@@ -68,8 +68,8 @@ class Multiplier extends Container {
 		$this->minCopies = $this->copyNumber = $copyNumber;
 		$this->maxCopies = $maxCopies;
 
-		$this->monitor('Nette\Application\IPresenter');
-		$this->monitor('Nette\Forms\Form');
+		$this->monitor(IPresenter::class);
+		$this->monitor(Form::class);
 	}
 
 	protected function attached($obj) {
@@ -184,10 +184,11 @@ class Multiplier extends Container {
 	 * @return null|string
 	 */
 	protected function getFirstSubmit() {
-		$submits = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\Controls\SubmitButton'));
+		$submits = iterator_to_array($this->getComponents(FALSE, SubmitButton::class));
 		if ($submits) {
 			return reset($submits)->getName();
 		}
+
 		return NULL;
 	}
 
@@ -203,7 +204,7 @@ class Multiplier extends Container {
 		$this->getForm()->onSubmit = [];
 		$count = $submitter->getCopyCount();
 
-		if ($this->maxCopies === NULL || iterator_count($this->getComponents(FALSE, 'Nette\Forms\Container')) < $this->maxCopies) {
+		if ($this->maxCopies === NULL || iterator_count($this->getComponents(FALSE, Container::class)) < $this->maxCopies) {
 			while ($count >= 1) {
 				if (!$this->checkMaxCopies()) {
 					break;
@@ -359,7 +360,7 @@ class Multiplier extends Container {
 	 * @return int
 	 */
 	protected function createNumber() {
-		$count = iterator_count($this->getComponents(FALSE, 'Nette\Forms\Form'));
+		$count = iterator_count($this->getComponents(FALSE, Form::class));
 		while ($this->getComponent($count, FALSE)) {
 			$count++;
 		}
@@ -378,7 +379,7 @@ class Multiplier extends Container {
 	 * @return array
 	 */
 	protected function getHtmlName() {
-		return explode('-', $this->lookupPath('Nette\Forms\Form'));
+		return explode('-', $this->lookupPath(Form::class));
 	}
 
 	protected function whenAttached() {
@@ -426,7 +427,7 @@ class Multiplier extends Container {
 		$control->currentGroup = $this->currentGroup;
 		$this->addComponent($control, $name, $this->getFirstSubmit());
 
-		return $this[$name];
+		return $this->getComponent($name);
 	}
 
 	/**
@@ -469,7 +470,7 @@ class Multiplier extends Container {
 	public function getContainers() {
 		$this->createCopies();
 
-		return $this->getComponents(FALSE, 'Nette\Forms\Container');
+		return $this->getComponents(FALSE, Container::class);
 	}
 
 	/**
