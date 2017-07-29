@@ -1,8 +1,10 @@
 <?php
 
 use Nette\Forms\Container;
+use Nette\Forms\Controls\SubmitButton;
 use WebChemistry\Forms\Controls\Multiplier;
 use Nette\Application\UI\Form;
+use WebChemistry\Forms\Controls\Submitter;
 use WebChemistry\Testing\TUnitTest;
 
 class CreateButtonTest extends \Codeception\TestCase\Test {
@@ -48,6 +50,25 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 			$multiplier->setMinCopies(1);
 			$multiplier->addRemoveButton();
 			$multiplier->addCreateButton(NULL, 5);
+
+			return $form;
+		});
+
+		$form->addForm('callback', function () {
+			$form = $this->createMultiplier(function (Container $container) {
+				$container->addText('bar');
+			});
+
+			/** @var Multiplier $multiplier */
+			$multiplier = $form['m'];
+
+			$multiplier->setMinCopies(1);
+			$multiplier->addRemoveButton(null, function (SubmitButton $submitter) {
+				$submitter->setHtmlAttribute('class', 'delete-btn');
+			});
+			$multiplier->addCreateButton(NULL, 5, function (Submitter $submitter) {
+				$submitter->setHtmlAttribute('class', 'add-btn');
+			});
 
 			return $form;
 		});
@@ -103,6 +124,19 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomHas($dom, 'input[name="m[4][bar]"]');
 		$this->assertDomHas($dom, 'input[name="m[5][bar]"]');
 		$this->assertDomNotHas($dom, 'input[name="m[6][bar]"]');
+	}
+
+	public function testCallback() {
+		$response = $this->services->form->createRequest('callback')->setPost([
+			'm' => [
+				['bar' => ''],
+			]
+		])->send();
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input.delete-btn');
+		$this->assertDomHas($dom, 'input.add-btn');
 	}
 
 }

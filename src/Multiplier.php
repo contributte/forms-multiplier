@@ -37,8 +37,8 @@ class Multiplier extends Container {
 	/** @var Submitter[] */
 	protected $createButtons = [];
 
-	/** @var string|bool */
-	protected $removeButton = false;
+	/** @var array */
+	protected $removeButton = [];
 
 	/** @var array */
 	protected $httpData = [];
@@ -155,10 +155,11 @@ class Multiplier extends Container {
 
 	/**
 	 * @param string|bool $caption False = not showed
-	 * @return self
+	 * @param callable|null $onCreate
+	 * @return Multiplier
 	 */
-	public function addRemoveButton($caption = null) {
-		$this->removeButton = $caption;
+	public function addRemoveButton($caption = null, callable $onCreate = null) {
+		$this->removeButton = [$caption, $onCreate];
 
 		return $this;
 	}
@@ -166,11 +167,12 @@ class Multiplier extends Container {
 	/**
 	 * @param string|bool $caption False = not showed
 	 * @param int $copyCount
-	 * @return self
+	 * @param callable|null $onCreate
+	 * @return Multiplier
 	 */
-	public function addCreateButton($caption = null, $copyCount = 1) {
+	public function addCreateButton($caption = null, $copyCount = 1, callable $onCreate = null) {
 		if ($caption !== false) {
-			$this->createButtons[$copyCount] = new Submitter($caption, $copyCount);
+			$this->createButtons[$copyCount] = new Submitter($caption, $copyCount, $onCreate);
 		} else {
 			unset($this->createButtons[$copyCount]);
 		}
@@ -250,11 +252,16 @@ class Multiplier extends Container {
 		$container = $this->addContainer($number);
 		$this->fillContainer($container);
 
-		if ($this->removeButton !== false) {
-			$submit = $container->addSubmit(self::SUBMIT_REMOVE_NAME, $this->removeButton)
+		if ($this->removeButton) {
+			list($caption, $onCreate) = $this->removeButton;
+			$submit = $container->addSubmit(self::SUBMIT_REMOVE_NAME, $caption)
 				->setValidationScope(false)
 				->setOmitted();
 			$submit->onClick[] = $submit->onInvalidClick[] = [$this, 'onRemoveSubmit'];
+
+			if ($onCreate) {
+				$onCreate($submit);
+			}
 		}
 
 		return $container;
@@ -390,7 +397,7 @@ class Multiplier extends Container {
 	}
 
 	protected function checkSubmitButtons() {
-		if ($this->totalCopies <= $this->minCopies && $this->removeButton !== false) {
+		if ($this->totalCopies <= $this->minCopies && $this->removeButton) {
 			foreach ($this->getContainers() as $container) {
 				if ($control = $container->getComponent(self::SUBMIT_REMOVE_NAME, false)) {
 					$container->removeComponent($control);
