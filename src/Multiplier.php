@@ -77,6 +77,7 @@ class Multiplier extends Container {
 
 		if ($obj instanceof IPresenter) {
 			$this->whenAttached();
+			$this->createCopies();
 		} else if ($obj instanceof Form) {
 			$obj->onRender[] = function () {
 				$this->whenAttached();
@@ -84,7 +85,6 @@ class Multiplier extends Container {
 			};
 		}
 	}
-
 	/************************* setters **************************/
 
 	/**

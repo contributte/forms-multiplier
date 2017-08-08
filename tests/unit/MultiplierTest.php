@@ -27,6 +27,15 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 				$container->addText('bar');
 			}, $copyNumber, $maxCopies);
 		});
+
+		$form->addForm('nested', function () {
+			return $this->createMultiplier(function (Container $container) {
+				$container->addText('bar');
+				$container['m2'] = (new Multiplier(function (Container $container) {
+					$container->addText('bar2');
+				}))->addCreateButton('create');
+			});
+		});
 	}
 
 	public function testRenderBase() {
@@ -105,6 +114,50 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
 		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
+	}
+
+	public function testNested() {
+		$request = $this->services->form->createRequest('nested');
+
+		$dom = $request->render()->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomHas($dom, 'input[name="m[0][m2][0][bar2]"]');
+		$this->assertDomHas($dom, 'input[name="m[0][m2][' . Multiplier::SUBMIT_CREATE_NAME . ']"]');
+	}
+
+	public function testSendNested() {
+		$request = $this->services->form->createRequest('nested');
+		$request->setPost([
+			'm' => [
+				[
+					'bar' => 'foo',
+					'm2' => [
+						['bar2' => 'xx']
+					]
+				],
+				['bar' => 'bar'],
+			]
+		]);
+
+		$send = $request->send();
+		$dom = $send->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomHas($dom, 'input[name="m[0][m2][0][bar2]"]');
+
+		$this->assertSame([
+			'm' => [
+				[
+					'bar' => 'foo',
+					'm2' => [
+						['bar2' => 'xx'],
+					]
+				],
+				[
+					'bar' => 'bar',
+					'm2' => [],
+				]
+			],
+		], $send->getValues());
 	}
 
 }
