@@ -89,4 +89,12 @@ class DefaultValuesTest extends \Codeception\TestCase\Test {
 		$this->assertDomNotHas($dom, 'input[name="m[2][bar]"]');
 	}
 
+	public function testRemoveButtons() {
+		$response = $this->services->form->createRequest('defaults')->render();
+
+		$dom = $response->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][' . Multiplier::SUBMIT_REMOVE_NAME . ']"]');
+		$this->assertDomHas($dom, 'input[name="m[1][' . Multiplier::SUBMIT_REMOVE_NAME . ']"]');
+	}
+
 }

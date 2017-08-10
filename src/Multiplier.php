@@ -77,11 +77,9 @@ class Multiplier extends Container {
 
 		if ($obj instanceof IPresenter) {
 			$this->whenAttached();
-			$this->createCopies();
 		} else if ($obj instanceof Form) {
 			$obj->onRender[] = function () {
 				$this->whenAttached();
-				$this->createCopies();
 			};
 		}
 	}
@@ -390,6 +388,7 @@ class Multiplier extends Container {
 
 	protected function whenAttached() {
 		$this->loadHttpData();
+		$this->createCopies();
 
 		if (!$this->getForm()->isSubmitted()) {
 			$this->checkSubmitButtons();
