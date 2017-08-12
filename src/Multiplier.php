@@ -390,7 +390,8 @@ class Multiplier extends Container {
 		$this->loadHttpData();
 		$this->createCopies();
 
-		if (!$this->getForm()->isSubmitted()) {
+		$submitted = $this->getForm()->isSubmitted();
+		if (!$submitted instanceof ISubmitter || $submitted->getParent() !== $this) {
 			$this->checkSubmitButtons();
 		}
 	}

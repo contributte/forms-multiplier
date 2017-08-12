@@ -130,6 +130,7 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 		$response = $this->services->form->createRequest('callback')->setPost([
 			'm' => [
 				['bar' => ''],
+				['bar' => ''],
 			]
 		])->send();
 

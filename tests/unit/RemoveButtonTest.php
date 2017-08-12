@@ -37,6 +37,27 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 			return $form;
 		});
 
+		$form->addForm('2multipliers', function ($copyNumber = 2, $maxCopies = NULL) {
+			$form = $this->createMultiplier(function (Container $container) {
+				$container->addText('bar');
+			}, $copyNumber, $maxCopies);
+
+			$form['m2'] = new Multiplier(function (Container $container) {
+				$container->addText('bar2');
+			});
+
+			/** @var Multiplier $multiplier */
+			$multiplier = $form['m'];
+
+			$multiplier->setMinCopies(1);
+			$multiplier->addRemoveButton();
+			$multiplier->addCreateButton();
+
+			$form['m2']->addRemoveButton()->addCreateButton();
+
+			return $form;
+		});
+
 	}
 
 	public function testSendRemove() {
@@ -60,6 +81,24 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 		])->send();
 
 		$this->assertDomHas($response->toDomQuery(), 'input[name="m[0][bar]"]');
+	}
+
+	public function test2Multipliers() {
+		$response = $this->services->form->createRequest('2multipliers', 1)->setPost([
+			'm' => [
+				['bar' => ''],
+			],
+			'm2' => [
+				['bar2' => ''],
+				Multiplier::SUBMIT_CREATE_NAME => '',
+			]
+		])->send();
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m2[0][multiplier_remover]"]');
+		$this->assertDomHas($dom, 'input[name="m2[1][multiplier_remover]"]');
+		$this->assertDomNotHas($dom, 'input[name="m[0][multiplier_remover]"]');
 	}
 
 }
