@@ -78,6 +78,9 @@ class Multiplier extends Container {
 		if ($obj instanceof IPresenter) {
 			$this->whenAttached();
 		} else if ($obj instanceof Form) {
+			if ($this->getCurrentGroup() === null) {
+				$this->setCurrentGroup($obj->getCurrentGroup());
+			}
 			$obj->onRender[] = function () {
 				$this->whenAttached();
 			};
@@ -532,8 +535,11 @@ class Multiplier extends Container {
 	 * @param string $name
 	 */
 	public static function register($name = 'addMultiplier') {
-		Container::extensionMethod($name, function ($form, $name, $factory, $copyNumber = 1, $maxCopies = null) {
-			return $form[$name] = new Multiplier($factory, $copyNumber, $maxCopies);
+		Container::extensionMethod($name, function (Container $form, $name, $factory, $copyNumber = 1, $maxCopies = null) {
+			$multiplier = new Multiplier($factory, $copyNumber, $maxCopies);
+			$multiplier->setCurrentGroup($form->getCurrentGroup());
+
+			return $form[$name] = $multiplier;
 		});
 	}
 
