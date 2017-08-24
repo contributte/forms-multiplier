@@ -53,6 +53,24 @@ class DefaultValuesTest extends \Codeception\TestCase\Test {
 			return $form;
 		});
 
+		$form->addForm('defaultValue', function ($copyNumber = 1, $maxCopies = NULL) {
+			$form = $this->createMultiplier(function (Container $container) {
+				$container->addText('bar')
+					->setDefaultValue('foo');
+			}, $copyNumber, $maxCopies);
+
+			/** @var Multiplier $multiplier */
+			$multiplier = $form['m'];
+
+			$multiplier->setMinCopies(1);
+			$multiplier->addRemoveButton();
+			$multiplier->addCreateButton();
+
+			$form->setDefaults(self::$defaults);
+
+			return $form;
+		});
+
 	}
 
 	public function testRender() {
@@ -95,6 +113,26 @@ class DefaultValuesTest extends \Codeception\TestCase\Test {
 		$dom = $response->toDomQuery();
 		$this->assertDomHas($dom, 'input[name="m[0][' . Multiplier::SUBMIT_REMOVE_NAME . ']"]');
 		$this->assertDomHas($dom, 'input[name="m[1][' . Multiplier::SUBMIT_REMOVE_NAME . ']"]');
+	}
+
+	public function testDefaultValue() {
+		$response = $this->services->form->createRequest('defaultValue')->render();
+
+		$dom = $response->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"][value="foo"]');
+	}
+
+	public function testDefaultValueSend() {
+		$response = $this->services->form->createRequest('defaultValue')->setPost([
+			'm' => [
+				['bar' => 'bar'],
+				Multiplier::SUBMIT_CREATE_NAME => '',
+			]
+		])->send();
+
+		$dom = $response->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"][value="bar"]');
+		$this->assertDomHas($dom, 'input[name="m[1][bar]"][value="foo"]');
 	}
 
 }
