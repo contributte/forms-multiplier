@@ -82,7 +82,9 @@ class Multiplier extends Container {
 				$this->setCurrentGroup($obj->getCurrentGroup());
 			}
 			$obj->onRender[] = function () {
-				$this->whenAttached();
+				if ($this->getForm(false)) {
+					$this->whenAttached();
+				}
 			};
 		}
 	}
