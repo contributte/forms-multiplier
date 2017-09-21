@@ -395,7 +395,7 @@ class Multiplier extends Container {
 
 		$submitted = $this->getForm()->isSubmitted();
 
-		if (!$submitted || ($submitted instanceof ISubmitter && $submitted->getParent() !== $this)) {
+		if (!$submitted || ($submitted instanceof SubmitButton && $submitted->getParent() !== $this)) {
 			$this->checkSubmitButtons();
 		}
 	}
