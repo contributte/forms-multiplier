@@ -252,8 +252,10 @@ class Multiplier extends Container {
 			$number = $this->createNumber();
 		}
 		$this->totalCopies++;
-		$container = $this->addContainer($number);
+
+		$container = $this->createContainer();
 		$this->fillContainer($container);
+		$this->attachContainer($container, $number);
 
 		if ($this->removeButton) {
 			list($caption, $onCreate) = $this->removeButton;
@@ -426,21 +428,25 @@ class Multiplier extends Container {
 		return $this->maxCopies === null || $this->maxCopies > $this->totalCopies;
 	}
 
-	/************************* Nette\Forms\Container **************************/
-
 	/**
-	 * Create container before submit buttons
-	 *
-	 * @param string $name
 	 * @return Container
 	 */
-	public function addContainer($name) {
-		$control = new Container;
+	protected function createContainer() {
+		$control = new Container();
 		$control->currentGroup = $this->currentGroup;
-		$this->addComponent($control, $name, $this->getFirstSubmit());
 
-		return $this->getComponent($name);
+		return $control;
 	}
+
+	/**
+	 * @param Container $container
+	 * @param string|int $name
+	 */
+	protected function attachContainer(Container $container, $name) {
+		$this->addComponent($container, $name, $this->getFirstSubmit());
+	}
+
+	/************************* Nette\Forms\Container **************************/
 
 	/**
 	 * @param bool $asArray
