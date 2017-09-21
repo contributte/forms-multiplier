@@ -28,9 +28,22 @@ $multiplier->addCreateButton('Add');
 $multiplier->addRemoveButton('Remove');
 ```
 
-## More create buttons
+## Adding multiple containers
 
 ```php
 $multiplier->addCreateButton('Add'); // add one container
 $multiplier->addCreateButton('Add 5', 5); // add five containers
+```
+
+## Macros
+
+```html
+{form multiplier}
+	<div n:multiplier="multiplier">
+		<input n:name="text">
+		{btnRemove 'class' => 'myClass'}
+	</div>
+	{btnCreate multiplier class => myClass}
+	{btnCreate $form[multiplier]:5}
+{/form}
 ```
