@@ -20,8 +20,8 @@
 		"latte/latte": "^2.3"
 	},
 	"autoload": {
-		"classmap": [
-			"src/"
-		]
+		"psr-4": {
+			"WebChemistry\\Forms\\Controls\\": ["src/"]
+		}
 	}
 }
