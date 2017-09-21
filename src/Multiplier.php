@@ -14,7 +14,7 @@ use Nette\Utils\ArrayHash;
 class Multiplier extends Container {
 
 	const SUBMIT_CREATE_NAME = 'multiplier_creator',
-		  SUBMIT_REMOVE_NAME = 'multiplier_remover';
+		SUBMIT_REMOVE_NAME = 'multiplier_remover';
 
 	/** @var callable */
 	protected $factory;
@@ -394,7 +394,8 @@ class Multiplier extends Container {
 		$this->createCopies();
 
 		$submitted = $this->getForm()->isSubmitted();
-		if (!$submitted instanceof ISubmitter || $submitted->getParent() !== $this) {
+
+		if (!$submitted || ($submitted instanceof ISubmitter && $submitted->getParent() !== $this)) {
 			$this->checkSubmitButtons();
 		}
 	}
