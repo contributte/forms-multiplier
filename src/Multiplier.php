@@ -247,7 +247,7 @@ class Multiplier extends Container {
 	 * @param int $number
 	 * @return Container
 	 */
-	protected function addCopy($number = null) {
+	public function addCopy($number = null) {
 		if (!is_numeric($number)) {
 			$number = $this->createNumber();
 		}
