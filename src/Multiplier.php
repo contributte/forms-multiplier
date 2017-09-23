@@ -322,7 +322,7 @@ class Multiplier extends Container {
 	 * @return bool
 	 */
 	protected function isSubmitted() {
-		return $this->getForm()->isSubmitted() && $this->getForm()->isAnchored();
+		return $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
 	}
 
 	protected function loadHttpData() {
