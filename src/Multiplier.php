@@ -283,14 +283,6 @@ class Multiplier extends Container {
 		}
 		$this->created = true;
 
-		// Create submit buttons
-		foreach ($this->createButtons as $btn) {
-			$this->addComponent($btn, $btn->getOwnName());
-			$btn->setValidationScope([$this])->setOmitted();
-
-			$btn->onClick[] = $btn->onInvalidClick[] = [$this, 'onCreateSubmit'];
-		}
-
 		// Create components with values
 		if (($this->values && !$this->isSubmitted()) || $this->httpData) {
 			foreach (array_keys($this->httpData ?: $this->values) as $number) {
@@ -311,6 +303,14 @@ class Multiplier extends Container {
 
 				$this->addCopy();
 			}
+		}
+
+		// Create submit buttons
+		foreach ($this->createButtons as $btn) {
+			$this->addComponent($btn, $btn->getOwnName());
+			$btn->setValidationScope([$this])->setOmitted();
+
+			$btn->onClick[] = $btn->onInvalidClick[] = [$this, 'onCreateSubmit'];
 		}
 
 		$this->setControlValues((array) $this->values);
@@ -411,6 +411,9 @@ class Multiplier extends Container {
 		if ($this->totalCopies <= $this->minCopies && $this->removeButton) {
 			foreach ($this->getContainers() as $container) {
 				if ($control = $container->getComponent(self::SUBMIT_REMOVE_NAME, false)) {
+					if ($this->getCurrentGroup()) {
+						$this->getCurrentGroup()->remove($control);
+					}
 					$container->removeComponent($control);
 				}
 			}
