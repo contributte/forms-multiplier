@@ -274,11 +274,6 @@ class Multiplier extends Container {
 			}
 		}
 
-		// onCreate event
-		foreach ($this->onCreate as $callback) {
-			$callback($container);
-		}
-
 		return $container;
 	}
 
@@ -322,6 +317,13 @@ class Multiplier extends Container {
 		}
 
 		$this->setControlValues((array) $this->values);
+
+		// onCreate event
+		foreach ($this->onCreate as $callback) {
+			foreach ($this->getContainers() as $container) {
+				$callback($container);
+			}
+		}
 	}
 
 	/************************* Http data **************************/
