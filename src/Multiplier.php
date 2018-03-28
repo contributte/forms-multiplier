@@ -58,6 +58,9 @@ class Multiplier extends Container {
 	/** @var bool */
 	protected $resetKeys = true;
 
+	/** @var callable[] */
+	public $onCreate = [];
+
 	/**
 	 * @param callable $factory
 	 * @param int $copyNumber
@@ -269,6 +272,11 @@ class Multiplier extends Container {
 			if ($onCreate) {
 				$onCreate($submit);
 			}
+		}
+
+		// onCreate event
+		foreach ($this->onCreate as $callback) {
+			$callback($container);
 		}
 
 		return $container;

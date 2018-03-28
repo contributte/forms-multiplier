@@ -9,11 +9,19 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 	use TUnitTest;
 
+	/** @var array */
+	protected $parameters = [
+		'onCreate' => [],
+	];
+
 	private function createMultiplier(callable $factory, $copyNumber = 1, $maxCopies = NULL) {
 		$form = new Form();
 		$form->addGroup('testGroup');
 
 		$form['m'] = new Multiplier($factory, $copyNumber, $maxCopies);
+		$form['m']->onCreate[] = function (Container $container) {
+			$this->parameters['onCreate'][] = $container;
+		};
 
 		$form->addSubmit('send');
 
@@ -49,6 +57,24 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 			$form['m']->addCreateButton('Add');
 			$form['m']->addRemoveButton('Remove');
+
+			return $form;
+		});
+
+		$form->addForm('2multipliers', function ($copyNumber = 1, $maxCopies = NULL, $minCopies = NULL) {
+			$form = $this->createMultiplier(function (Container $container) {
+				$container->addText('bar');
+			}, $copyNumber, $maxCopies);
+
+			$form['m2'] = new Multiplier(function (Container $container) {
+				$container->addText('foo');
+			});
+
+			$form['m']->addCreateButton('Add');
+			$form['m']->addRemoveButton('Remove');
+
+			$form['m2']->addCreateButton('Add');
+			$form['m2']->addRemoveButton('Remove');
 
 			return $form;
 		});
@@ -197,6 +223,18 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 		$this->assertDomHas($dom, 'input[name="m[0][multiplier_remover]"]');
 		$this->assertDomHas($dom, 'input[name="m[1][multiplier_remover]"]');
+	}
+
+	public function testOnCreateEvent() {
+		$this->assertEmpty($this->parameters['onCreate']);
+		$request = $this->services->form->createRequest('base');
+		$request->render()->toString();
+
+		$this->assertNotEmpty($this->parameters['onCreate']);
+		foreach ($this->parameters['onCreate'] as $i => $parameter) {
+			$this->assertInstanceOf(Container::class, $parameter);
+			$this->assertEquals($i, $parameter->getName());
+		}
 	}
 
 }
