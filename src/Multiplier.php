@@ -321,7 +321,8 @@ class Multiplier extends Container {
 
 		// onCreateEvent
 		/** @var SubmitButton $submitter */
-		if (($submitter = $this->getForm()->isSubmitted()) && $this->isInThisMultiplier($submitter)) {
+		$submitter = $this->getForm()->isSubmitted();
+		if (is_object($submitter) && $this->isInThisMultiplier($submitter)) {
 			$submitter->onClick[] = function () {
 				$this->onCreateEvent();
 			};
