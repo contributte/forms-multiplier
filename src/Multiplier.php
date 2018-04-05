@@ -4,6 +4,7 @@ namespace WebChemistry\Forms\Controls;
 
 use Nette\Application\IPresenter;
 use Nette\ComponentModel\IComponent;
+use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Form;
 use Nette\Forms\IControl;
@@ -318,7 +319,37 @@ class Multiplier extends Container {
 
 		$this->setControlValues((array) $this->values);
 
-		// onCreate event
+		// onCreateEvent
+		/** @var SubmitButton $submitter */
+		if (($submitter = $this->getForm()->isSubmitted()) && $this->isInThisMultiplier($submitter)) {
+			$submitter->onClick[] = function () {
+				$this->onCreateEvent();
+			};
+		} else {
+			$this->onCreateEvent();
+		}
+	}
+
+	/**
+	 * @param BaseControl $control
+	 * @return bool
+	 */
+	protected function isInThisMultiplier(BaseControl $control) {
+		while ($control->getParent()) {
+			if ($control->getParent() === $this) {
+				return true;
+			}
+
+			$control = $control->getParent();
+		}
+
+		return false;
+	}
+
+	/**
+	 * @internal
+	 */
+	public function onCreateEvent() {
 		foreach ($this->onCreate as $callback) {
 			foreach ($this->getContainers() as $container) {
 				$callback($container);

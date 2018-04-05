@@ -227,13 +227,19 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 
 	public function testOnCreateEvent() {
 		$this->assertEmpty($this->parameters['onCreate']);
-		$request = $this->services->form->createRequest('base');
+		$request = $this->services->form->createRequest('base')->modifyForm(function (Form $form) {
+			$form['m']->setValues([
+				['bar' => 'foo'],
+				['bar' => 'foo2'],
+			]);
+		});
 		$request->render()->toString();
 
 		$this->assertNotEmpty($this->parameters['onCreate']);
+		$values = ['foo', 'foo2'];
 		foreach ($this->parameters['onCreate'] as $i => $parameter) {
 			$this->assertInstanceOf(Container::class, $parameter);
-			$this->assertEquals($i, $parameter->getName());
+			$this->assertSame($values[$i], $parameter['bar']->getValue());
 		}
 	}
 
