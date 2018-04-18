@@ -17,6 +17,26 @@ class DefaultValuesTest extends \Codeception\TestCase\Test {
 		]
 	];
 
+	/** @var array */
+	private static $defaultNested = [
+		'm' => [
+			[
+				'bar' => 'foo1',
+				'nested' => [
+					['foo' => 'bar1'],
+					['foo' => 'bar2'],
+				]
+			],
+			[
+				'bar' => 'foo2',
+				'nested' => [
+					['foo' => 'bar3'],
+					['foo' => 'bar4'],
+				]
+			]
+		]
+	];
+
 	private function createMultiplier(callable $factory, $copyNumber = 1, $maxCopies = NULL) {
 		$form = new Form();
 
@@ -67,6 +87,23 @@ class DefaultValuesTest extends \Codeception\TestCase\Test {
 			$multiplier->addCreateButton();
 
 			$form->setDefaults(self::$defaults);
+
+			return $form;
+		});
+
+		$form->addForm('nested', function () {
+			$form = $this->createMultiplier(function (Container $container) {
+				$container->addText('bar')
+					->setDefaultValue('foo');
+				$container['nested'] = new Multiplier(function (Container $container) {
+					$container->addText('foo', 'Foo');
+				});
+			});
+
+			/** @var Multiplier $multiplier */
+			$multiplier = $form['m'];
+
+			$form->setDefaults(self::$defaultNested);
 
 			return $form;
 		});
@@ -133,6 +170,18 @@ class DefaultValuesTest extends \Codeception\TestCase\Test {
 		$dom = $response->toDomQuery();
 		$this->assertDomHas($dom, 'input[name="m[0][bar]"][value="bar"]');
 		$this->assertDomHas($dom, 'input[name="m[1][bar]"][value="foo"]');
+	}
+
+	public function testNestedMultiplier() {
+		$response = $this->services->form->createRequest('nested')->render();
+
+		$dom = $response->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"][value="foo1"]');
+		$this->assertDomHas($dom, 'input[name="m[0][nested][0][foo]"][value="bar1"]');
+		$this->assertDomHas($dom, 'input[name="m[0][nested][1][foo]"][value="bar2"]');
+		$this->assertDomHas($dom, 'input[name="m[1][bar]"][value="foo2"]');
+		$this->assertDomHas($dom, 'input[name="m[1][nested][0][foo]"][value="bar3"]');
+		$this->assertDomHas($dom, 'input[name="m[1][nested][1][foo]"][value="bar4"]');
 	}
 
 }

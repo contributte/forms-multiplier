@@ -249,9 +249,10 @@ class Multiplier extends Container {
 
 	/**
 	 * @param int $number
+	 * @param array|ArrayHash $defaults
 	 * @return Container
 	 */
-	public function addCopy($number = null) {
+	public function addCopy($number = null, $defaults = []) {
 		if (!is_numeric($number)) {
 			$number = $this->createNumber();
 		} else if ($component = $this->getComponent($number, false)) {
@@ -261,6 +262,9 @@ class Multiplier extends Container {
 
 		$container = $this->createContainer();
 		$this->fillContainer($container);
+		if ($defaults) {
+			$container->setDefaults($defaults, $this->erase);
+		}
 		$this->attachContainer($container, $number);
 
 		if ($this->removeButton) {
@@ -289,12 +293,12 @@ class Multiplier extends Container {
 
 		// Create components with values
 		if (($this->values && !$this->isSubmitted()) || $this->httpData) {
-			foreach (array_keys($this->httpData ?: $this->values) as $number) {
+			foreach ($this->httpData ?: $this->values as $number => $values) {
 				if (!$this->checkMaxCopies()) {
 					break;
 				}
 
-				$this->addCopy($number);
+				$this->addCopy($number, $values);
 			}
 		}
 
@@ -316,8 +320,6 @@ class Multiplier extends Container {
 
 			$btn->onClick[] = $btn->onInvalidClick[] = [$this, 'onCreateSubmit'];
 		}
-
-		$this->setControlValues((array) $this->values);
 
 		// onCreateEvent
 		/** @var SubmitButton $submitter */
@@ -544,36 +546,6 @@ class Multiplier extends Container {
 	 */
 	public function getCreateButtons() {
 		return $this->createButtons;
-	}
-
-	/**
-	 * @param array|\Traversable $values
-	 * @return Multiplier
-	 */
-	protected function setControlValues($values) {
-		if ($values instanceof \Traversable) {
-			$values = iterator_to_array($values);
-		} else if (!is_array($values)) {
-			throw new InvalidArgumentException(sprintf('First parameter must be an array, %s given.', gettype($values)));
-		}
-
-		foreach ($this->getComponents() as $name => $control) {
-			if ($control instanceof IControl) {
-				if (array_key_exists($name, $values)) {
-					$control->setValue($values[$name]);
-				} else if ($this->erase) {
-					$control->setValue(null);
-				}
-			} else if ($control instanceof Container) {
-				if (array_key_exists($name, $values)) {
-					$control->setValues($values[$name], $this->erase);
-				} else if ($this->erase) {
-					$control->setValues([], $this->erase);
-				}
-			}
-		}
-
-		return $this;
 	}
 
 	/**
