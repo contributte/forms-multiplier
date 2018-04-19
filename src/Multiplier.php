@@ -255,7 +255,7 @@ class Multiplier extends Container {
 	public function addCopy($number = null, $defaults = []) {
 		if (!is_numeric($number)) {
 			$number = $this->createNumber();
-		} else if ($component = $this->getComponent($number, false)) {
+		} else if ($component = parent::getComponent($number, false)) {
 			return $component;
 		}
 		$this->totalCopies++;
