@@ -49,11 +49,4 @@ class Submitter extends SubmitButton implements ISubmitter {
 		return $this->copyCount;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getOwnName() {
-		return Multiplier::SUBMIT_CREATE_NAME . ($this->copyCount === 1 ? '' : $this->copyCount);
-	}
-
 }
