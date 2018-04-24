@@ -212,7 +212,7 @@ class Multiplier extends Container {
 	 */
 	public function addCreateButton($caption = null, $copyCount = 1, callable $onCreate = null) {
 		if ($caption !== false) {
-			$this->createButtons[$copyCount] = [$caption, $copyCount, $onCreate];
+			$this->createButtons[$copyCount] = [$caption, $copyCount < 1 ? 1 : (int) $copyCount, $onCreate];
 		} else {
 			unset($this->createButtons[$copyCount]);
 		}
