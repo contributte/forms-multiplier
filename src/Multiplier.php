@@ -366,8 +366,9 @@ class Multiplier extends Container {
 		$this->createButtonsCreated = true;
 		// Create submit buttons
 		foreach ($this->createButtons as $copyCount => $options) {
-			$this->addComponent($btn = new Submitter(...$options), Helpers::createButtonName($copyCount));
+			$btn = new Submitter(...$options);
 			$btn->setValidationScope([$this])->setOmitted();
+			$this->addComponent($btn, Helpers::createButtonName($copyCount));
 
 			$btn->onClick[] = $btn->onInvalidClick[] = [$this, 'onCreateSubmit'];
 		}
