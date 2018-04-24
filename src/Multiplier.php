@@ -514,6 +514,22 @@ class Multiplier extends Container {
 	}
 
 	/**
+	 * @return Submitter[]
+	 */
+	public function getCreateButtons() {
+		if (!$this->createButtonsCreated) {
+			return [];
+		}
+
+		$buttons = [];
+		foreach ($this->createButtons as $copyCount => $_) {
+			$buttons[$copyCount] = $this->getComponent(Helpers::createButtonName($copyCount));
+		}
+
+		return $buttons;
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function checkMaxCopies() {
