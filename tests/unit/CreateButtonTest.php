@@ -140,4 +140,24 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomHas($dom, 'input.add-btn');
 	}
 
+	public function testFormEvents() {
+		$req = $this->services->form->createRequest('buttons');
+		$req->modifyForm(function (Form $form) {
+			$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+				$this->fail('Called event');
+			};
+ 		});
+		$response = $req->setPost([
+			'm' => [
+				['bar' => ''],
+				'multiplier_creator' => ''
+			]
+		])->send();
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomHas($dom, 'input[name="m[1][bar]"]');
+	}
+
 }
