@@ -374,6 +374,10 @@ class Multiplier extends Container {
 			->setValidationScope(false)
 			->setOmitted();
 
+		$submit->onClick[] = $submit->onInvalidClick[] = function () {
+			$this->form->onSuccess = $this->form->onError = $this->form->onSubmit = [];
+		};
+
 		if ($onCreate) {
 			$onCreate($submit);
 		}
