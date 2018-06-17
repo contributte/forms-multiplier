@@ -324,18 +324,28 @@ class Multiplier extends Container {
 			$container = $this->addCopy($resolver->getRemoveId());
 			$this->attachRemoveButton($container);
 			$container->getComponent(self::SUBMIT_REMOVE_NAME)->onClick[] = function () use ($container) {
-				foreach ($container->getComponents() as $control) {
-					if ($this->getCurrentGroup()) {
-						$this->getCurrentGroup()->remove($control);
-					}
-					$container->removeComponent($control);
-				}
+				$this->removeAllComponents($container);
+
 				$this->removeComponent($container);
 			};
 		}
 
 		// onCreateEvent
 		$this->onCreateEvent();
+	}
+
+	private function removeAllComponents(Container $container) {
+		foreach ($container->getComponents() as $component) {
+			if ($component instanceof Container) {
+				$this->removeAllComponents($component);
+
+				continue;
+			}
+			if ($group = $this->getCurrentGroup()) {
+				$group->remove($component);
+			}
+			$container->removeComponent($component);
+		}
 	}
 
 	private function detachCreateButtons() {
