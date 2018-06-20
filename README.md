@@ -24,7 +24,8 @@ $multiplier = $form->addMultiplier('multiplier', function (Nette\Forms\Container
                 ->setDefaultValue('My value');
 }, $copies, $maxCopies);
 
-$multiplier->addCreateButton('Add');
+$multiplier->addCreateButton('Add')
+	->addClass('btn btn-primary');
 $multiplier->addRemoveButton('Remove');
 ```
 

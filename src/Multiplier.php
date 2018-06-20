@@ -9,6 +9,7 @@ use Nette\Forms\IControl;
 use Nette\Forms\Container;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\Arrays;
+use WebChemistry\Forms\Controls\Buttons\CreateButton;
 
 class Multiplier extends Container {
 
@@ -39,7 +40,7 @@ class Multiplier extends Container {
 	/** @var bool */
 	protected $erase;
 
-	/** @var Submitter[] */
+	/** @var CreateButton[] */
 	protected $createButtons = [];
 
 	/** @var array */
@@ -190,19 +191,18 @@ class Multiplier extends Container {
 	}
 
 	/**
-	 * @param string|bool $caption False = not showed
+	 * @param string $caption
 	 * @param int $copyCount
-	 * @param callable|null $onCreate
-	 * @return Multiplier
+	 * @param callable|null $onCreate deprecated
+	 * @return CreateButton
 	 */
 	public function addCreateButton($caption = null, $copyCount = 1, callable $onCreate = null) {
-		if ($caption !== false) {
-			$this->createButtons[$copyCount] = [$caption, $copyCount, $onCreate];
-		} else {
-			unset($this->createButtons[$copyCount]);
+		$btn = $this->createButtons[$copyCount] = new CreateButton($caption, $copyCount);
+		if ($onCreate) {
+			$btn->addOnCreateCallback($onCreate);
 		}
 
-		return $this;
+		return $btn;
 	}
 
 	/************************* Callbacks **************************/
@@ -349,19 +349,14 @@ class Multiplier extends Container {
 	}
 
 	private function detachCreateButtons() {
-		foreach ($this->createButtons as $copyCount => $_) {
-			$this->removeComponentProperly($this->getComponent(Helpers::createButtonName($copyCount)));
+		foreach ($this->createButtons as $button) {
+			$this->removeComponentProperly($this->getComponent($button->getComponentName()));
 		}
 	}
 
 	private function attachCreateButtons() {
-		foreach ($this->createButtons as $copyCount => $options) {
-			$btn = new Submitter(...$options);
-			$btn->setValidationScope([$this])->setOmitted();
-			$btn->onClick[] = function () {
-				$this->form->onSuccess = $this->form->onError = $this->form->onSubmit = [];
-			};
-			$this->addComponent($btn, Helpers::createButtonName($copyCount));
+		foreach ($this->createButtons as $button) {
+			$this->addComponent($button->create($this), $button->getComponentName());
 		}
 	}
 
@@ -384,9 +379,7 @@ class Multiplier extends Container {
 			->setValidationScope(false)
 			->setOmitted();
 
-		$submit->onClick[] = $submit->onInvalidClick[] = function () {
-			$this->form->onSuccess = $this->form->onError = $this->form->onSubmit = [];
-		};
+		$submit->onClick[] = $submit->onInvalidClick[] = [$this, 'resetFormEvents'];
 
 		if ($onCreate) {
 			$onCreate($submit);
@@ -470,8 +463,8 @@ class Multiplier extends Container {
 	 */
 	public function getCreateButtons() {
 		$buttons = [];
-		foreach ($this->createButtons as $copyCount => $_) {
-			$buttons[$copyCount] = $this->getComponent(Helpers::createButtonName($copyCount));
+		foreach ($this->createButtons as $button) {
+			$buttons[$button->getCopyCount()] = $this->getComponent($button->getComponentName());
 		}
 
 		return $buttons;
@@ -504,6 +497,13 @@ class Multiplier extends Container {
 			$this->getCurrentGroup()->remove($component);
 		}
 		$this->removeComponent($component);
+	}
+
+	/**
+	 * @internal
+	 */
+	public function resetFormEvents() {
+		$this->form->onSubmit = $this->form->onSuccess = $this->form->onError = [];
 	}
 
 	/************************* Nette\Forms\Container **************************/

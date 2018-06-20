@@ -42,7 +42,8 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 				$container->addText('bar');
 				$container['m2'] = (new Multiplier(function (Container $container) {
 					$container->addText('bar2');
-				}))->addCreateButton('create');
+				}));
+				$container['m2']->addCreateButton('create');
 			});
 		});
 
