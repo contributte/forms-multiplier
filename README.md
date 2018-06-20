@@ -26,7 +26,8 @@ $multiplier = $form->addMultiplier('multiplier', function (Nette\Forms\Container
 
 $multiplier->addCreateButton('Add')
 	->addClass('btn btn-primary');
-$multiplier->addRemoveButton('Remove');
+$multiplier->addRemoveButton('Remove')
+	->addClass('btn btn-danger');
 ```
 
 ## Adding multiple containers

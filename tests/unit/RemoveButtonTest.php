@@ -22,7 +22,7 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 	protected function _before() {
 		$form = $this->services->form;
 
-		$form->addForm('buttons', function ($copyNumber = 2, $maxCopies = NULL) {
+		$form->addForm('buttons', function ($copyNumber = 2, $maxCopies = NULL, $removeCallback = null) {
 			$form = $this->createMultiplier(function (Container $container) {
 				$container->addText('bar');
 			}, $copyNumber, $maxCopies);
@@ -31,8 +31,12 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 			$multiplier = $form['m'];
 
 			$multiplier->setMinCopies(1);
-			$multiplier->addRemoveButton();
+			$btn = $multiplier->addRemoveButton();
 			$multiplier->addCreateButton();
+
+			if (is_callable($removeCallback)) {
+				$removeCallback($btn);
+			}
 
 			return $form;
 		});
@@ -53,7 +57,8 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 			$multiplier->addRemoveButton();
 			$multiplier->addCreateButton();
 
-			$form['m2']->addRemoveButton()->addCreateButton();
+			$form['m2']->addRemoveButton();
+			$form['m2']->addCreateButton();
 
 			return $form;
 		});
@@ -119,6 +124,22 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 
 		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
 		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
+	}
+
+	public function testAddClass() {
+		$response = $this->services->form->createRequest('buttons', 2, null, function (\WebChemistry\Forms\Controls\Buttons\RemoveButton $btn) {
+			$btn->addClass('btn btn-remove');
+		})->setPost([
+			'm' => [
+				['bar' => ''],
+				['bar' => ''],
+			]
+		])->send();
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomHas($dom, 'input.btn.btn-remove');
 	}
 
 }

@@ -10,6 +10,7 @@ use Nette\Forms\Container;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\Arrays;
 use WebChemistry\Forms\Controls\Buttons\CreateButton;
+use WebChemistry\Forms\Controls\Buttons\RemoveButton;
 
 class Multiplier extends Container {
 
@@ -43,8 +44,8 @@ class Multiplier extends Container {
 	/** @var CreateButton[] */
 	protected $createButtons = [];
 
-	/** @var array */
-	protected $removeButton = [];
+	/** @var RemoveButton|null */
+	protected $removeButton;
 
 	/** @var array */
 	protected $httpData = [];
@@ -180,14 +181,17 @@ class Multiplier extends Container {
 	/************************* Buttons **************************/
 
 	/**
-	 * @param string|bool $caption False = not showed
-	 * @param callable|null $onCreate
-	 * @return Multiplier
+	 * @param string
+	 * @param callable|null $onCreate deprecated, use ->addOnCreateCallback
+	 * @return RemoveButton
 	 */
 	public function addRemoveButton($caption = null, callable $onCreate = null) {
-		$this->removeButton = [$caption, $onCreate];
+		$btn = $this->removeButton = new RemoveButton($caption);
+		if ($onCreate) {
+			$btn->addOnCreateCallback($onCreate);
+		}
 
-		return $this;
+		return $btn;
 	}
 
 	/**
@@ -374,16 +378,7 @@ class Multiplier extends Container {
 			return;
 		}
 
-		list($caption, $onCreate) = $this->removeButton;
-		$submit = $container->addSubmit(self::SUBMIT_REMOVE_NAME, $caption)
-			->setValidationScope(false)
-			->setOmitted();
-
-		$submit->onClick[] = $submit->onInvalidClick[] = [$this, 'resetFormEvents'];
-
-		if ($onCreate) {
-			$onCreate($submit);
-		}
+		$container->addComponent($this->removeButton->create($this), self::SUBMIT_REMOVE_NAME);
 	}
 
 	/************************* Http data **************************/
