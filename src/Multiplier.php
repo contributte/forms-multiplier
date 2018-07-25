@@ -65,6 +65,9 @@ class Multiplier extends Container {
 	/** @var callable[] */
 	public $onCreate = [];
 
+	/** @var callable[] */
+	public $onCreateComponents = [];
+
 	/** @var Container[] */
 	protected $noValidate = [];
 
@@ -245,7 +248,7 @@ class Multiplier extends Container {
 	 * @param array|ArrayHash $defaults
 	 * @return Container|null
 	 */
-	protected function addCopy($number = null, $defaults = []) {
+	public function addCopy($number = null, $defaults = []) {
 		if (!is_numeric($number)) {
 			$number = $this->createNumber();
 		} else if ($component = parent::getComponent($number, false)) {
@@ -258,6 +261,9 @@ class Multiplier extends Container {
 			$container->setDefaults($defaults, $this->erase);
 		}
 		$this->attachContainer($container, $number);
+		$this->attachRemoveButton($container);
+
+		$this->totalCopies++;
 
 		return $container;
 	}
@@ -268,8 +274,6 @@ class Multiplier extends Container {
 		// Create components with values
 		foreach ($resolver->getValuesForComponents() as $number => $values) {
 			$containers[] = $container = $this->addCopy($number, $values);
-			$this->attachRemoveButton($container);
-			$this->totalCopies++;
 		}
 
 		// Default number of copies
@@ -277,11 +281,14 @@ class Multiplier extends Container {
 			$copyNumber = $this->copyNumber;
 			while ($copyNumber > 0 && $this->isValidMaxCopies()) {
 				$containers[] = $container = $this->addCopy();
-				$this->attachRemoveButton($container);
 				$this->applyDefaultValues($container);
-				$this->totalCopies++;
 				$copyNumber--;
 			}
+		}
+
+		// Dynamic
+		foreach ($this->onCreateComponents as $callback) {
+			$callback($this);
 		}
 
 		// New containers, if create button hitted
@@ -289,9 +296,7 @@ class Multiplier extends Container {
 			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
 				$this->noValidate[] = $containers[] = $container = $this->addCopy();
-				$this->attachRemoveButton($container);
 				$this->applyDefaultValues($container);
-				$this->totalCopies++;
 				$count--;
 			}
 		}
@@ -326,7 +331,6 @@ class Multiplier extends Container {
 
 		if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
 			$container = $this->addCopy($resolver->getRemoveId());
-			$this->attachRemoveButton($container);
 			$container->getComponent(self::SUBMIT_REMOVE_NAME)->onClick[] = function () use ($container) {
 				$this->removeAllComponents($container);
 

@@ -244,4 +244,18 @@ class MultiplierTest extends \Codeception\TestCase\Test {
 		}
 	}
 
+	public function testAddDynamic() {
+		$request = $this->services->form->createRequest('base')->modifyForm(function (Form $form) {
+			$form['m']->onCreateComponents[] = function (Multiplier $multiplier) {
+				$multiplier->addCopy(99)['bar']->setHtmlAttribute('class', 'myClass');
+			};
+		});
+
+
+		$dom = $request->render()->toDomQuery();
+
+		$this->assertDomHas($dom, '[name="m[99][bar]"]');
+		$this->assertDomHas($dom, 'input.myClass');
+	}
+
 }
