@@ -272,7 +272,7 @@ class Multiplier extends Container {
 		$containers = [];
 
 		// Create components with values
-		foreach ($resolver->getValuesForComponents() as $number => $values) {
+		foreach ($resolver->getValuesForComponents(!$this->form->isSubmitted()) as $number => $values) {
 			$containers[] = $container = $this->addCopy($number, $values);
 		}
 

@@ -71,8 +71,8 @@ class ComponentResolver {
 		return $this->createNum;
 	}
 
-	public function getValuesForComponents() {
-		return array_slice($this->getPurgedHttpData() ?: $this->values, 0, $this->maxCopies, true);
+	public function getValuesForComponents($includeDefaults = true) {
+		return array_slice($this->getPurgedHttpData() ?: ($includeDefaults ? $this->values : []), 0, $this->maxCopies, true);
 	}
 
 	public function getPurgedHttpData() {
