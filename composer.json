@@ -14,7 +14,7 @@
 	},
 	"require-dev": {
 		"codeception/codeception": "^2.4",
-		"phpunit/phpunit": "~7.1.0",
+		"phpunit/phpunit": "~5.0 || ~6.0 || ~7.1.0",
 		"nette/application": "^2.3",
 		"nette/di": "^2.3",
 		"webchemistry/testing-helpers": "dev-master",
