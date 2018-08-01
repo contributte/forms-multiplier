@@ -41,6 +41,20 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 			return $form;
 		});
 
+		$form->addForm('base', function ($copyNumber = 1, $maxCopies = NULL) {
+			$form = $this->createMultiplier(function (Container $container) {
+				$container->addText('bar');
+			}, $copyNumber, $maxCopies);
+
+			/** @var Multiplier $multiplier */
+			$multiplier = $form['m'];
+
+			$multiplier->addRemoveButton();
+			$multiplier->addCreateButton();
+
+			return $form;
+		});
+
 		$form->addForm('2multipliers', function ($copyNumber = 2, $maxCopies = NULL) {
 			$form = $this->createMultiplier(function (Container $container) {
 				$container->addText('bar');
@@ -140,6 +154,25 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 
 		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
 		$this->assertDomHas($dom, 'input.btn.btn-remove');
+	}
+
+	// bug #32
+	public function testDeleteLastElementToZero() {
+		$response = $this->services->form->createRequest('base', 0)->modifyForm(function (Form $form) {
+			$form['m']->setValues([
+				['bar' => 'foo'],
+			]);
+		})->setPost([
+			'm' => [
+				['bar' => '', 'multiplier_remover' => ''],
+			],
+		])->send();
+
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m[multiplier_creator]"]');
+		$this->assertDomNotHas($dom, 'input[name="m[0][bar]"]');
 	}
 
 }
