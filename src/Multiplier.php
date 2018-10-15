@@ -330,12 +330,14 @@ class Multiplier extends Container {
 		}
 
 		if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
-			$container = $this->addCopy($resolver->getRemoveId());
-			$container->getComponent(self::SUBMIT_REMOVE_NAME)->onClick[] = function () use ($container) {
-				$this->removeAllComponents($container);
-
-				$this->removeComponent($container);
-			};
+			foreach($this->getContainers() as $container) {
+                		if($container->getName() == $resolver->getRemoveId()) {
+                           		$container->getComponent(self::SUBMIT_REMOVE_NAME)->onClick[] = function () use ($container) {
+                                        	$this->removeAllComponents($container);
+                                    		$this->removeComponent($container);
+                                        };
+                        	}
+                        }
 		}
 
 		// onCreateEvent
