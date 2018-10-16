@@ -12,7 +12,7 @@ class MultiplierExtension extends CompilerExtension {
 	/** @var array */
 	public $defaults = [
 		'name' => 'addMultiplier',
-		'customContainer' => 'Nette\Forms\Container'
+		'customContainer' => Nette\Forms\Container::class
 	];
 
 	public function beforeCompile() {

@@ -72,7 +72,7 @@ class Multiplier extends Container {
 	protected $noValidate = [];
 
 	/** @var Container */
-	public static $container = 'Nette\Forms\Container';
+	public static $container = Container::class;
 
 	/**
 	 * @param callable $factory
@@ -582,7 +582,7 @@ class Multiplier extends Container {
 	/**
 	 * @param string $name
 	 */
-	public static function register($name = 'addMultiplier', $container = 'Nette\Forms\Container') {
+	public static function register($name = 'addMultiplier', $container = Container::class) {
 		self::$container = $container;
 		$container::extensionMethod($name, function (Container $form, $name, $factory, $copyNumber = 1, $maxCopies = null) {
 			$multiplier = new Multiplier($factory, $copyNumber, $maxCopies);
