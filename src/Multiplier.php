@@ -71,6 +71,9 @@ class Multiplier extends Container {
 	/** @var Container[] */
 	protected $noValidate = [];
 
+	/** @var Container|null */
+	public static $container = 'Nette\Forms\Container';
+
 	/**
 	 * @param callable $factory
 	 * @param int $copyNumber
@@ -409,7 +412,7 @@ class Multiplier extends Container {
 	 */
 	protected function applyDefaultValues(Container $container) {
 		$form = new Form('_foo_multiplier');
-		$factoryContainer = $form->addContainer('foo');
+		$factoryContainer = $this->addCustomContainer($form, 'foo');
 		$this->fillContainer($factoryContainer);
 
 		foreach ($factoryContainer->getControls() as $name => $control) {
@@ -419,6 +422,21 @@ class Multiplier extends Container {
 				$component->setValue($control->getValue());
 			}
 		}
+	}
+
+	/**
+	 * Adds naming container to the form.
+	 * @param  string|int
+	 * @return self
+	 */
+	public function addCustomContainer($form, $name)
+	{
+		$control = new self::$container;
+		$control->currentGroup = $form->currentGroup;
+		if ($form->currentGroup !== null) {
+			$form->currentGroup->add($control);
+		}
+		return $form[$name] = $control;
 	}
 
 	/**
@@ -453,7 +471,7 @@ class Multiplier extends Container {
 	 * @return Container
 	 */
 	protected function createContainer() {
-		$control = new Container();
+		$control = new self::$container;
 		$control->currentGroup = $this->currentGroup;
 
 		return $control;
@@ -549,7 +567,7 @@ class Multiplier extends Container {
 	public function getContainers() {
 		$this->createCopies();
 
-		return $this->getComponents(false, Container::class);
+		return $this->getComponents(false, self::$container);
 	}
 
 	/**
@@ -567,8 +585,9 @@ class Multiplier extends Container {
 	/**
 	 * @param string $name
 	 */
-	public static function register($name = 'addMultiplier') {
-		Container::extensionMethod($name, function (Container $form, $name, $factory, $copyNumber = 1, $maxCopies = null) {
+	public static function register($container, $name = 'addMultiplier') {
+		self::$container = $container;
+		$container::extensionMethod($name, function (Container $form, $name, $factory, $copyNumber = 1, $maxCopies = null) {
 			$multiplier = new Multiplier($factory, $copyNumber, $maxCopies);
 			$multiplier->setCurrentGroup($form->getCurrentGroup());
 

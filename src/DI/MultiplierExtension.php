@@ -11,7 +11,8 @@ class MultiplierExtension extends CompilerExtension {
 
 	/** @var array */
 	public $defaults = [
-		'name' => 'addMultiplier'
+		'name' => 'addMultiplier',
+		'customContainer' => 'Nette\Forms\Container'
 	];
 
 	public function beforeCompile() {
@@ -25,7 +26,7 @@ class MultiplierExtension extends CompilerExtension {
 		$init = $class->getMethods()['initialize'];
 		$config = $this->validateConfig($this->defaults);
 
-		$init->addBody(Multiplier::class . '::register(?);', [$config['name']]);
+		$init->addBody(Multiplier::class . '::register(?*);', [$config]);
 	}
 
 }
