@@ -582,7 +582,7 @@ class Multiplier extends Container {
 	/**
 	 * @param string $name
 	 */
-	public static function register($container, $name = 'addMultiplier') {
+	public static function register($name = 'addMultiplier', $container = 'Nette\Forms\Container') {
 		self::$container = $container;
 		$container::extensionMethod($name, function (Container $form, $name, $factory, $copyNumber = 1, $maxCopies = null) {
 			$multiplier = new Multiplier($factory, $copyNumber, $maxCopies);
