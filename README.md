@@ -49,3 +49,14 @@ $multiplier->addCreateButton('Add 5', 5); // add five containers
 	{btnCreate $form[multiplier]:5}
 {/form}
 ```
+
+## Custom container
+
+You can use own container for render custom inputs with multiplier.
+
+```
+multiplier: WebChemistry\Forms\Controls\DI\MultiplierExtension   
+
+multiplier:
+    customContainer: Your\Custom\Container
+```
