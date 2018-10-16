@@ -71,7 +71,7 @@ class Multiplier extends Container {
 	/** @var Container[] */
 	protected $noValidate = [];
 
-	/** @var Container|null */
+	/** @var Container */
 	public static $container = 'Nette\Forms\Container';
 
 	/**
@@ -333,14 +333,11 @@ class Multiplier extends Container {
 		}
 
 		if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
-			foreach($this->getContainers() as $container) {
-                		if($container->getName() == $resolver->getRemoveId()) {
-                           		$container->getComponent(self::SUBMIT_REMOVE_NAME)->onClick[] = function () use ($container) {
-                                        	$this->removeAllComponents($container);
-                                    		$this->removeComponent($container);
-                                        };
-                        	}
-                        }
+			$container = $this->addCopy($resolver->getRemoveId());
+			$container->getComponent(self::SUBMIT_REMOVE_NAME)->onClick[] = function () use ($container) {
+				$this->removeAllComponents($container);
+ 				$this->removeComponent($container);
+			};
 		}
 
 		// onCreateEvent
