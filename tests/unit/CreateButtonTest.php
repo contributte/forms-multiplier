@@ -1,87 +1,26 @@
 <?php
 
-use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
-use WebChemistry\Forms\Controls\Multiplier;
-use Nette\Application\UI\Form;
-use WebChemistry\Forms\Controls\Submitter;
+use Contributte\FormMultiplier\Submitter;
 use WebChemistry\Testing\TUnitTest;
 
-class CreateButtonTest extends \Codeception\TestCase\Test {
+class CreateButtonTest extends \Codeception\TestCase\Test
+{
 
 	use TUnitTest;
 
-	private function createMultiplier(callable $factory, $copyNumber = 1, $maxCopies = NULL) {
-		$form = new Form();
-
-		$form['m'] = new Multiplier($factory, $copyNumber, $maxCopies);
-
-		$form->addSubmit('send');
-
-		return $form;
-	}
-
-	protected function _before() {
-		$form = $this->services->form;
-
-		$form->addForm('buttons', function ($copyNumber = 2, $maxCopies = NULL) {
-			$form = $this->createMultiplier(function (Container $container) {
-				$container->addText('bar');
-			}, $copyNumber, $maxCopies);
-
-			/** @var Multiplier $multiplier */
-			$multiplier = $form['m'];
-
-			$multiplier->setMinCopies(1);
-			$multiplier->addRemoveButton();
-			$multiplier->addCreateButton();
-
-			return $form;
-		});
-
-		$form->addForm('twoButtons', function ($copyNumber = 1, $maxCopies = NULL) {
-			$form = $this->createMultiplier(function (Container $container) {
-				$container->addText('bar');
-			}, $copyNumber, $maxCopies);
-
-			/** @var Multiplier $multiplier */
-			$multiplier = $form['m'];
-
-			$multiplier->setMinCopies(1);
-			$multiplier->addRemoveButton();
-			$multiplier->addCreateButton(NULL, 5);
-
-			return $form;
-		});
-
-		$form->addForm('callback', function () {
-			$form = $this->createMultiplier(function (Container $container) {
-				$container->addText('bar');
-			});
-
-			/** @var Multiplier $multiplier */
-			$multiplier = $form['m'];
-
-			$multiplier->setMinCopies(1);
-			$multiplier->addRemoveButton(null, function (SubmitButton $submitter) {
-				$submitter->setHtmlAttribute('class', 'delete-btn');
-			});
-			$multiplier->addCreateButton(NULL, 5, function (Submitter $submitter) {
-				$submitter->setHtmlAttribute('class', 'add-btn');
-			});
-
-			return $form;
-		});
-
-	}
-
-	public function testSendCreate() {
-		$response = $this->services->form->createRequest('buttons')->setPost([
+	public function testSendCreate()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create()
+				->addCreateButton()
+				->createForm()
+		)->setPost([
 			'm' => [
 				['bar' => ''],
 				['bar' => ''],
-				'multiplier_creator' => ''
-			]
+				'multiplier_creator' => '',
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -91,13 +30,18 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomHas($dom, 'input[name="m[2][bar]"]');
 	}
 
-	public function testSendCreateOverMaxCopies() {
-		$response = $this->services->form->createRequest('buttons', 2, 2)->setPost([
+	public function testSendCreateOverMaxCopies()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(2, 2)
+				->addCreateButton()
+				->createForm()
+		)->setPost([
 			'm' => [
 				['bar' => ''],
 				['bar' => ''],
-				'multiplier_creator' => ''
-			]
+				'multiplier_creator' => '',
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -107,12 +51,18 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomNotHas($dom, 'input[name="m[2][bar]"]');
 	}
 
-	public function testSendCreateButtonWith5Copies() {
-		$response = $this->services->form->createRequest('twoButtons')->setPost([
+	public function testSendCreateButtonWith5Copies()
+	{
+		$factory = MultiplierBuilder::create()
+			->addCreateButton(5)
+			->addCreateButton()
+			->addRemoveButton();
+
+		$response = $this->services->form->createRequest($factory->createForm())->setPost([
 			'm' => [
 				['bar' => ''],
-				'multiplier_creator5' => ''
-			]
+				'multiplier_creator5' => '',
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -126,12 +76,22 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomNotHas($dom, 'input[name="m[6][bar]"]');
 	}
 
-	public function testCallback() {
-		$response = $this->services->form->createRequest('callback')->setPost([
+	public function testCallback()
+	{
+		$factory = MultiplierBuilder::create()
+			->setMinCopies(1)
+			->addRemoveButton(function (SubmitButton $submitter) {
+				$submitter->setHtmlAttribute('class', 'delete-btn');
+			})
+			->addCreateButton(5, function (Submitter $submitter) {
+				$submitter->setHtmlAttribute('class', 'add-btn');
+			});
+
+		$response = $this->services->form->createRequest($factory->createForm())->setPost([
 			'm' => [
 				['bar' => ''],
 				['bar' => ''],
-			]
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -140,24 +100,37 @@ class CreateButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomHas($dom, 'input.add-btn');
 	}
 
-	public function testFormEvents() {
-		$req = $this->services->form->createRequest('buttons');
-		$req->modifyForm(function (Form $form) {
-			$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
-				$this->fail('Called event');
+	public function testFormEvents()
+	{
+		$factory = MultiplierBuilder::create(2)
+			->setMinCopies(1)
+			->addRemoveButton(function (SubmitButton $submitter) {
+				$submitter->setHtmlAttribute('class', 'delete-btn');
+			})
+			->addCreateButton(5, function (Submitter $submitter) {
+				$submitter->setHtmlAttribute('class', 'add-btn');
+			});
+
+		$called = false;
+		$factory->formModifier(function ($form) use (&$called) {
+			$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () use (&$called) {
+				$called = true;
 			};
- 		});
+		});
+
+		$req = $this->services->form->createRequest($factory->createForm());
 		$response = $req->setPost([
 			'm' => [
 				['bar' => ''],
-				'multiplier_creator' => ''
-			]
+				'multiplier_creator' => '',
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
 
 		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
 		$this->assertDomHas($dom, 'input[name="m[1][bar]"]');
+		$this->assertTrue($called);
 	}
 
 }

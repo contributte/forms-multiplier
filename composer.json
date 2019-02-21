@@ -1,28 +1,56 @@
 {
-	"name": "webchemistry/forms-multiplier",
-	"type": "library",
-	"description": "Multiplier for nette forms",
-	"keywords": [
-		"nette",
-		"webchemistry",
-		"forms",
-		"multiplier"
-	],
-	"require": {
-		"php": ">= 5.6",
-		"nette/forms": "^2.4"
-	},
-	"require-dev": {
-		"codeception/codeception": "^2.4",
-		"phpunit/phpunit": "~5.0 || ~6.0 || ~7.1.0",
-		"nette/application": "^2.3",
-		"nette/di": "^2.3",
-		"webchemistry/testing-helpers": "dev-master",
-		"latte/latte": "^2.3"
-	},
-	"autoload": {
-		"psr-4": {
-			"WebChemistry\\Forms\\Controls\\": ["src/"]
-		}
-	}
+  "name": "contributte/forms-multiplier",
+  "type": "library",
+  "description": "Multiplier for nette forms",
+  "keywords": [
+    "nette",
+    "contributte",
+    "forms",
+    "multiplier"
+  ],
+  "require": {
+    "php": ">= 7.1",
+    "nette/forms": "^3.0"
+  },
+  "require-dev": {
+    "ninjify/qa": "^0.8.0",
+    "ninjify/nunjuck": "^0.2.0",
+    "codeception/codeception": "^2.4",
+    "nette/application": "^3.0",
+    "nette/di": "^3.0",
+    "webchemistry/testing-helpers": "~2.0.0",
+    "latte/latte": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Contributte\\FormMultiplier\\": [
+        "src/"
+      ]
+    }
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/includes"
+    ]
+  },
+  "minimum-stability": "RC",
+  "scripts": {
+    "qa": [
+      "linter src tests",
+      "codesniffer src tests"
+    ],
+    "tests": [
+      "vendor/bin/codecept run"
+    ],
+    "phpstan-install": [
+      "mkdir -p temp/phpstan",
+      "composer require -d temp/phpstan phpstan/phpstan:^0.10",
+      "composer require -d temp/phpstan phpstan/phpstan-deprecation-rules:^0.10",
+      "composer require -d temp/phpstan phpstan/phpstan-nette:^0.10",
+      "composer require -d temp/phpstan phpstan/phpstan-strict-rules:^0.10"
+    ],
+    "phpstan": [
+      "temp/phpstan/vendor/bin/phpstan analyse -l max src"
+    ]
+  }
 }

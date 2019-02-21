@@ -1,57 +1,46 @@
-<?php
+<?php declare(strict_types = 1);
 
-namespace WebChemistry\Forms\Controls\Buttons;
+namespace Contributte\FormMultiplier\Buttons;
 
-use Nette\Forms\Container;
+use Contributte\FormMultiplier\Multiplier;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\SmartObject;
-use WebChemistry\Forms\Controls\Multiplier;
 
-class RemoveButton {
+final class RemoveButton
+{
 
 	use SmartObject;
 
-	/** @var null|string */
+	/** @var string|null */
 	private $caption;
 
-	/** @var array */
+	/** @var callable[] */
 	public $onCreate = [];
 
-	/** @var array */
+	/** @var callable[] */
 	private $classes = [];
 
-	/**
-	 * @param $caption string|null
-	 */
-	public function __construct($caption) {
+	public function __construct(?string $caption)
+	{
 		$this->caption = $caption;
 	}
 
-	/**
-	 * @param callable $onCreate
-	 * @return static
-	 */
-	public function addOnCreateCallback(callable $onCreate) {
+	public function addOnCreateCallback(callable $onCreate): self
+	{
 		$this->onCreate[] = $onCreate;
 
 		return $this;
 	}
 
-	/**
-	 * @param string $class
-	 * @return static
-	 */
-	public function addClass($class) {
+	public function addClass(string $class): self
+	{
 		$this->classes[] = $class;
 
 		return $this;
 	}
 
-	/**
-	 * @param Multiplier $multiplier
-	 * @return SubmitButton
-	 */
-	public function create(Multiplier $multiplier) {
+	public function create(Multiplier $multiplier): SubmitButton
+	{
 		$button = new SubmitButton($this->caption);
 
 		$button->setHtmlAttribute('class', implode(' ', $this->classes));

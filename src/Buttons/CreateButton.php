@@ -1,101 +1,84 @@
-<?php
+<?php declare(strict_types = 1);
 
-namespace WebChemistry\Forms\Controls\Buttons;
+namespace Contributte\FormMultiplier\Buttons;
 
+use Contributte\FormMultiplier\Multiplier;
+use Contributte\FormMultiplier\Submitter;
 use Nette\SmartObject;
-use WebChemistry\Forms\Controls\Multiplier;
-use WebChemistry\Forms\Controls\Submitter;
 
-class CreateButton {
+final class CreateButton
+{
 
 	use SmartObject;
 
-	/** @var null|string */
+	/** @var string|null */
 	private $caption;
 
 	/** @var int */
 	private $copyCount;
 
-	/** @var array */
+	/** @var callable[] */
 	public $onCreate = [];
 
-	/** @var array|null */
+	/** @var mixed[]|null */
 	private $validationScope = null;
 
-	/** @var array */
+	/** @var string[] */
 	private $classes = [];
-	
-	/**
-	 * @param $caption string|null
-	 * @param $copyCount int
-	 */
-	public function __construct($caption, $copyCount = 1) {
+
+	public function __construct(?string $caption, int $copyCount = 1)
+	{
 		$this->caption = $caption;
 		$this->copyCount = $copyCount;
 	}
 
-	/**
-	 * @param callable $onCreate
-	 * @return static
-	 */
-	public function addOnCreateCallback(callable $onCreate) {
+	public function addOnCreateCallback(callable $onCreate): self
+	{
 		$this->onCreate[] = $onCreate;
 
 		return $this;
 	}
 
-	/**
-	 * @return static
-	 */
-	public function setNoValidate() {
+	public function setNoValidate(): self
+	{
 		$this->setValidationScope([]);
 
 		return $this;
 	}
 
-	/**
-	 * @param string $class
-	 * @return static
-	 */
-	public function addClass($class) {
+	public function addClass(string $class): self
+	{
 		$this->classes[] = $class;
 
 		return $this;
 	}
 
 	/**
-	 * @param array $validationScope
-	 * @return static
+	 * @param mixed[]|null $validationScope
 	 */
-	public function setValidationScope(array $validationScope) {
+	public function setValidationScope(?array $validationScope): self
+	{
 		$this->validationScope = $validationScope;
 
 		return $this;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getComponentName() {
+	public function getComponentName(): string
+	{
 		return Multiplier::SUBMIT_CREATE_NAME . ($this->copyCount === 1 ? '' : $this->copyCount);
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getCopyCount() {
+	public function getCopyCount(): int
+	{
 		return $this->copyCount;
 	}
 
-	/**
-	 * @param Multiplier $multiplier
-	 * @return Submitter
-	 */
-	public function create(Multiplier $multiplier) {
+	public function create(Multiplier $multiplier): Submitter
+	{
 		$button = new Submitter($this->caption, $this->copyCount);
 
 		$button->setHtmlAttribute('class', implode(' ', $this->classes));
-		$button->setValidationScope($this->validationScope === null ? [$multiplier] : $this->validationScope)
+		$button->setValidationScope($this->validationScope ?? [$multiplier])
 			->setOmitted();
 
 		foreach ($this->onCreate as $callback) {

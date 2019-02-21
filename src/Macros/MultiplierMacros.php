@@ -1,17 +1,19 @@
-<?php
+<?php declare(strict_types = 1);
 
-namespace WebChemistry\Forms\Controls\Macros;
+namespace Contributte\FormMultiplier\Macros;
 
+use Contributte\FormMultiplier\Multiplier;
 use Latte\CompileException;
 use Latte\Compiler;
 use Latte\MacroNode;
 use Latte\Macros\MacroSet;
 use Latte\PhpWriter;
-use WebChemistry\Forms\Controls\Multiplier;
 
-final class MultiplierMacros extends MacroSet {
+final class MultiplierMacros extends MacroSet
+{
 
-	public static function install(Compiler $compiler) {
+	public static function install(Compiler $compiler): void
+	{
 		$me = new static($compiler);
 
 		$me->addMacro('multiplier', [$me, 'multiplierMacro'], 'array_pop($this->global->formsStack); $formContainer = $_form = end($this->global->formsStack); }');
@@ -19,7 +21,8 @@ final class MultiplierMacros extends MacroSet {
 		$me->addMacro('btnRemove', [$me, 'removeMacro']);
 	}
 
-	public function createMacro(MacroNode $node, PhpWriter $writer) {
+	public function createMacro(MacroNode $node, PhpWriter $writer): string
+	{
 		if ($node->modifiers) {
 			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
 		}
@@ -46,12 +49,13 @@ final class MultiplierMacros extends MacroSet {
 			. ($node->tokenizer->isNext() ? '->addAttributes(%node.array);' : ';')
 			. '}',
 			$name,
-			$copyCount,
+			(string) $copyCount,
 			$words ? 'getControlPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')' : 'getControl()'
 		);
 	}
 
-	public function removeMacro(MacroNode $node, PhpWriter $writer) {
+	public function removeMacro(MacroNode $node, PhpWriter $writer): string
+	{
 		if ($node->modifiers) {
 			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
 		}
@@ -68,7 +72,8 @@ final class MultiplierMacros extends MacroSet {
 		);
 	}
 
-	public function multiplierMacro(MacroNode $node, PhpWriter $writer) {
+	public function multiplierMacro(MacroNode $node, PhpWriter $writer): string
+	{
 		if ($node->modifiers) {
 			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
 		}

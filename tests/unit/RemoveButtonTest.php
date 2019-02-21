@@ -1,15 +1,18 @@
 <?php
 
 use Nette\Forms\Container;
-use WebChemistry\Forms\Controls\Multiplier;
+use Nette\Forms\Controls\SubmitButton;
+use Contributte\FormMultiplier\Multiplier;
 use Nette\Application\UI\Form;
 use WebChemistry\Testing\TUnitTest;
 
-class RemoveButtonTest extends \Codeception\TestCase\Test {
+class RemoveButtonTest extends \Codeception\TestCase\Test
+{
 
 	use TUnitTest;
 
-	private function createMultiplier(callable $factory, $copyNumber = 1, $maxCopies = NULL) {
+	private function createMultiplier(callable $factory, $copyNumber = 1, $maxCopies = null)
+	{
 		$form = new Form();
 
 		$form['m'] = new Multiplier($factory, $copyNumber, $maxCopies);
@@ -19,10 +22,11 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 		return $form;
 	}
 
-	protected function _before() {
+	protected function a_before()
+	{
 		$form = $this->services->form;
 
-		$form->addForm('buttons', function ($copyNumber = 2, $maxCopies = NULL, $removeCallback = null) {
+		$form->addForm('buttons', function ($copyNumber = 2, $maxCopies = null, $removeCallback = null) {
 			$form = $this->createMultiplier(function (Container $container) {
 				$container->addText('bar');
 			}, $copyNumber, $maxCopies);
@@ -41,7 +45,7 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 			return $form;
 		});
 
-		$form->addForm('base', function ($copyNumber = 1, $maxCopies = NULL) {
+		$form->addForm('base', function ($copyNumber = 1, $maxCopies = null) {
 			$form = $this->createMultiplier(function (Container $container) {
 				$container->addText('bar');
 			}, $copyNumber, $maxCopies);
@@ -55,7 +59,7 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 			return $form;
 		});
 
-		$form->addForm('2multipliers', function ($copyNumber = 2, $maxCopies = NULL) {
+		$form->addForm('2multipliers', function ($copyNumber = 2, $maxCopies = null) {
 			$form = $this->createMultiplier(function (Container $container) {
 				$container->addText('bar');
 			}, $copyNumber, $maxCopies);
@@ -79,12 +83,19 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 
 	}
 
-	public function testSendRemove() {
-		$response = $this->services->form->createRequest('buttons')->setPost([
+	public function testSendRemove()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(2)
+				->setMinCopies(1)
+				->addRemoveButton()
+				->addCreateButton()
+				->createForm()
+		)->setPost([
 			'm' => [
 				['bar' => ''],
 				['bar' => '', 'multiplier_remover' => ''],
-			]
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -92,25 +103,47 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
 	}
 
-	public function testSendRemoveBelowMinCopies() {
-		$response = $this->services->form->createRequest('buttons', 1)->setPost([
+	public function testSendRemoveBelowMinCopies()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(1)
+				->setMinCopies(1)
+				->addRemoveButton()
+				->addCreateButton()
+				->createForm()
+		)->setPost([
 			'm' => [
 				['bar' => '', 'multiplier_remover' => ''],
-			]
+			],
 		])->send();
 
 		$this->assertDomHas($response->toDomQuery(), 'input[name="m[0][bar]"]');
 	}
 
-	public function test2Multipliers() {
-		$response = $this->services->form->createRequest('2multipliers', 1)->setPost([
+	public function test2Multipliers()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(1)
+				->setMinCopies(1)
+				->addRemoveButton()
+				->addCreateButton()
+				->formModifier(function (Form $form) {
+					$form['m2'] = new Multiplier(function (Container $container) {
+						$container->addText('bar2');
+					});
+
+					$form['m2']->addRemoveButton();
+					$form['m2']->addCreateButton();
+				})
+				->createForm()
+		)->setPost([
 			'm' => [
 				['bar' => ''],
 			],
 			'm2' => [
 				['bar2' => ''],
 				Multiplier::SUBMIT_CREATE_NAME => '',
-			]
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -120,18 +153,25 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomNotHas($dom, 'input[name="m[0][multiplier_remover]"]');
 	}
 
-	public function testFormEvents() {
-		$req = $this->services->form->createRequest('buttons');
-		$req->modifyForm(function (Form $form) {
-			$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
-				$this->fail('Called event');
-			};
-		});
+	public function testFormEvents()
+	{
+		$req = $this->services->form->createRequest(
+			MultiplierBuilder::create(2)
+				->setMinCopies(1)
+				->addRemoveButton()
+				->addCreateButton()
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+						$this->fail('Events called');
+					};
+				})
+				->createForm()
+		);
 		$response = $req->setPost([
 			'm' => [
 				['bar' => ''],
-				['bar' => '', 'multiplier_remover' => '']
-			]
+				['bar' => '', 'multiplier_remover' => ''],
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -140,14 +180,21 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
 	}
 
-	public function testAddClass() {
-		$response = $this->services->form->createRequest('buttons', 2, null, function (\WebChemistry\Forms\Controls\Buttons\RemoveButton $btn) {
-			$btn->addClass('btn btn-remove');
-		})->setPost([
+	public function testAddClass()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(2)
+				->setMinCopies(1)
+				->addRemoveButton(function (SubmitButton $submitter) {
+					$submitter->setHtmlAttribute('class', 'btn btn-remove');
+				})
+				->addCreateButton()
+				->createForm()
+		)->setPost([
 			'm' => [
 				['bar' => ''],
 				['bar' => ''],
-			]
+			],
 		])->send();
 
 		$dom = $response->toDomQuery();
@@ -157,8 +204,15 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 	}
 
 	// bug #32
-	public function testDeleteLastElementToZero() {
-		$response = $this->services->form->createRequest('base', 0)->modifyForm(function (Form $form) {
+	public function testDeleteLastElementToZero()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(1)
+				->setMinCopies(0)
+				->addRemoveButton()
+				->addCreateButton()
+				->createForm()
+		)->modifyForm(function (Form $form) {
 			$form['m']->setValues([
 				['bar' => 'foo'],
 			]);
@@ -167,7 +221,6 @@ class RemoveButtonTest extends \Codeception\TestCase\Test {
 				['bar' => '', 'multiplier_remover' => ''],
 			],
 		])->send();
-
 
 		$dom = $response->toDomQuery();
 

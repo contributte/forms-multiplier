@@ -1,27 +1,30 @@
-<?php
+<?php declare(strict_types = 1);
 
-namespace WebChemistry\Forms\Controls\DI;
+namespace Contributte\FormMultiplier\DI;
 
+use Contributte\FormMultiplier\Macros\MultiplierMacros;
+use Contributte\FormMultiplier\Multiplier;
 use Nette;
 use Nette\DI\CompilerExtension;
-use WebChemistry\Forms\Controls\Macros\MultiplierMacros;
-use WebChemistry\Forms\Controls\Multiplier;
 
-class MultiplierExtension extends CompilerExtension {
+class MultiplierExtension extends CompilerExtension
+{
 
-	/** @var array */
+	/** @var string[] */
 	public $defaults = [
-		'name' => 'addMultiplier'
+		'name' => 'addMultiplier',
 	];
 
-	public function beforeCompile() {
+	public function beforeCompile(): void
+	{
 		$builder = $this->getContainerBuilder();
 
 		$builder->getDefinition('latte.latteFactory')
 			->addSetup(MultiplierMacros::class . '::install(?->getCompiler())', ['@self']);
 	}
 
-	public function afterCompile(Nette\PhpGenerator\ClassType $class) {
+	public function afterCompile(Nette\PhpGenerator\ClassType $class): void
+	{
 		$init = $class->getMethods()['initialize'];
 		$config = $this->validateConfig($this->defaults);
 

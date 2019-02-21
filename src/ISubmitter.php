@@ -1,5 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
 
-namespace WebChemistry\Forms\Controls;
+namespace Contributte\FormMultiplier;
 
-interface ISubmitter {}
+interface ISubmitter
+{
+
+}

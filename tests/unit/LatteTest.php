@@ -1,24 +1,34 @@
 <?php
 
+use Latte\Engine;
+use Nette\Application\UI\Form as NetteForm;
+use Nette\Application\UI\Presenter;
+use Nette\Bridges\FormsLatte\FormMacros;
+use Nette\Forms\Container;
+use Contributte\FormMultiplier\Macros\MultiplierMacros;
+use Contributte\FormMultiplier\Multiplier;
 use WebChemistry\Testing\TUnitTest;
 
-class LatteTest extends \Codeception\TestCase\Test {
+class LatteTest extends \Codeception\TestCase\Test
+{
 
 	use TUnitTest;
 
-	/** @var \Latte\Engine */
+	/** @var Engine */
 	protected $latte;
 
-	protected function _before() {
-		$this->latte = $latte = new \Latte\Engine();
-		\WebChemistry\Forms\Controls\Macros\MultiplierMacros::install($latte->getCompiler());
-		\Nette\Bridges\FormsLatte\FormMacros::install($latte->getCompiler());
+	protected function _before()
+	{
+		$this->latte = $latte = new Engine();
+		MultiplierMacros::install($latte->getCompiler());
+		FormMacros::install($latte->getCompiler());
 	}
 
-	public function testBtnCreate() {
+	public function testBtnCreate()
+	{
 		$presenter = new FooPresenter();
-		$form = new \Nette\Application\UI\Form();
-		$form['m'] = $m = new \WebChemistry\Forms\Controls\Multiplier(function (\Nette\Forms\Container $container) {
+		$form = new NetteForm();
+		$form['m'] = $m = new Multiplier(function (Container $container) {
 			$container->addText('foo');
 		});
 		$m->addCreateButton('Create one');
@@ -32,9 +42,11 @@ class LatteTest extends \Codeception\TestCase\Test {
 
 }
 
-class FooPresenter extends \Nette\Application\UI\Presenter {
+class FooPresenter extends Presenter
+{
 
-	public function link($destination, $args = []) {
+	public function link(string $destination, $args = []): string
+	{
 		return '';
 	}
 

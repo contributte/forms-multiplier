@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types = 1);
 
-namespace WebChemistry\Forms\Controls;
+namespace Contributte\FormMultiplier;
 
 use Nette\Utils\Strings;
 
-class ComponentResolver {
+final class ComponentResolver
+{
 
 	/** @var string|int|null */
 	private $removeId;
@@ -18,16 +19,16 @@ class ComponentResolver {
 	/** @var int */
 	private $createNum = 1;
 
-	/** @var array */
+	/** @var mixed[] */
 	private $httpData = [];
 
 	/** @var int|null */
 	private $maxCopies;
 
-	/** @var array */
+	/** @var mixed[] */
 	private $purgedHttpData;
 
-	/** @var array */
+	/** @var mixed[] */
 	private $values;
 
 	/** @var int */
@@ -36,14 +37,19 @@ class ComponentResolver {
 	/** @var bool */
 	private $reached = false;
 
-	public function __construct(array $httpData, array $values, $maxCopies, $minCopies) {
+	/**
+	 * @param mixed[] $httpData
+	 * @param mixed[] $values
+	 */
+	public function __construct(array $httpData, array $values, ?int $maxCopies, int $minCopies)
+	{
 		$this->httpData = $httpData;
 		$this->maxCopies = $maxCopies;
 		$this->values = $values;
 		$this->minCopies = $minCopies;
 
 		foreach ($httpData as $index => $_) {
-			if (Strings::startsWith($index, Multiplier::SUBMIT_CREATE_NAME)) {
+			if (Strings::startsWith((string) $index, Multiplier::SUBMIT_CREATE_NAME)) {
 				$this->createAction = true;
 				$num = substr($index, 18);
 				if ($num) {
@@ -64,25 +70,31 @@ class ComponentResolver {
 		}
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getCreateNum() {
+	public function getCreateNum(): int
+	{
 		return $this->createNum;
 	}
 
-	public function getValuesForComponents($includeDefaults = true) {
+	/**
+	 * @return mixed[]
+	 */
+	public function getValuesForComponents(bool $includeDefaults = true): array
+	{
 		return array_slice($this->getPurgedHttpData() ?: ($includeDefaults ? $this->values : []), 0, $this->maxCopies, true);
 	}
 
-	public function getPurgedHttpData() {
+	/**
+	 * @return mixed[]
+	 */
+	public function getPurgedHttpData(): array
+	{
 		if ($this->purgedHttpData === null) {
 			$httpData = $this->httpData;
 
 			foreach ($httpData as $index => &$row) {
 				if (!is_array($row)) {
 					unset($httpData[$index]);
-				} else if (array_key_exists(Multiplier::SUBMIT_REMOVE_NAME, $row)) {
+				} elseif (array_key_exists(Multiplier::SUBMIT_REMOVE_NAME, $row)) {
 					unset($row[Multiplier::SUBMIT_REMOVE_NAME]);
 				}
 			}
@@ -101,19 +113,26 @@ class ComponentResolver {
 		return $this->purgedHttpData;
 	}
 
-	public function isCreateAction() {
+	public function isCreateAction(): bool
+	{
 		return $this->createAction;
 	}
 
-	public function isRemoveAction() {
+	public function isRemoveAction(): bool
+	{
 		return $this->removeAction;
 	}
 
-	public function getRemoveId() {
+	/**
+	 * @return int|string|null
+	 */
+	public function getRemoveId()
+	{
 		return $this->removeId;
 	}
 
-	public function reachedMinLimit() {
+	public function reachedMinLimit(): bool
+	{
 		return $this->reached;
 	}
 

@@ -1,15 +1,15 @@
 # Multiplier, replication for Nette\Forms
 
-[![Build Status](https://travis-ci.org/WebChemistry/forms-multiplier.svg?branch=master)](https://travis-ci.org/WebChemistry/forms-multiplier)
+[![Build Status](https://travis-ci.org/Contributte/forms-multiplier.svg?branch=master)](https://travis-ci.org/Contributte/forms-multiplier)
 
 ## Installation
 ```
-composer require webchemistry/forms-multiplier
+composer require contributte/forms-multiplier
 ```
 
 ```yaml
 extensions:
-    - WebChemistry\Forms\Controls\DI\MultiplierExtension
+    - Contributte\FormMultiplier\DI\MultiplierExtension
 ```
 
 ## Usage

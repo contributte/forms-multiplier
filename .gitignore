@@ -1,3 +1,11 @@
-vendor
-composer.lock
-tests/_support/_generated
+# IDE
+/.idea
+
+# Composer
+/vendor
+/composer.lock
+
+# Tests
+/tests/_output
+/tests/_support
+/coverage.xml
