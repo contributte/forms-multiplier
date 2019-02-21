@@ -197,9 +197,6 @@ class Multiplier extends Container
 	{
 		$controls = $controls ?? iterator_to_array($this->getComponents());
 
-		foreach ($this->noValidate as $row) {
-			var_dump(get_object_vars($row));
-		}
 		foreach ($controls as $index => $control) {
 			foreach ($this->noValidate as $item) {
 				if ($control === $item) {
