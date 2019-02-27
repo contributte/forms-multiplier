@@ -228,4 +228,29 @@ class RemoveButtonTest extends \Codeception\TestCase\Test
 		$this->assertDomNotHas($dom, 'input[name="m[0][bar]"]');
 	}
 
+	public function testOnRemoveEvent()
+	{
+		$called = false;
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create()
+				->setMinCopies(0)
+				->addRemoveButton()
+				->multiplierModifier(function (Multiplier $multiplier) use (&$called) {
+					$multiplier->onRemove[] = function () use (&$called) {
+						$called = true;
+					};
+				})
+				->createForm()
+		)->setPost([
+			'm' => [
+				['bar' => '', 'multiplier_remover' => ''],
+			],
+		])->send();
+
+		$dom = $response->toDomQuery();
+
+		$this->assertTrue($called);
+		$this->assertDomNotHas($dom, 'input[name="m[0][bar]"]');
+	}
+
 }

@@ -69,6 +69,9 @@ class Multiplier extends Container
 	public $onCreate = [];
 
 	/** @var callable[] */
+	public $onRemove = [];
+
+	/** @var callable[] */
 	public $onCreateComponents = [];
 
 	/** @var Container[] */
@@ -173,15 +176,19 @@ class Multiplier extends Container
 		return $this->createButtons[$copyCount] = new CreateButton($caption, $copyCount);
 	}
 
-	/**
-	 * @internal
-	 */
-	public function onCreateEvent(): void
+	protected function onCreateEvent(): void
 	{
 		foreach ($this->onCreate as $callback) {
 			foreach ($this->getContainers() as $container) {
 				$callback($container);
 			}
+		}
+	}
+
+	protected function onRemoveEvent(): void
+	{
+		foreach ($this->onRemove as $callback) {
+			$callback($this);
 		}
 	}
 
@@ -292,6 +299,8 @@ class Multiplier extends Container
 
 		if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
 			$this->resetFormEvents();
+
+			$this->onRemoveEVent();
 		}
 
 		// onCreateEvent
