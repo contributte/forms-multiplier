@@ -46,7 +46,7 @@ final class MultiplierMacros extends MacroSet {
 			. ($node->tokenizer->isNext() ? '->addAttributes(%node.array);' : ';')
 			. '}',
 			$name,
-			$copyCount,
+			(string) $copyCount,
 			$words ? 'getControlPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')' : 'getControl()'
 		);
 	}
