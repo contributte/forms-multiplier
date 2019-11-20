@@ -19,9 +19,10 @@ class MultiplierExtension extends CompilerExtension
 	{
 		$builder = $this->getContainerBuilder();
 
-		$builder->getDefinition('latte.latteFactory')
-			->getResultDefinition()
-				->addSetup(MultiplierMacros::class . '::install(?->getCompiler())', ['@self']);
+		$resultDefinition = $builder->getDefinition('latte.latteFactory')
+			->getResultDefinition();
+
+		$resultDefinition->addSetup(MultiplierMacros::class . '::install(?->getCompiler())', ['@self']);
 	}
 
 	public function afterCompile(Nette\PhpGenerator\ClassType $class): void
