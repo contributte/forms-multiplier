@@ -29,7 +29,7 @@ final class ComponentResolver
 	private $purgedHttpData;
 
 	/** @var mixed[] */
-	private $values;
+	private $defaults;
 
 	/** @var int */
 	private $minCopies;
@@ -39,13 +39,13 @@ final class ComponentResolver
 
 	/**
 	 * @param mixed[] $httpData
-	 * @param mixed[] $values
+	 * @param mixed[] $defaults
 	 */
-	public function __construct(array $httpData, array $values, ?int $maxCopies, int $minCopies)
+	public function __construct(array $httpData, array $defaults, ?int $maxCopies, int $minCopies)
 	{
 		$this->httpData = $httpData;
 		$this->maxCopies = $maxCopies;
-		$this->values = $values;
+		$this->defaults = $defaults;
 		$this->minCopies = $minCopies;
 
 		foreach ($httpData as $index => $_) {
@@ -80,7 +80,7 @@ final class ComponentResolver
 	 */
 	public function getDefaults(): array
 	{
-		return array_slice($this->values, 0, $this->maxCopies, true);
+		return array_slice($this->defaults, 0, $this->maxCopies, true);
 	}
 
 	/**
