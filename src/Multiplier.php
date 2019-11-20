@@ -7,6 +7,7 @@ use Contributte\FormMultiplier\Buttons\RemoveButton;
 use Iterator;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\Container;
+use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Form;
 use Nette\Forms\IControl;
@@ -243,13 +244,26 @@ class Multiplier extends Container
 	{
 		$containers = [];
 
-		// Create components with values
-		foreach ($resolver->getValuesForComponents(!$this->form->isSubmitted()) as $number => $values) {
-			$containers[] = $container = $this->addCopy($number, $values);
+		// Components from httpData
+		if ($this->isFormSubmitted()) {
+			foreach ($resolver->getValues() as $number => $_) {
+				$containers[] = $container = $this->addCopy($number);
+
+				/** @var BaseControl $control */
+				foreach ($container->getControls() as $control) {
+					$control->loadHttpData();
+				}
+			}
+
+		} else { // Components from default values
+			foreach ($resolver->getDefaults() as $number => $values) {
+				$containers[] = $this->addCopy($number, $values);
+			}
+
 		}
 
 		// Default number of copies
-		if (!$this->isSubmitted() && !$this->values) {
+		if (!$this->isFormSubmitted() && !$this->values) {
 			$copyNumber = $this->copyNumber;
 			while ($copyNumber > 0 && $this->isValidMaxCopies()) {
 				$containers[] = $container = $this->addCopy();
@@ -340,14 +354,14 @@ class Multiplier extends Container
 		$container->addComponent($this->removeButton->create($this), self::SUBMIT_REMOVE_NAME);
 	}
 
-	protected function isSubmitted(): bool
+	protected function isFormSubmitted(): bool
 	{
 		return $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
 	}
 
 	protected function loadHttpData(): void
 	{
-		if ($this->isSubmitted()) {
+		if ($this->isFormSubmitted()) {
 			$this->httpData = Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
 		}
 	}

@@ -362,4 +362,27 @@ class MultiplierTest extends \Codeception\TestCase\Test
 		$this->assertDomHas($dom, 'input.myClass');
 	}
 
+	public function testPromptSelect()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create()
+				->containerModifier(function (Container $container) {
+					$container->addSelect('select', null, ['foo' => 'foo'])
+						->setPrompt('Select');
+				})
+				->addCreateButton()
+				->createForm()
+		)
+			->setPost($params = [
+				'm' => [
+					['select' => '', 'multiplier_creator' => ''],
+				],
+			])->send();
+
+		$this->assertTrue($response->isSuccess());
+
+		$dom = $response->toDomQuery();
+
+	}
+
 }

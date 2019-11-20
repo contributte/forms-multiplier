@@ -78,9 +78,17 @@ final class ComponentResolver
 	/**
 	 * @return mixed[]
 	 */
-	public function getValuesForComponents(bool $includeDefaults = true): array
+	public function getDefaults(): array
 	{
-		return array_slice($this->getPurgedHttpData() ?: ($includeDefaults ? $this->values : []), 0, $this->maxCopies, true);
+		return array_slice($this->values, 0, $this->maxCopies, true);
+	}
+
+	/**
+	 * @return mixed[]
+	 */
+	public function getValues(): array
+	{
+		return array_slice($this->getPurgedHttpData(), 0, $this->maxCopies, true);
 	}
 
 	/**
