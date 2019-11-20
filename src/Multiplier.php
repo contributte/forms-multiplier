@@ -442,7 +442,7 @@ class Multiplier extends Container
 	 */
 	public function resetFormEvents(): void
 	{
-		$this->form->onSuccess = $this->form->onError = [];
+		$this->form->onSuccess = $this->form->onError = $this->form->onSubmit = [];
 	}
 
 	/**
