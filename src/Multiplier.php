@@ -462,6 +462,7 @@ class Multiplier extends Container
 	/**
 	 * @param string|null $returnType
 	 * @return object|mixed[]
+	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
 	 */
 	public function getValues($returnType = null)
 	{

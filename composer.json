@@ -19,7 +19,7 @@
     "nette/application": "^3.0",
     "nette/di": "^3.0",
     "webchemistry/testing-helpers": "~2.0.0",
-    "latte/latte": "^3.0"
+    "latte/latte": "^2.7"
   },
   "autoload": {
     "psr-4": {
