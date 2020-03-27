@@ -228,7 +228,6 @@ class Multiplier extends Container
 		}
 
 		$container = $this->createContainer();
-		$this->fillContainer($container);
 		if ($defaults) {
 			$container->setDefaults($defaults, $this->erase);
 		}
@@ -267,7 +266,6 @@ class Multiplier extends Container
 			$copyNumber = $this->copyNumber;
 			while ($copyNumber > 0 && $this->isValidMaxCopies()) {
 				$containers[] = $container = $this->addCopy();
-				$this->applyDefaultValues($container);
 				$copyNumber--;
 			}
 		}
@@ -282,7 +280,7 @@ class Multiplier extends Container
 			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
 				$this->noValidate[] = $containers[] = $container = $this->addCopy();
-				$this->applyDefaultValues($container);
+                $container->setValues($this->createContainer()->getValues());
 				$count--;
 			}
 		}
@@ -366,20 +364,6 @@ class Multiplier extends Container
 		}
 	}
 
-	protected function applyDefaultValues(Container $container): void
-	{
-		$form = new Form('_foo_multiplier');
-		$factoryContainer = $form->addContainer('foo');
-		$this->fillContainer($factoryContainer);
-
-		foreach ($factoryContainer->getControls() as $name => $control) {
-			/** @var IControl $component */
-			$component = $container->getComponent($name, false);
-			if ($component) {
-				$component->setValue($control->getValue());
-			}
-		}
-	}
 
 	protected function createNumber(): int
 	{
@@ -408,6 +392,7 @@ class Multiplier extends Container
 	{
 		$control = new Container();
 		$control->currentGroup = $this->currentGroup;
+		$this->fillContainer($control);
 
 		return $control;
 	}
