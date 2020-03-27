@@ -280,7 +280,7 @@ class Multiplier extends Container
 			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
 				$this->noValidate[] = $containers[] = $container = $this->addCopy();
-                $container->setValues($this->createContainer()->getValues());
+				$container->setValues($this->createContainer()->getValues());
 				$count--;
 			}
 		}
@@ -487,6 +487,16 @@ class Multiplier extends Container
 	{
 		$this->values = $values;
 		$this->erase = $erase;
+
+		if ($this->created) {
+			foreach ($this->getContainers() as $container) {
+				$this->removeComponent($container);
+			}
+
+			$this->created = false;
+			$this->detachCreateButtons();
+			$this->createCopies();
+		}
 
 		return $this;
 	}
