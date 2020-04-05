@@ -84,8 +84,26 @@ class Multiplier extends Container
 		$this->minCopies = $this->copyNumber = $copyNumber;
 		$this->maxCopies = $maxCopies;
 
-		$this->monitor(Form::class);
-		$this->monitor(self::class);
+		$this->monitor(Form::class, function (Form $form): void {
+			$this->form = $form;
+
+			if ($this->getCurrentGroup() === null) {
+				$this->setCurrentGroup($form->getCurrentGroup());
+			}
+			if ($form instanceof \Nette\Application\UI\Form) {
+				if ($form->isAnchored()) {
+					$this->whenAttached();
+				} else {
+					$form->onAnchor[] = function (): void {
+						$this->whenAttached();
+					};
+				}
+			}
+			$form->onRender[] = function (): void {
+				$this->whenAttached();
+			};
+		});
+		$this->monitor(self::class, [$this, 'whenAttached']);
 	}
 
 	public function getForm(bool $throw = true): ?Form
@@ -95,33 +113,6 @@ class Multiplier extends Container
 		}
 
 		return parent::getForm($throw);
-	}
-
-	protected function attached(IComponent $obj): void
-	{
-		parent::attached($obj);
-
-		if ($obj instanceof self) {
-			$this->whenAttached();
-		} elseif ($obj instanceof Form) {
-			$this->form = $obj;
-
-			if ($this->getCurrentGroup() === null) {
-				$this->setCurrentGroup($obj->getCurrentGroup());
-			}
-			if ($obj instanceof \Nette\Application\UI\Form) {
-				if ($obj->isAnchored()) {
-					$this->whenAttached();
-				} else {
-					$obj->onAnchor[] = function (): void {
-						$this->whenAttached();
-					};
-				}
-			}
-			$obj->onRender[] = function (): void {
-				$this->whenAttached();
-			};
-		}
 	}
 
 	protected function whenAttached(): void
