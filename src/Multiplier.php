@@ -110,9 +110,13 @@ class Multiplier extends Container
 				$this->setCurrentGroup($obj->getCurrentGroup());
 			}
 			if ($obj instanceof \Nette\Application\UI\Form) {
-				$obj->onAnchor[] = function (): void {
+				if ($obj->isAnchored()) {
 					$this->whenAttached();
-				};
+				} else {
+					$obj->onAnchor[] = function (): void {
+						$this->whenAttached();
+					};
+				}
 			}
 			$obj->onRender[] = function (): void {
 				$this->whenAttached();
