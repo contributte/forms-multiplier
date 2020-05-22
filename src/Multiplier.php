@@ -399,7 +399,7 @@ class Multiplier extends Container
 	{
 		$buttons = [];
 		foreach ($this->createButtons as $button) {
-			$buttons[$button->getCopyCount()] = $this->getComponent($button->getComponentName());
+			$buttons[$button->getCopyCount()] = $this->getComponent($button->getComponentName(), false);
 		}
 
 		return $buttons;
