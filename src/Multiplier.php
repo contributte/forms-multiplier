@@ -275,7 +275,7 @@ class Multiplier extends Container
 			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
 				$this->noValidate[] = $containers[] = $container = $this->addCopy();
-				$container->setValues($this->createContainer()->getValues());
+				$container->setValues($this->createContainer()->getValues('array'));
 				$count--;
 			}
 		}
