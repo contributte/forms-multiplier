@@ -221,6 +221,7 @@ class MultiplierTest extends \Codeception\TestCase\Test
 					],
 				],
 				['bar' => 'bar'],
+				Multiplier::SUBMIT_CREATE_NAME => '',
 			],
 		]);
 
@@ -239,6 +240,10 @@ class MultiplierTest extends \Codeception\TestCase\Test
 				],
 				[
 					'bar' => 'bar',
+					'm2' => [],
+				],
+				[
+					'bar' => '',
 					'm2' => [],
 				],
 			],
