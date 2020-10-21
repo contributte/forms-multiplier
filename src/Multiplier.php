@@ -305,7 +305,6 @@ class Multiplier extends Container
 		}
 
 		if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
-
 			$this->form->setSubmittedBy($this->removeButton->create($this));
 
 			$this->resetFormEvents();
