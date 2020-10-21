@@ -397,6 +397,10 @@ class Multiplier extends Container
 	 */
 	public function getCreateButtons(): array
 	{
+		if ($this->maxCopies !== null && $this->totalCopies >= $this->maxCopies) {
+			return [];
+		}
+
 		$buttons = [];
 		foreach ($this->createButtons as $button) {
 			$buttons[$button->getCopyCount()] = $this->getComponent($button->getComponentName());
