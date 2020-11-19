@@ -211,6 +211,35 @@ class Multiplier extends Container
 		return $container;
 	}
 
+    public function createCopies(): void
+    {
+        if ($this->created === true) {
+            return;
+        }
+        $this->created = true;
+
+        $resolver = new ComponentResolver($this->httpData, $this->values, $this->maxCopies, $this->minCopies);
+
+        $this->attachCreateButtons();
+        $this->createComponents($resolver);
+        $this->detachCreateButtons();
+
+        if ($this->maxCopies === null || $this->totalCopies < $this->maxCopies) {
+            $this->attachCreateButtons();
+        }
+
+        if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
+            $this->form->setSubmittedBy($this->removeButton->create($this));
+
+            $this->resetFormEvents();
+
+            $this->onRemoveEvent();
+        }
+
+        // onCreateEvent
+        $this->onCreateEvent();
+    }
+
 	public function createCopies(): void
 	{
 		if ($this->created === true) {
@@ -464,9 +493,9 @@ class Multiplier extends Container
 		}
 
 		// Default number of copies
-		if (!$this->isFormSubmitted() && !$this->values) {
+		if (!$this->values) {
 			$copyNumber = $this->copyNumber;
-			while ($copyNumber > 0 && $this->isValidMaxCopies()) {
+			while ($copyNumber > 0 && $this->isValidMaxCopies() && $this->totalCopies < $this->minCopies) {
 				$containers[] = $container = $this->addCopy();
 				$copyNumber--;
 			}
