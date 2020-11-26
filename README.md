@@ -22,7 +22,7 @@ Website ðŸš€ <a href="https://contributte.org">contributte.org</a> | Contact ðŸ‘
 To install latest version of `contributte/forms-multiplier` use [Composer](https://getcomposer.com).
 
 ```
-composer require contributte/pdf
+composer require contributte/forms-multiplier
 ```
 
 ## Documentation
