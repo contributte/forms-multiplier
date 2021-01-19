@@ -7,6 +7,7 @@ use Contributte\FormMultiplier\Buttons\RemoveButton;
 use Iterator;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\Container;
+use Nette\Forms\Control;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Form;
@@ -445,21 +446,22 @@ class Multiplier extends Container
 		$this->form->onSuccess = $this->form->onError = $this->form->onSubmit = [];
 	}
 
-	/**
-	 * @param string|null $returnType
-	 * @return object|mixed[]
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
-	 */
-	public function getValues($returnType = null)
-	{
-		if (!$this->resetKeys) {
-			return parent::getValues($returnType);
-		}
+    /**
+     * @param string|null $returnType
+     * @return object|mixed[]
+     * @param  Control[]|null  $controls
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
+     */
+    public function getValues($returnType = null, array $controls = null)
+    {
+        if (!$this->resetKeys) {
+            return parent::getValues($returnType, $controls);
+        }
 
-		$values = array_values(parent::getValues('array'));
+        $values = array_values(parent::getValues('array', $controls));
 
-		return $returnType === true || $returnType === 'array' ? $values : ArrayHash::from($values);
-	}
+        return $returnType === true || $returnType === 'array' ? $values : ArrayHash::from($values);
+    }
 
 	/**
 	 * @return Iterator|IControl[]
