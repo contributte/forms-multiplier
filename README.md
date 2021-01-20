@@ -34,12 +34,16 @@ For details on how to use this package, check out our [documentation](.docs).
 
 | State       | Version     | Branch   | PHP      |
 |-------------|-------------|----------|----------|
-| dev         | `3.1.x-dev` | `master` | `^7.2`   |
-| stable      | `^3.0`      | `master` | `^5.6`   |
+| dev         | `^3.2`      | `master` | `>=7.2`  |
+| stable      | `^3.1`      | `master` | `>=5.6`  |
 
 ## Development
 
 See [how to contribute](https://contributte.org) to this package. This package is currently maintained by these authors.
+
+<a href="https://github.com/MartkCz">
+    <img width="80" height="80" src="https://avatars2.githubusercontent.com/u/10145362?v=3&s=80">
+</a>
 
 <a href="https://github.com/f3l1x">
     <img width="80" height="80" src="https://avatars2.githubusercontent.com/u/538058?v=3&s=80">
