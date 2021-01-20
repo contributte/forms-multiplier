@@ -26,10 +26,12 @@ final class MultiplierMacros extends MacroSet
 		if ($node->modifiers) {
 			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
 		}
+
 		$words = $node->tokenizer->fetchWords();
 		if (!$words) {
 			throw new CompileException('Missing name in ' . $node->getNotation());
 		}
+
 		$node->replaced = true;
 		$name = array_shift($words);
 		if (isset($words[0]) && is_numeric($words[0])) {
@@ -59,6 +61,7 @@ final class MultiplierMacros extends MacroSet
 		if ($node->modifiers) {
 			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
 		}
+
 		$code = '$_tmp = end($this->global->formsStack);';
 		$code .= '$_input = isset($_tmp[\'' . Multiplier::SUBMIT_REMOVE_NAME . '\']) ? $_tmp[\'' . Multiplier::SUBMIT_REMOVE_NAME . '\'] : null;';
 		$code .= 'if ($_input) {';
@@ -77,10 +80,12 @@ final class MultiplierMacros extends MacroSet
 		if ($node->modifiers) {
 			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
 		}
+
 		$words = $node->tokenizer->fetchWords();
 		if (!$words) {
 			throw new CompileException('Missing name in ' . $node->getNotation());
 		}
+
 		$node->replaced = true;
 		$name = array_shift($words);
 

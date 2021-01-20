@@ -90,6 +90,7 @@ class Multiplier extends Container
 			if ($this->getCurrentGroup() === null) {
 				$this->setCurrentGroup($form->getCurrentGroup());
 			}
+
 			if ($form instanceof \Nette\Application\UI\Form) {
 				if ($form->isAnchored()) {
 					$this->whenAttached();
@@ -99,6 +100,7 @@ class Multiplier extends Container
 					};
 				}
 			}
+
 			$form->onRender[] = function (): void {
 				$this->whenAttached();
 			};
@@ -120,6 +122,7 @@ class Multiplier extends Container
 		if ($this->attachedCalled) {
 			return;
 		}
+
 		$this->loadHttpData();
 		$this->createCopies();
 
@@ -226,6 +229,7 @@ class Multiplier extends Container
 		if ($defaults) {
 			$container->setDefaults($defaults, $this->erase);
 		}
+
 		$this->attachContainer($container, (string) $number);
 		$this->attachRemoveButton($container);
 
@@ -248,12 +252,10 @@ class Multiplier extends Container
 					$control->loadHttpData();
 				}
 			}
-
 		} else { // Components from default values
 			foreach ($resolver->getDefaults() as $number => $values) {
 				$containers[] = $this->addCopy($number, $values);
 			}
-
 		}
 
 		// Default number of copies
@@ -292,6 +294,7 @@ class Multiplier extends Container
 		if ($this->created === true) {
 			return;
 		}
+
 		$this->created = true;
 
 		$resolver = new ComponentResolver($this->httpData, $this->values, $this->maxCopies, $this->minCopies);
@@ -434,6 +437,7 @@ class Multiplier extends Container
 		if ($this->getCurrentGroup()) {
 			$this->getCurrentGroup()->remove($component);
 		}
+
 		$this->removeComponent($component);
 	}
 

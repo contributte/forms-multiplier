@@ -13,8 +13,7 @@
     "nette/forms": "^3.0.0"
   },
   "require-dev": {
-    "ninjify/qa": "^0.8.0",
-    "ninjify/nunjuck": "^0.2.0",
+    "ninjify/qa": "^0.12",
     "codeception/codeception": "^2.4.0",
     "nette/application": "^3.0.0",
     "nette/di": "^3.0.0",
@@ -39,6 +38,9 @@
   },
   "prefer-stable": true,
   "minimum-stability": "dev",
+  "config": {
+    "sort-packages": true
+  },
   "extra": {
     "branch-alias": {
       "dev-master": "3.1.x-dev"
