@@ -22,7 +22,7 @@ tests:
 	vendor/bin/codecept run
 
 coverage-clover:
-	vendor/bin/codecept run --coverage --coverage-xml
+	phpdbg -qrr vendor/bin/codecept run --coverage-xml
 
 coverage-html:
-	vendor/bin/codecept run --coverage --coverage-html
+	phpdbg -qrr vendor/bin/codecept run --coverage-html

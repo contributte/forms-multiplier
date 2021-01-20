@@ -1,7 +1,22 @@
+actor: Tester
+
 paths:
+  # where the tests stored
   tests: tests
-  output: tests/_output
+
+  # directory for fixture data
   data: tests/_data
+
+  # directory for support code
   support: tests/_support
-  envs: tests/_envs
-actor_suffix: Tester
+
+  # directory for output
+  output: tests/_output
+
+settings:
+  log: true
+
+coverage:
+  enabled: true
+  include:
+    - src/**

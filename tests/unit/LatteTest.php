@@ -7,12 +7,11 @@ use Nette\Bridges\FormsLatte\FormMacros;
 use Nette\Forms\Container;
 use Contributte\FormMultiplier\Macros\MultiplierMacros;
 use Contributte\FormMultiplier\Multiplier;
-use WebChemistry\Testing\TUnitTest;
 
 class LatteTest extends \Codeception\TestCase\Test
 {
 
-	use TUnitTest;
+	use TTest;
 
 	/** @var Engine */
 	protected $latte;

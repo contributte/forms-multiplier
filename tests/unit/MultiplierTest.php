@@ -3,12 +3,11 @@
 use Nette\Forms\Container;
 use Contributte\FormMultiplier\Multiplier;
 use Nette\Application\UI\Form;
-use WebChemistry\Testing\TUnitTest;
 
 class MultiplierTest extends \Codeception\TestCase\Test
 {
 
-	use TUnitTest;
+	use TTest;
 
 	/** @var array */
 	protected $parameters = [

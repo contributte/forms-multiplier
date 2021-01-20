@@ -2,12 +2,11 @@
 
 use Nette\Forms\Controls\SubmitButton;
 use Contributte\FormMultiplier\Submitter;
-use WebChemistry\Testing\TUnitTest;
 
 class CreateButtonTest extends \Codeception\TestCase\Test
 {
 
-	use TUnitTest;
+	use TTest;
 
 	public function testSendCreate()
 	{

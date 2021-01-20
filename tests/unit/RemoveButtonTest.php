@@ -4,12 +4,11 @@ use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
 use Contributte\FormMultiplier\Multiplier;
 use Nette\Application\UI\Form;
-use WebChemistry\Testing\TUnitTest;
 
 class RemoveButtonTest extends \Codeception\TestCase\Test
 {
 
-	use TUnitTest;
+	use TTest;
 
 	private function createMultiplier(callable $factory, $copyNumber = 1, $maxCopies = null)
 	{
