@@ -22,7 +22,7 @@ class Multiplier extends Container
 
 	public const SUBMIT_REMOVE_NAME = 'multiplier_remover';
 
-	/** @var Form */
+	/** @var Form|null */
 	private $form;
 
 	/** @var bool */
@@ -279,7 +279,7 @@ class Multiplier extends Container
 		}
 
 		// New containers, if create button hitted
-		if ($resolver->isCreateAction() && $this->form->isValid()) {
+		if ($this->form !== null && $resolver->isCreateAction() && $this->form->isValid()) {
 			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
 				$this->noValidate[] = $containers[] = $container = $this->addCopy();
@@ -313,7 +313,7 @@ class Multiplier extends Container
 			$this->attachCreateButtons();
 		}
 
-		if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
+		if ($this->form !== null && $resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
 			/** @var RemoveButton $removeButton */
 			$removeButton = $this->removeButton;
 			$this->form->setSubmittedBy($removeButton->create($this));
@@ -367,7 +367,7 @@ class Multiplier extends Container
 
 	protected function loadHttpData(): void
 	{
-		if ($this->isFormSubmitted()) {
+		if ($this->form !== null && $this->isFormSubmitted()) {
 			$this->httpData = Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
 		}
 	}
@@ -454,6 +454,10 @@ class Multiplier extends Container
 	 */
 	public function resetFormEvents(): void
 	{
+		if ($this->form === null) {
+			return;
+		}
+
 		$this->form->onSuccess = $this->form->onError = $this->form->onSubmit = [];
 	}
 
