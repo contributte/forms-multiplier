@@ -6,14 +6,19 @@ use Contributte\FormMultiplier\Macros\MultiplierMacros;
 use Contributte\FormMultiplier\Multiplier;
 use Nette;
 use Nette\DI\CompilerExtension;
+use Nette\Schema\Expect;
+use Nette\Schema\Schema;
+use stdClass;
 
 class MultiplierExtension extends CompilerExtension
 {
 
-	/** @var string[] */
-	public $defaults = [
-		'name' => 'addMultiplier',
-	];
+	public function getConfigSchema(): Schema
+	{
+		return Expect::structure([
+			'name' => Expect::string()->default('addMultiplier'),
+		]);
+	}
 
 	public function beforeCompile(): void
 	{
@@ -27,10 +32,10 @@ class MultiplierExtension extends CompilerExtension
 
 	public function afterCompile(Nette\PhpGenerator\ClassType $class): void
 	{
+		/** @var stdClass $config */
+		$config = $this->getConfig();
 		$init = $class->getMethods()['initialize'];
-		$config = $this->validateConfig($this->defaults);
-
-		$init->addBody(Multiplier::class . '::register(?);', [$config['name']]);
+		$init->addBody(Multiplier::class . '::register(?);', [$config->name]);
 	}
 
 }
