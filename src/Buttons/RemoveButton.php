@@ -17,7 +17,7 @@ final class RemoveButton
 	/** @var callable[] */
 	public $onCreate = [];
 
-	/** @var callable[] */
+	/** @var string[] */
 	private $classes = [];
 
 	public function __construct(?string $caption)

@@ -24,8 +24,18 @@ class MultiplierExtension extends CompilerExtension
 	{
 		$builder = $this->getContainerBuilder();
 
-		$resultDefinition = $builder->getDefinition('latte.latteFactory')
-			->getResultDefinition();
+		$latteFactoryDefinition = $builder->getDefinition('latte.latteFactory');
+		if ($latteFactoryDefinition instanceof Nette\DI\Definitions\FactoryDefinition === false) {
+			throw new Nette\DI\InvalidConfigurationException(
+				sprintf(
+					'latte.latteFactory service definition must be of type %s, not %s',
+					Nette\DI\Definitions\FactoryDefinition::class,
+					get_class($latteFactoryDefinition)
+				)
+			);
+		}
+
+		$resultDefinition = $latteFactoryDefinition->getResultDefinition();
 
 		$resultDefinition->addSetup(MultiplierMacros::class . '::install(?->getCompiler())', ['@self']);
 	}

@@ -11,9 +11,9 @@ use Nette\Forms\Control;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Form;
-use Nette\Forms\IControl;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\Arrays;
+use Traversable;
 
 class Multiplier extends Container
 {
@@ -55,7 +55,7 @@ class Multiplier extends Container
 	/** @var mixed[] */
 	protected $httpData = [];
 
-	/** @var int */
+	/** @var int|null */
 	protected $maxCopies = null;
 
 	/** @var int */
@@ -198,11 +198,12 @@ class Multiplier extends Container
 	}
 
 	/**
-	 * @param IControl[]|null $controls
+	 * @param Control[]|null $controls
 	 */
 	public function validate(?array $controls = null): void
 	{
-		$controls = $controls ?? iterator_to_array($this->getComponents());
+		/** @var Control[] $controls */
+		$controls = $controls ?? iterator_to_array($this->getComponents(false, Control::class));
 
 		foreach ($controls as $index => $control) {
 			foreach ($this->noValidate as $item) {
@@ -218,12 +219,16 @@ class Multiplier extends Container
 	/**
 	 * @param mixed[]|object $defaults
 	 */
-	public function addCopy(?int $number = null, $defaults = []): ?Container
+	public function addCopy(?int $number = null, $defaults = []): Container
 	{
 		if (!is_numeric($number)) {
 			$number = $this->createNumber();
-		} elseif ($component = parent::getComponent((string) $number, false)) {
-			return $component;
+		} else {
+			/** @var Container|null $component */
+			$component = $this->getComponent((string) $number, false);
+			if ($component !== null) {
+				return $component;
+			}
 		}
 
 		$container = $this->createContainer();
@@ -309,7 +314,9 @@ class Multiplier extends Container
 		}
 
 		if ($resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
-			$this->form->setSubmittedBy($this->removeButton->create($this));
+			/** @var RemoveButton $removeButton */
+			$removeButton = $this->removeButton;
+			$this->form->setSubmittedBy($removeButton->create($this));
 
 			$this->resetFormEvents();
 
@@ -337,7 +344,7 @@ class Multiplier extends Container
 	private function detachRemoveButton(Container $container): void
 	{
 		$button = $container->getComponent(self::SUBMIT_REMOVE_NAME);
-		if ($this->getCurrentGroup()) {
+		if ($this->getCurrentGroup() !== null) {
 			$this->getCurrentGroup()->remove($button);
 		}
 
@@ -355,7 +362,7 @@ class Multiplier extends Container
 
 	protected function isFormSubmitted(): bool
 	{
-		return $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
+		return $this->getForm() !== null && $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
 	}
 
 	protected function loadHttpData(): void
@@ -386,7 +393,7 @@ class Multiplier extends Container
 	 */
 	protected function getHtmlName(): array
 	{
-		return explode('-', $this->lookupPath(Form::class));
+		return explode('-', $this->lookupPath(Form::class) ?? '');
 	}
 
 	protected function createContainer(): Container
@@ -435,7 +442,7 @@ class Multiplier extends Container
 
 	protected function removeComponentProperly(IComponent $component): void
 	{
-		if ($this->getCurrentGroup()) {
+		if ($this->getCurrentGroup() !== null && $component instanceof Control) {
 			$this->getCurrentGroup()->remove($component);
 		}
 
@@ -462,13 +469,16 @@ class Multiplier extends Container
 			return parent::getValues($returnType, $controls);
 		}
 
-		$values = array_values(parent::getValues('array', $controls));
+		/** @var mixed[] $values */
+		$values = parent::getValues('array', $controls);
+		$values = array_values($values);
 
-		return $returnType === true || $returnType === 'array' ? $values : ArrayHash::from($values);
+		$returnType = $returnType === true ? 'array' : $returnType; // @phpstan-ignore-line nette backwards compatibility
+		return $returnType === 'array' ? $values : ArrayHash::from($values);
 	}
 
 	/**
-	 * @return Iterator|IControl[]
+	 * @return Iterator|Control[]
 	 */
 	public function getControls(): Iterator
 	{
@@ -478,13 +488,15 @@ class Multiplier extends Container
 	}
 
 	/**
-	 * @return Container[]|Iterator
+	 * @return Iterator<int|string,Container>
 	 */
 	public function getContainers(): Iterator
 	{
 		$this->createCopies();
 
-		return $this->getComponents(false, Container::class);
+		/** @var Iterator<int|string,Container> $containers */
+		$containers = $this->getComponents(false, Container::class);
+		return $containers;
 	}
 
 	/**
@@ -492,6 +504,12 @@ class Multiplier extends Container
 	 */
 	public function setValues($values, bool $erase = false): self
 	{
+		if ($values instanceof Traversable) {
+			$values = iterator_to_array($values);
+		} else {
+			$values = (array) $values;
+		}
+
 		$this->values = $values;
 		$this->erase = $erase;
 
