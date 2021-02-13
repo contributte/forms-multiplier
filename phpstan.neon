@@ -2,3 +2,7 @@ includes:
 	- vendor/phpstan/phpstan-deprecation-rules/rules.neon
 	- vendor/phpstan/phpstan-nette/extension.neon
 	- vendor/phpstan/phpstan-nette/rules.neon
+
+parameters:
+	ignoreErrors:
+		- '/Call to deprecated method fetchWords\(\) of class Latte\\MacroTokens./' # @todo https://github.com/contributte/forms-multiplier/issues/63
