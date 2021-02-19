@@ -467,8 +467,10 @@ class Multiplier extends Container
             }
 
         } else { // Components from default values
-            foreach ($resolver->getDefaults() as $number => $values) {
-                $containers[] = $this->addCopy($number, $values);
+            foreach ($this->resolver->getValues() as $number => $values) {
+                $containers[] = $container = $this->addCopy($number);
+                $container->setValues($containerDefaults);
+                $container->setValues($values);
             }
 
         }
