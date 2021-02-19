@@ -450,14 +450,14 @@ class Multiplier extends Container
 		$this->removeComponent($component);
 	}
 
-    private function createComponents(ComponentResolver $resolver): void
+    private function createComponents(bool $forceValues = false) : void
     {
         $containers = [];
         $containerDefaults = $this->createContainer()->getValues('array');
 
         // Components from httpData
-        if ($this->isFormSubmitted()) {
-            foreach ($resolver->getValues() as $number => $_) {
+        if ($this->isFormSubmitted() && !$forceValues) {
+            foreach ($this->resolver->getValues() as $number => $_) {
                 $containers[] = $container = $this->addCopy($number);
 
                 /** @var BaseControl $control */
