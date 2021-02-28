@@ -20,10 +20,10 @@
 
 ## Usage
 
-To install latest version of `contributte/forms-multiplier` use [Composer](https://getcomposer.com).
+To install latest version of `contributte/forms-multiplier` use [Composer](https://getcomposer.org).
 
 ```
-composer require contributte/forms-multiplier
+$ composer require contributte/forms-multiplier
 ```
 
 ## Documentation
@@ -52,5 +52,5 @@ See [how to contribute](https://contributte.org) to this package. This package i
 
 -----
 
-Consider to [support](https://contributte.com/partners) **contributte** development team.
+Consider to [support](https://contributte.org/partners.html) **contributte** development team.
 Also thank you for using this package. Thanks.
