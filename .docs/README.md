@@ -44,7 +44,7 @@ $multiplier->addCreateButton('Add 5', 5); // add five containers
 
 ### Macros
 
-```html
+```latte
 {form multiplier}
 	<div n:multiplier="multiplier">
 		<input n:name="text">
