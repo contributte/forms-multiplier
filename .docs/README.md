@@ -3,18 +3,18 @@
 ## Content
 
 - [Usage - how use it](#usage)
-    - [Register extension](#register-extension)
-    - [Basic usage](#basic-usage)
-    - [Adding multiple containers](#adding-multiple-containers)
-    - [Macros](#macros)
+	- [Register extension](#register-extension)
+	- [Basic usage](#basic-usage)
+	- [Adding multiple containers](#adding-multiple-containers)
+	- [Macros](#macros)
 
 ## Usage
 
 ### Register extension
 
-```yaml
+```neon
 extensions:
-    - Contributte\FormMultiplier\DI\MultiplierExtension
+	- Contributte\FormMultiplier\DI\MultiplierExtension
 ```
 
 ### Basic usage
@@ -25,8 +25,8 @@ $copies = 1;
 $maxCopies = 10;
 
 $multiplier = $form->addMultiplier('multiplier', function (Nette\Forms\Container $container, Nette\Forms\Form $form) {
-    $container->addText('text', 'Text')
-                ->setDefaultValue('My value');
+	$container->addText('text', 'Text')
+		->setDefaultValue('My value');
 }, $copies, $maxCopies);
 
 $multiplier->addCreateButton('Add')
@@ -46,11 +46,11 @@ $multiplier->addCreateButton('Add 5', 5); // add five containers
 
 ```latte
 {form multiplier}
-	<div n:multiplier="multiplier">
-		<input n:name="text">
-		{btnRemove 'class' => 'myClass'}
-	</div>
-	{btnCreate multiplier class => myClass}
-	{btnCreate $form[multiplier]:5}
+    <div n:multiplier="multiplier">
+        <input n:name="text">
+        {btnRemove 'class' => 'myClass'}
+    </div>
+    {btnCreate multiplier class => myClass}
+    {btnCreate $form[multiplier]:5}
 {/form}
 ```
