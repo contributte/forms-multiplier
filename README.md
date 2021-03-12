@@ -22,8 +22,8 @@
 
 To install latest version of `contributte/forms-multiplier` use [Composer](https://getcomposer.org).
 
-```
-$ composer require contributte/forms-multiplier
+```bash
+composer require contributte/forms-multiplier
 ```
 
 ## Documentation
