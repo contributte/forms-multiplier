@@ -203,7 +203,7 @@ class Multiplier extends Container
 	public function validate(?array $controls = null): void
 	{
 		/** @var Control[] $controls */
-		$controls = $controls ?? iterator_to_array($this->getComponents(false, Control::class));
+		$controls = $controls ?? iterator_to_array($this->getComponents(true));
 
 		foreach ($controls as $index => $control) {
 			foreach ($this->noValidate as $item) {
