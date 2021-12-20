@@ -368,7 +368,7 @@ class Multiplier extends Container
 	protected function loadHttpData(): void
 	{
 		if ($this->form !== null && $this->isFormSubmitted()) {
-			$this->httpData = Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
+			$this->httpData = (array) Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
 		}
 	}
 
