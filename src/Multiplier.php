@@ -66,8 +66,8 @@ class Multiplier extends Container
 
 	private bool $attachedCalled = false;
 
-	/** @var ComponentResolver|null */
-	protected $resolver = null;
+	/** @var ComponentResolver */
+	protected $resolver;
 
 	public function __construct(callable $factory, int $copyNumber = 1, ?int $maxCopies = null)
 	{
