@@ -218,9 +218,9 @@ class Multiplier extends Container
         }
         $this->created = true;
 
-        if (!isset($this->resolver)) {
-            $this->resolver = new ComponentResolver($this->values, $this->maxCopies, $this->minCopies);
-        }
+		if (!isset($this->resolver)) {
+			$this->resolver = new ComponentResolver($this->values, $this->maxCopies, $this->minCopies);
+		}
 
         $this->attachCreateButtons();
         $this->createComponents($forceValues);
