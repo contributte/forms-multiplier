@@ -75,7 +75,7 @@ class Multiplier extends Container
 		$this->minCopies = $this->copyNumber = $copyNumber;
 		$this->maxCopies = $maxCopies;
 
-		$this->monitor(Form::class, function (Form $form): void {
+		$this->monitor(Form::class, function (Form $form) : void {
 			$this->form = $form;
 
 			if ($this->getCurrentGroup() === null) {
@@ -125,31 +125,31 @@ class Multiplier extends Container
 		return $this;
 	}
 
-	public function setMinCopies(int $minCopies): self
+	public function setMinCopies(int $minCopies) : self
 	{
 		$this->minCopies = $minCopies;
 
 		return $this;
 	}
 
-	public function setFactory(callable $factory): self
+	public function setFactory(callable $factory) : self
 	{
 		$this->factory = $factory;
 
 		return $this;
 	}
 
-	public function getMaxCopies(): ?int
+	public function getMaxCopies() : ?int
 	{
 		return $this->maxCopies;
 	}
 
-	public function getMinCopies(): ?int
+	public function getMinCopies() : ?int
 	{
 		return $this->minCopies;
 	}
 
-	public function getCopyNumber(): int
+	public function getCopyNumber() : int
 	{
 		return $this->copyNumber;
 	}
@@ -159,7 +159,7 @@ class Multiplier extends Container
 		return $this->removeButton = new RemoveButton($caption);
 	}
 
-	public function addCreateButton(?string $caption = null, int $copyCount = 1): CreateButton
+	public function addCreateButton(?string $caption = null, int $copyCount = 1) : CreateButton
 	{
 		return $this->createButtons[$copyCount] = new CreateButton($caption, $copyCount);
 	}
@@ -167,7 +167,7 @@ class Multiplier extends Container
 	/**
 	 * @param Control[]|null $controls
 	 */
-	public function validate(?array $controls = null): void
+	public function validate(?array $controls = null) : void
 	{
 		/** @var Control[] $components */
 		$components = $controls ?? iterator_to_array($this->getComponents());
