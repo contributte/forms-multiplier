@@ -66,8 +66,8 @@ class Multiplier extends Container
 
 	private bool $attachedCalled = false;
 
-	/** @var ComponentResolver */
-	protected $resolver;
+	/** @var ComponentResolver|null */
+	protected $resolver = null;
 
 	public function __construct(callable $factory, int $copyNumber = 1, ?int $maxCopies = null)
 	{
@@ -387,7 +387,7 @@ class Multiplier extends Container
 	{
 		if ($this->isFormSubmitted()) {
             $httpData = Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
-            $this->resolver = new ComponentResolver($httpData, $this->maxCopies, $this->minCopies);
+            $this->resolver = new ComponentResolver($httpData ?? [], $this->maxCopies, $this->minCopies);
 		}
 	}
 
@@ -450,29 +450,26 @@ class Multiplier extends Container
 		$this->removeComponent($component);
 	}
 
-    private function createComponents(bool $forceValues = false) : void
+    private function createComponents(bool $foceValues = false): void
     {
         $containers = [];
         $containerDefaults = $this->createContainer()->getValues('array');
 
         // Components from httpData
-        if ($this->isFormSubmitted() && !$forceValues) {
+        if ($this->isFormSubmitted() && !$foceValues) {
             foreach ($this->resolver->getValues() as $number => $_) {
                 $containers[] = $container = $this->addCopy($number);
 
                 /** @var BaseControl $control */
-                foreach ($container->getComponents(false, IControl::class) as $control) {
+                foreach ($container->getComponents(false, Control::class) as $control) {
                     $control->loadHttpData();
                 }
             }
-
         } else { // Components from default values
             foreach ($this->resolver->getValues() as $number => $values) {
-                $containers[] = $container = $this->addCopy($number);
-                $container->setValues($containerDefaults);
+                $containers[] = $container = $this->addCopy($number, $values);
                 $container->setValues($values);
             }
-
         }
 
         // Default number of copies
@@ -491,7 +488,7 @@ class Multiplier extends Container
         }
 
         // New containers, if create button hitted
-        if ($this->resolver->isCreateAction() && $this->form->isValid()) {
+        if ($this->form !== null && $this->resolver->isCreateAction() && $this->form->isValid()) {
             $count = $this->resolver->getCreateNum();
             while ($count > 0 && $this->isValidMaxCopies()) {
                 $this->noValidate[] = $containers[] = $container = $this->addCopy();
