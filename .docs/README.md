@@ -44,6 +44,8 @@ $multiplier->addCreateButton('Add 5', 5); // add five containers
 
 ### Macros
 
+Latte 2
+
 ```latte
 {form multiplier}
     <div n:multiplier="multiplier">
@@ -54,3 +56,18 @@ $multiplier->addCreateButton('Add 5', 5); // add five containers
     {btnCreate $form[multiplier]:5}
 {/form}
 ```
+
+Latte 3
+
+```latte
+{form multiplier}
+    <div n:multiplier="multiplier">
+        <input n:name="text">
+        {multiplier:remove class: myClass}
+    </div>
+
+    {multiplier:add multiplier class: myClass}
+    {multiplier:add multiplier:5}
+{/form}
+```
+

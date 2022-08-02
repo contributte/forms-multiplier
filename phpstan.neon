@@ -4,5 +4,6 @@ includes:
 	- vendor/phpstan/phpstan-nette/rules.neon
 
 parameters:
-	ignoreErrors:
-		- '/Call to deprecated method fetchWords\(\) of class Latte\\MacroTokens./' # @todo https://github.com/contributte/forms-multiplier/issues/63
+	excludePaths:
+		analyse:
+			- src/Macros/MultiplierMacros.php

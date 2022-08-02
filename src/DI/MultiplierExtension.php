@@ -4,8 +4,13 @@ namespace Contributte\FormMultiplier\DI;
 
 use Contributte\FormMultiplier\Macros\MultiplierMacros;
 use Contributte\FormMultiplier\Multiplier;
-use Nette;
+use Latte\Engine;
+use Nette\Bridges\ApplicationLatte\LatteFactory;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\FactoryDefinition;
+use Nette\DI\Definitions\Statement;
+use Nette\DI\InvalidConfigurationException;
+use Nette\PhpGenerator\ClassType;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use stdClass;
@@ -23,24 +28,28 @@ class MultiplierExtension extends CompilerExtension
 	public function beforeCompile(): void
 	{
 		$builder = $this->getContainerBuilder();
+		$factory = $builder->getDefinitionByType(LatteFactory::class);
 
-		$latteFactoryDefinition = $builder->getDefinition('latte.latteFactory');
-		if ($latteFactoryDefinition instanceof Nette\DI\Definitions\FactoryDefinition === false) {
-			throw new Nette\DI\InvalidConfigurationException(
+		if (!$factory instanceof FactoryDefinition) {
+			throw new InvalidConfigurationException(
 				sprintf(
 					'latte.latteFactory service definition must be of type %s, not %s',
-					Nette\DI\Definitions\FactoryDefinition::class,
-					get_class($latteFactoryDefinition)
+					FactoryDefinition::class,
+					get_class($factory)
 				)
 			);
 		}
 
-		$resultDefinition = $latteFactoryDefinition->getResultDefinition();
+		$resultDefinition = $factory->getResultDefinition();
 
-		$resultDefinition->addSetup(MultiplierMacros::class . '::install(?->getCompiler())', ['@self']);
+		if (version_compare(Engine::VERSION, '3', '<')) { // @phpstan-ignore-line
+			$resultDefinition->addSetup(MultiplierMacros::class . '::install(?->getCompiler())', ['@self']);
+		} else {
+			$resultDefinition->addSetup('addExtension', [new Statement(\Contributte\FormMultiplier\Latte\Extension\MultiplierExtension::class)]);
+		}
 	}
 
-	public function afterCompile(Nette\PhpGenerator\ClassType $class): void
+	public function afterCompile(ClassType $class): void
 	{
 		/** @var stdClass $config */
 		$config = $this->getConfig();
