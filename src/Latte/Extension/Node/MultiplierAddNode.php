@@ -19,13 +19,13 @@ final class MultiplierAddNode extends StatementNode
 {
 
 	/** @var ExpressionNode */
-	private $name;
+	public $name;
 
 	/** @var ArrayNode */
-	private $attributes;
+	public $attributes;
 
 	/** @var ExpressionNode */
-	private $part;
+	public $part;
 
 	public static function create(Tag $tag): self
 	{
@@ -74,4 +74,10 @@ final class MultiplierAddNode extends StatementNode
 		return $multiplier->getCreateButtons()[$buttonId] ?? null;
 	}
 
+	public function &getIterator(): \Generator
+	{
+		yield $this->name;
+		yield $this->attributes;
+		yield $this->part;
+	}
 }

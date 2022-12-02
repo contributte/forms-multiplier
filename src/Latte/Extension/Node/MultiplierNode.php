@@ -15,10 +15,10 @@ final class MultiplierNode extends StatementNode
 {
 
 	/** @var ExpressionNode */
-	private $name;
+	public $name;
 
 	/** @var AreaNode */
-	private $content;
+	public $content;
 
 	/**
 	 * @return Generator<int, ?mixed[], array{AreaNode, ?Tag}, self>
