@@ -16,7 +16,7 @@ final class MultiplierRemoveNode extends StatementNode
 {
 
 	/** @var ArrayNode */
-	private $attributes;
+	public $attributes;
 
 	public static function create(Tag $tag): self
 	{
@@ -52,6 +52,11 @@ final class MultiplierRemoveNode extends StatementNode
 		}
 
 		return $container->getComponent(Multiplier::SUBMIT_REMOVE_NAME, false);
+	}
+
+	public function &getIterator(): \Generator
+	{
+		yield $this->attributes;
 	}
 
 }
