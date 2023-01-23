@@ -89,7 +89,11 @@ class CreateButtonTest extends \Codeception\TestCase\Test
 				$submitter->setHtmlAttribute('class', 'add-btn');
 			});
 
-		$response = $this->services->form->createRequest($factory->createForm())->setPost([
+		$response = $this->services->form->createRequest($factory
+			->formModifier(function (\Nette\Application\UI\Form $form) {
+				$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+				};
+			})->createForm())->setPost([
 			'm' => [
 				['bar' => ''],
 				['bar' => ''],

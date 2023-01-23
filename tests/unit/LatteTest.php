@@ -36,8 +36,8 @@ class LatteTest extends \Codeception\TestCase\Test
 		$presenter['m'] = $form;
 
 		$string = $this->latte->renderToString(__DIR__ . '/templates/macros.latte', ['form' => $form]);
-		$this->assertRegExp('#name="m\[multiplier_creator]"#', $string);
-		$this->assertRegExp('#name="m\[multiplier_creator2]"#', $string);
+		$this->assertMatchesRegularExpression('#name="m\[multiplier_creator]"#', $string);
+		$this->assertMatchesRegularExpression('#name="m\[multiplier_creator2]"#', $string);
 	}
 
 }

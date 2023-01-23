@@ -20,6 +20,8 @@ final class MultiplierExtension extends Extension
 			'n:multiplier' => [MultiplierNode::class, 'create'],
 			'multiplier:remove' => [MultiplierRemoveNode::class, 'create'],
 			'multiplier:add' => [MultiplierAddNode::class, 'create'],
+			'btnRemove' => [MultiplierRemoveNode::class, 'create'],
+			'btnCreate' => [MultiplierAddNode::class, 'create'],
 		];
 	}
 
