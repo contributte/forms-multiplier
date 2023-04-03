@@ -18,6 +18,11 @@ class LatteTest extends \Codeception\TestCase\Test
 
 	protected function _before()
 	{
+		if (version_compare(Engine::VERSION, '3.0', '>=')) {
+			// Only Latte 2 supported at the moment.
+			$this->markTestSkipped();
+		}
+
 		$this->latte = $latte = new Engine();
 		MultiplierMacros::install($latte->getCompiler());
 		FormMacros::install($latte->getCompiler());
