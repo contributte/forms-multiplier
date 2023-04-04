@@ -265,9 +265,9 @@ class Multiplier extends Container
 		}
 
 		// Default number of copies
-		if (!$this->isFormSubmitted() && !$this->values) {
+		if (!$this->values) {
 			$copyNumber = $this->copyNumber;
-			while ($copyNumber > 0 && $this->isValidMaxCopies()) {
+			while ($copyNumber > 0 && $this->isValidMaxCopies() && $this->totalCopies < $this->minCopies) {
 				$containers[] = $container = $this->addCopy();
 				$copyNumber--;
 			}
@@ -520,6 +520,7 @@ class Multiplier extends Container
 		if ($this->created) {
 			foreach ($this->getContainers() as $container) {
 				$this->removeComponent($container);
+				$this->totalCopies--;
 			}
 
 			$this->created = false;
