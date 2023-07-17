@@ -4,6 +4,19 @@ includes:
 	- vendor/phpstan/phpstan-nette/rules.neon
 
 parameters:
+	level: 8
+	phpVersion: 80000
+
+	scanDirectories:
+		- src
+
+	fileExtensions:
+		- php
+
+	paths:
+		- src
+		- .docs
+
 	excludePaths:
 		analyse:
 			- src/Macros/MultiplierMacros.php
