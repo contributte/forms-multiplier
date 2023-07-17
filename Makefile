@@ -1,4 +1,4 @@
-.PHONY: install qa cs csf phpstan tests coverage-clover coverage-html
+.PHONY: install qa cs csf phpstan tests coverage
 
 install:
 	composer update
@@ -7,22 +7,23 @@ qa: phpstan cs
 
 cs:
 ifdef GITHUB_ACTION
-	vendor/bin/codesniffer -q --report=checkstyle src tests  | cs2pr
+	vendor/bin/phpcs --standard=ruleset.xml --encoding=utf-8 --extensions="php,phpt" --colors -nsp -q --report=checkstyle src tests | cs2pr
 else
-	vendor/bin/codesniffer src tests
+	vendor/bin/phpcs --standard=ruleset.xml --encoding=utf-8 --extensions="php,phpt" --colors -nsp src tests
 endif
 
 csf:
-	vendor/bin/codefixer src tests
+	vendor/bin/phpcbf --standard=ruleset.xml --encoding=utf-8 --colors -nsp src tests
 
 phpstan:
-	vendor/bin/phpstan analyse -l 8 -c phpstan.neon src
+	vendor/bin/phpstan analyse -c phpstan.neon
 
 tests:
 	vendor/bin/codecept run
 
-coverage-clover:
+coverage:
+ifdef GITHUB_ACTION
 	phpdbg -qrr vendor/bin/codecept run --coverage-xml
-
-coverage-html:
+else
 	phpdbg -qrr vendor/bin/codecept run --coverage-html
+endif
