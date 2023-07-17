@@ -10,13 +10,11 @@ use Latte\Compiler\Tag;
 use LogicException;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\Container;
-use Nette\Forms\SubmitterControl;
 
 final class MultiplierRemoveNode extends StatementNode
 {
 
-	/** @var ArrayNode */
-	public $attributes;
+	public ArrayNode $attributes;
 
 	public static function create(Tag $tag): self
 	{
@@ -24,20 +22,6 @@ final class MultiplierRemoveNode extends StatementNode
 		$node->attributes = $tag->parser->parseArguments();
 
 		return $node;
-	}
-
-	public function print(PrintContext $context): string
-	{
-		return $context->format(
-			'if ($ʟ_input = %raw::getRemoveButton($this->global->formsStack)) {'
-			. 'echo $ʟ_input->getControl()'
-			. ($this->attributes->items ? '->addAttributes(%1.node)' : '')
-			. ';'
-			. '} %2.line',
-			self::class,
-			$this->attributes,
-			$this->position
-		);
 	}
 
 	/**
@@ -52,6 +36,20 @@ final class MultiplierRemoveNode extends StatementNode
 		}
 
 		return $container->getComponent(Multiplier::SUBMIT_REMOVE_NAME, false);
+	}
+
+	public function print(PrintContext $context): string
+	{
+		return $context->format(
+			'if ($ʟ_input = %raw::getRemoveButton($this->global->formsStack)) {'
+			. 'echo $ʟ_input->getControl()'
+			. ($this->attributes->items ? '->addAttributes(%1.node)' : '')
+			. ';'
+			. '} %2.line',
+			self::class,
+			$this->attributes,
+			$this->position
+		);
 	}
 
 	public function &getIterator(): \Generator

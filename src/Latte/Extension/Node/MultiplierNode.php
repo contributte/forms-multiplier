@@ -7,18 +7,15 @@ use Latte\Compiler\Nodes\AreaNode;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
 use Latte\Compiler\Nodes\Php\Scalar\StringNode;
 use Latte\Compiler\Nodes\StatementNode;
-use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
 
 final class MultiplierNode extends StatementNode
 {
 
-	/** @var ExpressionNode */
-	public $name;
+	public ExpressionNode $name;
 
-	/** @var AreaNode */
-	public $content;
+	public AreaNode $content;
 
 	/**
 	 * @return Generator<int, ?mixed[], array{AreaNode, ?Tag}, self>
@@ -28,7 +25,7 @@ final class MultiplierNode extends StatementNode
 		$tag->outputMode = $tag::OutputRemoveIndentation;
 		$tag->expectArguments();
 
-		$node = new static;
+		$node = new static();
 		$node->name = $tag->parser->parseUnquotedStringOrExpression();
 
 		[$node->content] = yield;
@@ -57,6 +54,7 @@ final class MultiplierNode extends StatementNode
 			$this->content
 		);
 	}
+
 	public function &getIterator(): \Generator
 	{
 		yield $this->name;

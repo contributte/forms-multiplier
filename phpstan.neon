@@ -16,7 +16,3 @@ parameters:
 	paths:
 		- src
 		- .docs
-
-	excludePaths:
-		analyse:
-			- src/Macros/MultiplierMacros.php

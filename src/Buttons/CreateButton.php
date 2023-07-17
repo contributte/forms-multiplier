@@ -11,20 +11,18 @@ final class CreateButton
 
 	use SmartObject;
 
-	/** @var string|null */
-	private $caption;
-
-	/** @var int */
-	private $copyCount;
-
 	/** @var callable[] */
-	public $onCreate = [];
+	public array $onCreate = [];
+
+	private ?string $caption = null;
+
+	private int $copyCount;
 
 	/** @var mixed[]|null */
-	private $validationScope = null;
+	private ?array $validationScope = null;
 
 	/** @var string[] */
-	private $classes = [];
+	private array $classes = [];
 
 	public function __construct(?string $caption, int $copyCount = 1)
 	{

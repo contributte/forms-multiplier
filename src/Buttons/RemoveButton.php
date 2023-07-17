@@ -11,14 +11,13 @@ final class RemoveButton
 
 	use SmartObject;
 
-	/** @var string|null */
-	private $caption;
-
 	/** @var callable[] */
-	public $onCreate = [];
+	public array $onCreate = [];
+
+	private ?string $caption = null;
 
 	/** @var string[] */
-	private $classes = [];
+	private array $classes = [];
 
 	public function __construct(?string $caption)
 	{

@@ -2,9 +2,8 @@
 
 namespace Contributte\FormMultiplier\DI;
 
-use Contributte\FormMultiplier\Macros\MultiplierMacros;
+use Contributte\FormMultiplier\Latte\Extension\MultiplierExtension as LatteMultiplierExtension;
 use Contributte\FormMultiplier\Multiplier;
-use Latte\Engine;
 use Nette\Bridges\ApplicationLatte\LatteFactory;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Definitions\FactoryDefinition;
@@ -35,18 +34,13 @@ class MultiplierExtension extends CompilerExtension
 				sprintf(
 					'latte.latteFactory service definition must be of type %s, not %s',
 					FactoryDefinition::class,
-					get_class($factory)
+					$factory::class
 				)
 			);
 		}
 
 		$resultDefinition = $factory->getResultDefinition();
-
-		if (version_compare(Engine::VERSION, '3', '<')) { // @phpstan-ignore-line
-			$resultDefinition->addSetup(MultiplierMacros::class . '::install(?->getCompiler())', ['@self']);
-		} else {
-			$resultDefinition->addSetup('addExtension', [new Statement(\Contributte\FormMultiplier\Latte\Extension\MultiplierExtension::class)]);
-		}
+		$resultDefinition->addSetup('addExtension', [new Statement(LatteMultiplierExtension::class)]);
 	}
 
 	public function afterCompile(ClassType $class): void

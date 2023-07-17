@@ -112,6 +112,8 @@ class MultiplierBuilder
 
 		$form->addSubmit('send');
 
+		$form->onSuccess[] = function(Form $form) {};
+
 		return $form;
 	}
 

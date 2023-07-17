@@ -7,8 +7,7 @@ use Nette\Forms\Controls\SubmitButton;
 final class Submitter extends SubmitButton implements ISubmitter
 {
 
-	/** @var int */
-	private $copyCount = 1;
+	private int $copyCount = 1;
 
 	public function __construct(?string $caption, int $copyCount = 1)
 	{

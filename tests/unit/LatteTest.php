@@ -1,11 +1,12 @@
 <?php
 
+use Contributte\FormMultiplier\Latte\Extension\MultiplierExtension;
 use Latte\Engine;
 use Nette\Application\UI\Form as NetteForm;
 use Nette\Application\UI\Presenter;
 use Nette\Bridges\FormsLatte\FormMacros;
+use Nette\Bridges\FormsLatte\FormsExtension;
 use Nette\Forms\Container;
-use Contributte\FormMultiplier\Macros\MultiplierMacros;
 use Contributte\FormMultiplier\Multiplier;
 
 class LatteTest extends \Codeception\TestCase\Test
@@ -19,8 +20,8 @@ class LatteTest extends \Codeception\TestCase\Test
 	protected function _before()
 	{
 		$this->latte = $latte = new Engine();
-		MultiplierMacros::install($latte->getCompiler());
-		FormMacros::install($latte->getCompiler());
+		$latte->addExtension(new FormsExtension());
+		$latte->addExtension(new MultiplierExtension());
 	}
 
 	public function testBtnCreate()
