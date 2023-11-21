@@ -1,6 +1,9 @@
 <?php
 
+use Nette\Application\UI\Form;
+use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
+use Contributte\FormMultiplier\Multiplier;
 use Contributte\FormMultiplier\Submitter;
 
 class CreateButtonTest extends \Codeception\TestCase\Test
@@ -130,6 +133,32 @@ class CreateButtonTest extends \Codeception\TestCase\Test
 		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
 		$this->assertDomHas($dom, 'input[name="m[1][bar]"]');
 		$this->assertTrue($called);
+	}
+
+	public function testNoOrphanFieldsets()
+	{
+		$i = 1;
+		$form = new Form();
+		$form['members'] = $membersMultiplier = new Multiplier(function (Container $container) use ($form, &$i) {
+			$group = $form->addGroup('Team member #' . $i++);
+			$container->setCurrentGroup($group);
+			$container->addText('name', 'Name');
+		});
+		$form->setCurrentGroup(null);
+		$membersMultiplier->addCreateButton('add');
+
+		$req = $this->services->form->createRequest($form);
+		$response = $req->setPost([
+			'members' => [
+				[],
+				'multiplier_creator' => '',
+			],
+		])->send();
+
+		$dom = $response->toDomQuery();
+		codecept_debug($response->toString());
+
+		$this->assertCount(2, $dom->find('fieldset'), 'After adding a container, there should be two fieldsets.');
 	}
 
 }
