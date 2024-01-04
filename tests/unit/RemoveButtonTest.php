@@ -188,6 +188,10 @@ class RemoveButtonTest extends \Codeception\TestCase\Test
 					$submitter->setHtmlAttribute('class', 'btn btn-remove');
 				})
 				->addCreateButton()
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+					};
+				})
 				->createForm()
 		)->setPost([
 			'm' => [
@@ -210,6 +214,10 @@ class RemoveButtonTest extends \Codeception\TestCase\Test
 				->setMinCopies(0)
 				->addRemoveButton()
 				->addCreateButton()
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+					};
+				})
 				->createForm()
 		)->modifyForm(function (Form $form) {
 			$form['m']->setValues([
@@ -237,6 +245,10 @@ class RemoveButtonTest extends \Codeception\TestCase\Test
 				->multiplierModifier(function (Multiplier $multiplier) use (&$called) {
 					$multiplier->onRemove[] = function () use (&$called) {
 						$called = true;
+					};
+				})
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
 					};
 				})
 				->createForm()

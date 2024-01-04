@@ -44,6 +44,10 @@ class MultiplierTest extends \Codeception\TestCase\Test
 						$this->parameters['onCreate'][] = $container;
 					};
 				})
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+					};
+				})
 				->createForm()
 		)
 			->setPost($params = [
@@ -91,6 +95,10 @@ class MultiplierTest extends \Codeception\TestCase\Test
 				->multiplierModifier(function (Multiplier $multiplier) {
 					$multiplier->onCreate[] = function (Container $container) {
 						$this->parameters['onCreate'][] = $container;
+					};
+				})
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
 					};
 				})
 				->createForm()
@@ -141,6 +149,10 @@ class MultiplierTest extends \Codeception\TestCase\Test
 				->multiplierModifier(function (Multiplier $multiplier) {
 					$multiplier->onCreate[] = function (Container $container) {
 						$this->parameters['onCreate'][] = $container;
+					};
+				})
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
 					};
 				})
 				->createForm()
@@ -209,6 +221,10 @@ class MultiplierTest extends \Codeception\TestCase\Test
 					}));
 					$container['m2']->addCreateButton('create');
 				})
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+					};
+				})
 				->createForm()
 		);
 		$request->setPost([
@@ -239,11 +255,15 @@ class MultiplierTest extends \Codeception\TestCase\Test
 				],
 				[
 					'bar' => 'bar',
-					'm2' => [],
+					'm2' => [
+						['bar2' => ''],
+					],
 				],
 				[
 					'bar' => '',
-					'm2' => [],
+					'm2' => [
+						['bar2' => ''],
+					],
 				],
 			],
 		], $send->getValues());
@@ -299,14 +319,15 @@ class MultiplierTest extends \Codeception\TestCase\Test
 			->multiplierModifier(function (Multiplier $multiplier) {
 				$multiplier->onCreate[] = function (Container $container) {
 					$this->parameters['onCreate'][] = $container;
+					$container->setParent(null, 'X');
+					//var_dump($container);
 				};
 				$multiplier->addCreateButton();
 				$multiplier->addRemoveButton();
-				$multiplier->setMinCopies(1);
+				//$multiplier->setMinCopies(1);
 			})
 			->createForm());
 		$dom = $request->render(__DIR__ . '/templates/group.latte')->toDomQuery();
-
 		$this->assertDomHas($dom, 'input[name="m[0][multiplier_remover]"]');
 		$this->assertDomHas($dom, 'input[name="m[1][multiplier_remover]"]');
 	}
@@ -375,6 +396,10 @@ class MultiplierTest extends \Codeception\TestCase\Test
 						->setPrompt('Select');
 				})
 				->addCreateButton()
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+					};
+				})
 				->createForm()
 		)
 			->setPost($params = [
