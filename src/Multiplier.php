@@ -318,7 +318,7 @@ class Multiplier extends Container
 	 * @param mixed[]|object $values
 	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
 	 */
-	public function setValues($values, bool $erase = false): self
+	public function setValues($values, bool $erase = false): static
 	{
 		$values = $values instanceof Traversable ? iterator_to_array($values) : (array) $values;
 
