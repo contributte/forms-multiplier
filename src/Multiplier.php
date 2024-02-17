@@ -169,7 +169,7 @@ class Multiplier extends Container
 	public function validate(?array $controls = null): void
 	{
 		/** @var Control[] $components */
-		$components = $controls ?? iterator_to_array($this->getComponents());
+		$components = $controls ?? $this->getComponents();
 
 		foreach ($components as $index => $control) {
 			foreach ($this->noValidate as $item) {
@@ -302,14 +302,14 @@ class Multiplier extends Container
 	}
 
 	/**
-	 * @return Iterator<int|string,Container>
+	 * @return array<int|string,Container>
 	 */
-	public function getContainers(): Iterator
+	public function getContainers(): iterable
 	{
 		$this->createCopies();
 
-		/** @var Iterator<int|string,Container> $containers */
-		$containers = $this->getComponents(false, Container::class);
+		/** @var array<int|string,Container> $containers */
+		$containers = array_filter($this->getComponents(), fn ($component) => $component instanceof Container);
 
 		return $containers;
 	}
@@ -385,7 +385,7 @@ class Multiplier extends Container
 
 	protected function createNumber(): int
 	{
-		$count = iterator_count($this->getComponents(false, Form::class));
+		$count = count(array_filter($this->getComponents(), fn ($component) => $component instanceof Form));
 		while ($this->getComponent((string) $count, false)) {
 			$count++;
 		}
@@ -420,7 +420,7 @@ class Multiplier extends Container
 	 */
 	protected function getFirstSubmit(): ?string
 	{
-		$submits = iterator_to_array($this->getComponents(false, SubmitButton::class));
+		$submits = array_filter($this->getComponents(), fn ($component) => $component instanceof SubmitButton);
 		if ($submits) {
 			return reset($submits)->getName();
 		}
