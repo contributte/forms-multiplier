@@ -277,9 +277,9 @@ class Multiplier extends Container
 	}
 
 	/**
+	 * @param  string|object|bool|null  $returnType  'array' for array
 	 * @param  Control[]|null  $controls
 	 * @return object|mixed[]
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingAnyTypeHint
 	 */
 	public function getValues($returnType = null, ?array $controls = null): object|array
 	{
@@ -288,12 +288,15 @@ class Multiplier extends Container
 		}
 
 		/** @var mixed[] $values */
-		$values = parent::getValues('array', $controls);
+		$values = parent::getValues(self::Array, $controls);
 		$values = array_values($values);
 
-		$returnType = $returnType === true ? 'array' : $returnType; // @phpstan-ignore-line nette backwards compatibility
+		if ($returnType === true) {
+			trigger_error(static::class . '::' . __FUNCTION__ . "(true) is deprecated, use getValues('array').", E_USER_DEPRECATED);
+			$returnType = self::Array;
+		}
 
-		return $returnType === 'array' ? $values : ArrayHash::from($values);
+		return $returnType === self::Array ? $values : ArrayHash::from($values);
 	}
 
 	/**
@@ -453,7 +456,7 @@ class Multiplier extends Container
 	private function createComponents(bool $forceValues = false): void
 	{
 		$containers = [];
-		$containerDefaults = $this->createContainer()->getValues('array');
+		$containerDefaults = $this->createContainer()->getValues(self::Array);
 
 		// Components from httpData
 		if ($this->isFormSubmitted() && !$forceValues) {
