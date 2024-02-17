@@ -272,11 +272,11 @@ class Multiplier extends Container
 	}
 
 	/**
+	 * @param  string|object|bool|null  $returnType  'array' for array
 	 * @param  Control[]|null  $controls
 	 * @return object|mixed[]
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingAnyTypeHint
 	 */
-	public function getValues($returnType = null, ?array $controls = null): object|array
+	public function getValues(string|object|bool|null $returnType = null, ?array $controls = null): object|array
 	{
 		if (!$this->resetKeys) {
 			return parent::getValues($returnType, $controls);
@@ -286,7 +286,7 @@ class Multiplier extends Container
 		$values = parent::getValues('array', $controls);
 		$values = array_values($values);
 
-		$returnType = $returnType === true ? 'array' : $returnType; // @phpstan-ignore-line nette backwards compatibility
+		$returnType = $returnType === true ? 'array' : $returnType;
 
 		return $returnType === 'array' ? $values : ArrayHash::from($values);
 	}
