@@ -269,6 +269,78 @@ class MultiplierTest extends \Codeception\TestCase\Test
 		], $send->getValues());
 	}
 
+	/**
+	 * Pressing “Create” inside a nested multiplier with fields with default values.
+	 * This has been reported in the first bullet point in
+	 * https://github.com/contributte/forms-multiplier/issues/56
+	 */
+	public function testSendNestedInnerWithDefault()
+	{
+		$request = $this->services->form->createRequest(
+			MultiplierBuilder::create()
+				->beforeFormModifier(function (Form $form) {
+					$form->addGroup('testGroup');
+				})
+				->multiplierModifier(function (Multiplier $multiplier) {
+					$multiplier->onCreate[] = function (Container $container) {
+						$this->parameters['onCreate'][] = $container;
+					};
+				})
+				->containerModifier(function (Container $container) {
+					$container['m2'] = (new Multiplier(function (Container $container) {
+						$container->addText('bar2')->setDefaultValue('qux');
+					}));
+					$container['m2']->addCreateButton('create');
+				})
+				->createForm()
+		);
+		$request->setPost([
+			'm' => [
+				[
+					'bar' => 'foo',
+					'm2' => [
+						[
+							'bar2' => 'xx',
+						],
+						Multiplier::SUBMIT_CREATE_NAME => '',
+					],
+				],
+				['bar' => 'bar'],
+			],
+		]);
+
+		$send = $request->send();
+		$dom = $send->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomHas($dom, 'input[name="m[0][m2][0][bar2]"]');
+		$this->assertDomHas($dom, 'input[name="m[0][m2][1][bar2]"]');
+		$this->assertDomHas($dom, 'input[name="m[0][m2][' . Multiplier::SUBMIT_CREATE_NAME . ']"]');
+
+		$form = $send->getForm();
+		$this->assertSame(
+			[
+				'm' => [
+					[
+						'bar' => 'foo',
+						'm2' => [
+							['bar2' => 'xx'],
+							['bar2' => 'qux'],
+						],
+					],
+					[
+						'bar' => 'bar',
+						'm2' => [
+							['bar2' => 'qux'],
+						],
+					],
+				],
+			],
+			// Pass form, otherwise the values would be limited to m[0][m2] validation scope,
+			// since that is where the submitter button is pressed.
+			$form->getValues('array', [$form])
+		);
+	}
+
 	public function testGroup()
 	{
 		$request = $this->services->form->createRequest(
