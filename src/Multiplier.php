@@ -62,12 +62,11 @@ class Multiplier extends Container
 	/** @var Container[] */
 	protected array $noValidate = [];
 
+	protected ComponentResolver $resolver;
+
 	private ?Form $form = null;
 
 	private bool $attachedCalled = false;
-
-	/** @var ComponentResolver */
-	protected ComponentResolver $resolver;
 
 	public function __construct(callable $factory, int $copyNumber = 1, ?int $maxCopies = null)
 	{
@@ -216,6 +215,7 @@ class Multiplier extends Container
 		if ($this->created === true) {
 			return;
 		}
+
 		$this->created = true;
 
 		if (!isset($this->resolver)) {
@@ -338,7 +338,7 @@ class Multiplier extends Container
 
 			$this->created = false;
 			$this->detachCreateButtons();
-            $this->resolver = new ComponentResolver($this->values, $this->maxCopies, $this->minCopies);
+			$this->resolver = new ComponentResolver($this->values, $this->maxCopies, $this->minCopies);
 			$this->createCopies();
 		}
 
@@ -386,8 +386,8 @@ class Multiplier extends Container
 	protected function loadHttpData(): void
 	{
 		if ($this->isFormSubmitted()) {
-            $httpData = Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
-            $this->resolver = new ComponentResolver($httpData ?? [], $this->maxCopies, $this->minCopies);
+			$httpData = Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
+			$this->resolver = new ComponentResolver($httpData ?? [], $this->maxCopies, $this->minCopies);
 		}
 	}
 
