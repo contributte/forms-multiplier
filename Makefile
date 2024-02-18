@@ -19,9 +19,13 @@ phpstan:
 	vendor/bin/phpstan analyse -c phpstan.neon
 
 tests:
+	# Fix compatibility with https://github.com/nette/application/commit/bb8f93c60f9e747530431eef75df8b0aa8ab9d5b
+	-patch -p1 -N -d vendor/webchemistry/testing-helpers < tests/webchemistry-testing-helpers-nette-3.2.patch
 	vendor/bin/codecept run
 
 coverage:
+	# Fix compatibility with https://github.com/nette/application/commit/bb8f93c60f9e747530431eef75df8b0aa8ab9d5b
+	-patch -p1 -N -d vendor/webchemistry/testing-helpers < tests/webchemistry-testing-helpers-nette-3.2.patch
 ifdef GITHUB_ACTION
 	phpdbg -qrr vendor/bin/codecept run --coverage-xml
 else
