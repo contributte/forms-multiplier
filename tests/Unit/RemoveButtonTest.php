@@ -193,10 +193,6 @@ class RemoveButtonTest extends UnitTest
 					$submitter->setHtmlAttribute('class', 'btn btn-remove');
 				})
 				->addCreateButton()
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
-					};
-				})
 				->createForm()
 		)->setPost([
 			'm' => [
@@ -219,10 +215,6 @@ class RemoveButtonTest extends UnitTest
 				->setMinCopies(0)
 				->addRemoveButton()
 				->addCreateButton()
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
-					};
-				})
 				->createForm()
 		)->modifyForm(function (Form $form) {
 			$form['m']->setValues([
@@ -250,10 +242,6 @@ class RemoveButtonTest extends UnitTest
 				->multiplierModifier(function (Multiplier $multiplier) use (&$called) {
 					$multiplier->onRemove[] = function () use (&$called) {
 						$called = true;
-					};
-				})
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
 					};
 				})
 				->createForm()

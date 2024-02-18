@@ -49,10 +49,6 @@ class MultiplierTest extends UnitTest
 						$this->parameters['onCreate'][] = $container;
 					};
 				})
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
-					};
-				})
 				->createForm()
 		)
 			->setPost($params = [
@@ -100,10 +96,6 @@ class MultiplierTest extends UnitTest
 				->multiplierModifier(function (Multiplier $multiplier) {
 					$multiplier->onCreate[] = function (Container $container) {
 						$this->parameters['onCreate'][] = $container;
-					};
-				})
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
 					};
 				})
 				->createForm()
@@ -154,10 +146,6 @@ class MultiplierTest extends UnitTest
 				->multiplierModifier(function (Multiplier $multiplier) {
 					$multiplier->onCreate[] = function (Container $container) {
 						$this->parameters['onCreate'][] = $container;
-					};
-				})
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
 					};
 				})
 				->createForm()
@@ -225,10 +213,6 @@ class MultiplierTest extends UnitTest
 						$container->addText('bar2');
 					}));
 					$container['m2']->addCreateButton('create');
-				})
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
-					};
 				})
 				->createForm()
 		);
@@ -396,15 +380,14 @@ class MultiplierTest extends UnitTest
 			->multiplierModifier(function (Multiplier $multiplier) {
 				$multiplier->onCreate[] = function (Container $container) {
 					$this->parameters['onCreate'][] = $container;
-					$container->setParent(null, 'X');
-					//var_dump($container);
 				};
 				$multiplier->addCreateButton();
 				$multiplier->addRemoveButton();
-				//$multiplier->setMinCopies(1);
+				$multiplier->setMinCopies(1);
 			})
 			->createForm());
 		$dom = $request->render(__DIR__ . '/templates/group.latte')->toDomQuery();
+
 		$this->assertDomHas($dom, 'input[name="m[0][multiplier_remover]"]');
 		$this->assertDomHas($dom, 'input[name="m[1][multiplier_remover]"]');
 	}
@@ -473,10 +456,6 @@ class MultiplierTest extends UnitTest
 						->setPrompt('Select');
 				})
 				->addCreateButton()
-				->formModifier(function (Form $form) {
-					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
-					};
-				})
 				->createForm()
 		)
 			->setPost($params = [
