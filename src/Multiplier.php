@@ -52,6 +52,9 @@ class Multiplier extends Container
 
 	protected ?RemoveButton $removeButton = null;
 
+	/** @var mixed[] */
+	protected array $httpData = [];
+
 	protected ?int $maxCopies = null;
 
 	protected int $totalCopies = 0;
@@ -62,8 +65,6 @@ class Multiplier extends Container
 
 	/** @var Container[] */
 	protected array $noValidate = [];
-
-	protected ComponentResolver $resolver;
 
 	private ?Form $form = null;
 
@@ -211,7 +212,7 @@ class Multiplier extends Container
 		return $container;
 	}
 
-	public function createCopies(bool $forceValues = false): void
+	public function createCopies(): void
 	{
 		if ($this->created === true) {
 			return;
@@ -219,25 +220,20 @@ class Multiplier extends Container
 
 		$this->created = true;
 
-		if (!isset($this->resolver)) {
-			$this->resolver = new ComponentResolver($this->values, $this->maxCopies, $this->minCopies);
-		}
+		$resolver = new ComponentResolver($this->httpData, $this->values, $this->maxCopies, $this->minCopies);
 
 		$this->attachCreateButtons();
-		$this->createComponents($forceValues);
+		$this->createComponents($resolver);
 		$this->detachCreateButtons();
 
 		if ($this->maxCopies === null || $this->totalCopies < $this->maxCopies) {
 			$this->attachCreateButtons();
 		}
 
-		if (
-			$this->form !== null &&
-			$this->resolver->isRemoveAction() &&
-			$this->totalCopies >= $this->minCopies &&
-			!$this->resolver->reachedMinLimit()
-		) {
-			$this->form->setSubmittedBy($this->removeButton->create($this));
+		if ($this->form !== null && $resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
+			/** @var RemoveButton $removeButton */
+			$removeButton = $this->removeButton;
+			$this->form->setSubmittedBy($removeButton->create($this));
 
 			$this->resetFormEvents();
 
@@ -337,12 +333,10 @@ class Multiplier extends Container
 		if ($this->created) {
 			foreach ($this->getContainers() as $container) {
 				$this->removeComponent($container);
-				$this->totalCopies--;
 			}
 
 			$this->created = false;
 			$this->detachCreateButtons();
-			$this->resolver = new ComponentResolver($this->values, $this->maxCopies, $this->minCopies);
 			$this->createCopies();
 		}
 
@@ -389,11 +383,10 @@ class Multiplier extends Container
 
 	protected function loadHttpData(): void
 	{
-		if ($this->isFormSubmitted()) {
+		if ($this->form !== null && $this->isFormSubmitted()) {
 			/** @var array<mixed> $httpData The other types from the union can only be returned when the htmlName argument is passed. https://github.com/nette/forms/pull/333 */
-			$httpData = $this->getForm()->getHttpData();
-			$httpData = Arrays::get($httpData, $this->getHtmlName(), []);
-			$this->resolver = new ComponentResolver($httpData ?? [], $this->maxCopies, $this->minCopies);
+			$httpData = $this->form->getHttpData();
+			$this->httpData = (array) Arrays::get($httpData, $this->getHtmlName(), []);
 		}
 	}
 
@@ -457,34 +450,31 @@ class Multiplier extends Container
 		$this->removeComponent($component);
 	}
 
-	private function createComponents(bool $forceValues = false): void
+	private function createComponents(ComponentResolver $resolver): void
 	{
 		$containers = [];
-		$containerDefaults = $this->createContainer()->getValues(self::Array);
 
 		// Components from httpData
-		if ($this->isFormSubmitted() && !$forceValues) {
-			foreach ($this->resolver->getValues() as $number => $_) {
+		if ($this->isFormSubmitted()) {
+			foreach ($resolver->getValues() as $number => $_) {
 				$containers[] = $container = $this->addCopy($number);
 
 				/** @var BaseControl $control */
-				foreach ($container->getComponents(false, Control::class) as $control) {
+				foreach ($container->getControls() as $control) {
 					$control->loadHttpData();
 				}
 			}
 		} else { // Components from default values
-			foreach ($this->resolver->getValues() as $number => $values) {
-				$containers[] = $container = $this->addCopy($number, $values);
-				$container->setValues($values);
+			foreach ($resolver->getDefaults() as $number => $values) {
+				$containers[] = $this->addCopy($number, $values);
 			}
 		}
 
 		// Default number of copies
-		if (!$this->values) {
+		if (!$this->isFormSubmitted() && !$this->values) {
 			$copyNumber = $this->copyNumber;
-			while ($copyNumber > 0 && $this->isValidMaxCopies() && $this->totalCopies < $this->minCopies) {
+			while ($copyNumber > 0 && $this->isValidMaxCopies()) {
 				$containers[] = $container = $this->addCopy();
-				$container->setValues($containerDefaults);
 				$copyNumber--;
 			}
 		}
@@ -495,11 +485,11 @@ class Multiplier extends Container
 		}
 
 		// New containers, if create button hitted
-		if ($this->form !== null && $this->resolver->isCreateAction() && $this->form->isValid()) {
-			$count = $this->resolver->getCreateNum();
+		if ($this->form !== null && $resolver->isCreateAction() && $this->form->isValid()) {
+			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
 				$this->noValidate[] = $containers[] = $container = $this->addCopy();
-				$container->setValues($containerDefaults);
+				$container->setValues($this->createContainer()->getValues(self::Array));
 				$count--;
 			}
 		}
