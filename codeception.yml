@@ -5,10 +5,10 @@ paths:
   tests: tests
 
   # directory for fixture data
-  data: tests/_data
+  data: tests/Support/Data
 
   # directory for support code
-  support: tests/_support
+  support: tests/Support
 
   # directory for output
   output: tests/_output

@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Support\Helper;
+
 use PHPUnit\Framework\TestCase;
 use WebChemistry\Testing\Components\Hierarchy\DomQuery;
 use WebChemistry\Testing\Services;

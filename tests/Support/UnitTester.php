@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Support;
+
 /**
  * Inherited Methods
  * @method void wantToTest($text)
@@ -15,10 +17,10 @@
  *
  * @SuppressWarnings(PHPMD)
  */
-class AcceptanceTester extends \Codeception\Actor
+class UnitTester extends \Codeception\Actor
 {
 
-	use _generated\AcceptanceTesterActions;
+	use _generated\UnitTesterActions;
 
 	/**
 	 * Define custom actions here

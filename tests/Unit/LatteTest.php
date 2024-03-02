@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\Unit;
+
+use Codeception\Test\Unit as UnitTest;
 use Contributte\FormMultiplier\Latte\Extension\MultiplierExtension;
 use Latte\Engine;
 use Nette\Application\UI\Form as NetteForm;
@@ -8,8 +11,9 @@ use Nette\Bridges\FormsLatte\FormMacros;
 use Nette\Bridges\FormsLatte\FormsExtension;
 use Nette\Forms\Container;
 use Contributte\FormMultiplier\Multiplier;
+use Tests\Support\Helper\TTest;
 
-class LatteTest extends \Codeception\TestCase\Test
+class LatteTest extends UnitTest
 {
 
 	use TTest;

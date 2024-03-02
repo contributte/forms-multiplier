@@ -1,10 +1,15 @@
 <?php
 
+namespace Tests\Unit;
+
+use Codeception\Test\Unit as UnitTest;
 use Nette\Forms\Container;
 use Contributte\FormMultiplier\Multiplier;
 use Nette\Application\UI\Form;
+use Tests\Support\Helper\MultiplierBuilder;
+use Tests\Support\Helper\TTest;
 
-class MultiplierTest extends \Codeception\TestCase\Test
+class MultiplierTest extends UnitTest
 {
 
 	use TTest;
