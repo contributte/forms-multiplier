@@ -7,5 +7,5 @@
 
 # Tests
 /tests/_output
-/tests/_support
+/tests/Support/_generated
 /coverage.xml

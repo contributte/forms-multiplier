@@ -8,4 +8,4 @@ class_name: FunctionalTester
 modules:
   enabled:
     # add framework module here
-    - \Helper\Functional
+    - Tests\Support\Helper\Functional

@@ -2,9 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace functional;
+namespace Tests\Functional;
 
-use Codeception\TestCase\Test;
+use Codeception\Test\Unit as UnitTest;
 use Contributte\FormMultiplier\DI\MultiplierExtension;
 use Contributte\FormMultiplier\Multiplier;
 use Nette\Bridges\ApplicationLatte\ILatteFactory;
@@ -15,7 +15,7 @@ use Nette\Forms\Container;
 use Nette\Forms\Form;
 use Nette\Utils\FileSystem;
 
-class MultiplierExtensionTest extends Test
+class MultiplierExtensionTest extends UnitTest
 {
 
 	private const TEMP_DIR = __DIR__ . '/tmp';

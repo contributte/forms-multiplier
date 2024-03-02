@@ -1,10 +1,15 @@
 <?php
 
+namespace Tests\Unit;
+
+use Codeception\Test\Unit as UnitTest;
 use Nette\Forms\Container;
 use Contributte\FormMultiplier\Multiplier;
 use Nette\Application\UI\Form;
+use Tests\Support\Helper\MultiplierBuilder;
+use Tests\Support\Helper\TTest;
 
-class DefaultValuesTest extends \Codeception\TestCase\Test
+class DefaultValuesTest extends UnitTest
 {
 
 	use TTest;

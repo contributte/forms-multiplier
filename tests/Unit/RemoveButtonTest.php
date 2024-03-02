@@ -1,11 +1,16 @@
 <?php
 
+namespace Tests\Unit;
+
+use Codeception\Test\Unit as UnitTest;
 use Nette\Forms\Container;
 use Nette\Forms\Controls\SubmitButton;
 use Contributte\FormMultiplier\Multiplier;
 use Nette\Application\UI\Form;
+use Tests\Support\Helper\MultiplierBuilder;
+use Tests\Support\Helper\TTest;
 
-class RemoveButtonTest extends \Codeception\TestCase\Test
+class RemoveButtonTest extends UnitTest
 {
 
 	use TTest;

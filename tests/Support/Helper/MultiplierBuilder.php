@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+namespace Tests\Support\Helper;
+
 use Nette\Application\UI\Form;
 use Nette\Forms\Container;
 use Nette\SmartObject;
