@@ -21,7 +21,7 @@
     "latte/latte": "^3.0.0",
     "contributte/qa": "^0.3",
     "contributte/phpstan": "^0.1",
-    "webchemistry/testing-helpers": "~2.0.0"
+    "webchemistry/testing-helpers": "^4.0.0"
   },
   "conflict": {
     "latte/latte": "<3.0.0"
