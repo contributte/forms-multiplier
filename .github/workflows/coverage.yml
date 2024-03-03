@@ -1,7 +1,7 @@
 name: "Coverage"
 
 on:
-  pull_request:
+  # pull_request:
 
   push:
     branches: ["*"]
@@ -10,6 +10,48 @@ on:
     - cron: "0 8 * * 1"
 
 jobs:
-  coverage:
-    name: "Nette Tester"
-    uses: contributte/.github/.github/workflows/nette-tester-coverage.yml@v1
+  tests:
+    name: "Nette Tester (8.1)"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
+
+      # https://github.com/contributte/.github/blob/02ddb5983be5febc498e5e3e6871230678691dc2/.github/actions/setup-php/action.yml
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "8.1"
+          extensions: "json"
+          tools: "composer:v2"
+          ini-values: "zend.assertions=1, assert.exception=1"
+          coverage: "xdebug"
+        env:
+          # https://github.com/shivammathur/setup-php#debug-build-setup
+          debug: true
+
+      - name: "Composer"
+        uses: "contributte/.github/.github/actions/setup-composer@v1"
+        with:
+          command: "composer update --no-interaction --no-progress --prefer-dist --prefer-stable"
+
+      - run: |
+          echo 'export DEBUGINFOD_URLS="https://debuginfod.ubuntu.com"' >> ~/.bashrc
+          sudo apt install gdb systemd-coredump
+          echo 'set debuginfod enabled on' >> ~/.gdbinit
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
+      - name: "Run Nette Tester"
+        run: "make coverage"
+
+      - name: "Coveralls.io"
+        env:
+          CI_NAME: github
+          CI: true
+          COVERALLS_REPO_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.7.0/php-coveralls.phar
+          php php-coveralls.phar --verbose --config tests/.coveralls.yml
