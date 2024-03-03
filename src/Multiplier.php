@@ -281,7 +281,7 @@ class Multiplier extends Container
 	 * @param  Control[]|null  $controls
 	 * @return object|mixed[]
 	 */
-	public function getValues($returnType = null, ?array $controls = null): object|array
+	public function getValues(string|object|bool|null $returnType = null, ?array $controls = null): object|array
 	{
 		if (!$this->resetKeys) {
 			return parent::getValues($returnType, $controls);
