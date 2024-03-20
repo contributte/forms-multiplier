@@ -11,6 +11,7 @@ use Nette\Forms\Control;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Form;
+use Nette\InvalidStateException;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\Arrays;
 use Nette\Utils\Html;
@@ -411,7 +412,7 @@ class Multiplier extends Container
 
 	/**
 	 * @return string[]
-	 * @throws \Nette\InvalidStateException when not attached.
+	 * @throws InvalidStateException when not attached.
 	 */
 	protected function getHtmlName(): array
 	{
