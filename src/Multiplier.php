@@ -411,10 +411,11 @@ class Multiplier extends Container
 
 	/**
 	 * @return string[]
+	 * @throws \Nette\InvalidStateException when not attached.
 	 */
 	protected function getHtmlName(): array
 	{
-		return explode('-', $this->lookupPath(Form::class) ?? '');
+		return explode('-', $this->lookupPath(Form::class));
 	}
 
 	protected function createContainer(): Container
