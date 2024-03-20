@@ -169,7 +169,7 @@ class Multiplier extends Container
 	public function validate(?array $controls = null): void
 	{
 		/** @var Control[] $components */
-		$components = $controls ?? $this->getComponents();
+		$components = $controls ?? $this->getComponentsArray();
 
 		foreach ($components as $index => $control) {
 			foreach ($this->noValidate as $item) {
@@ -302,16 +302,15 @@ class Multiplier extends Container
 	}
 
 	/**
-	 * @return array<int|string,Container>
+	 * @return Iterator<int|string,Container>
 	 */
-	public function getContainers(): iterable
+	public function getContainers(): Iterator
 	{
 		$this->createCopies();
 
-		/** @var array<int|string,Container> $containers */
-		$containers = array_filter($this->getComponents(), fn ($component) => $component instanceof Container);
+		$containers = array_filter($this->getComponentsArray(), fn ($component) => $component instanceof Container);
 
-		return $containers;
+		return new \ArrayIterator($containers);
 	}
 
 	/**
@@ -385,7 +384,7 @@ class Multiplier extends Container
 
 	protected function createNumber(): int
 	{
-		$count = count(array_filter($this->getComponents(), fn ($component) => $component instanceof Form));
+		$count = count(array_filter($this->getComponentsArray(), fn ($component) => $component instanceof Form));
 		while ($this->getComponent((string) $count, false)) {
 			$count++;
 		}
@@ -420,7 +419,7 @@ class Multiplier extends Container
 	 */
 	protected function getFirstSubmit(): ?string
 	{
-		$submits = array_filter($this->getComponents(), fn ($component) => $component instanceof SubmitButton);
+		$submits = array_filter($this->getComponentsArray(), fn ($component) => $component instanceof SubmitButton);
 		if ($submits) {
 			return reset($submits)->getName();
 		}
@@ -524,6 +523,19 @@ class Multiplier extends Container
 		}
 
 		$container->addComponent($this->removeButton->create($this), self::SUBMIT_REMOVE_NAME);
+	}
+
+	/**
+	 * Wrapper around Container::getComponents() supporting both component-model ≥ 3.1 and < 3.1
+	 *
+	 * @return array<int|string, IComponent>
+	 */
+	private function getComponentsArray(): array
+	{
+		/** @var iterable<IComponent> $components */
+		$components = $this->getComponents();
+
+		return is_array($components) ? $components : iterator_to_array($components);
 	}
 
 }
