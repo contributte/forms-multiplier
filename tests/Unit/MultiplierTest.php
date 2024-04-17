@@ -330,6 +330,50 @@ class MultiplierTest extends UnitTest
 		);
 	}
 
+	/**
+	 * Ensure filters work on submit, since they are dependent on properly set valdation scope.
+	 * Regression test for https://github.com/contributte/forms-multiplier/issues/68
+	 */
+	public function testSubmitFilter()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create()
+				->fields([])
+				->beforeFormModifier(function (Form $form) {
+					$form->addInteger('num');
+				})
+				->multiplierModifier(function (Multiplier $multiplier) {
+					$multiplier->onCreate[] = function (Container $container) {
+						$container->addInteger('mnum');
+					};
+				})
+				->formModifier(function (Form $form) {
+					$form->onSuccess[] = $form->onError[] = $form->onSubmit[] = function () {
+					};
+				})
+				->createForm()
+		)
+			->setPost([
+				'num' => '11',
+				'm' => [
+					['mnum' => '49'],
+				],
+			])->send();
+
+		$this->assertTrue($response->isSuccess());
+		$this->assertSame([
+				'num' => 11,
+				'm' => [
+					['mnum' => 49],
+				],
+			], $response->getValues());
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m[0][mnum]"][value="49"]');
+		$this->assertDomNotHas($dom, 'input[name="m[1][mnum]"]');
+	}
+
 	public function testGroup()
 	{
 		$request = $this->services->form->createRequest(
