@@ -19,11 +19,14 @@ phpstan:
 	vendor/bin/phpstan analyse -c phpstan.neon
 
 tests:
+	vendor/bin/codecept build
 	vendor/bin/codecept run
 
 coverage:
 ifdef GITHUB_ACTION
-	phpdbg -qrr vendor/bin/codecept run --coverage-xml
+	vendor/bin/codecept build
+	XDEBUG_MODE=coverage vendor/bin/codecept run --coverage --coverage-xml
 else
-	phpdbg -qrr vendor/bin/codecept run --coverage-html
+	vendor/bin/codecept build
+	XDEBUG_MODE=coverage vendor/bin/codecept run --coverage --coverage-html
 endif
