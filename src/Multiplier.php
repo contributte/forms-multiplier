@@ -379,7 +379,9 @@ class Multiplier extends Container
 	protected function loadHttpData(): void
 	{
 		if ($this->form !== null && $this->isFormSubmitted()) {
-			$this->httpData = (array) Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
+			/** @var array<mixed> $httpData The other types from the union can only be returned when the htmlName argument is passed. https://github.com/nette/forms/pull/333 */
+			$httpData = $this->form->getHttpData();
+			$this->httpData = (array) Arrays::get($httpData, $this->getHtmlName(), []);
 		}
 	}
 
