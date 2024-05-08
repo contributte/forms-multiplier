@@ -324,6 +324,7 @@ class Multiplier extends Container
 	}
 
 	/**
+	 * @param mixed[]|object $values
 	 * @internal
 	 */
 	public function setValues(array|object $values, bool $erase = false, bool $onlyDisabled = false): static
