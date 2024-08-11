@@ -170,8 +170,7 @@ class Multiplier extends Container
 	 */
 	public function validate(?array $controls = null): void
 	{
-		/** @var Control[] $components */
-		$components = $controls ?? $this->getComponents();
+		$components = $controls ?? array_filter($this->getComponents(), fn ($component) => $component instanceof Control || $component instanceof Container);
 
 		foreach ($components as $index => $control) {
 			foreach ($this->noValidate as $item) {
@@ -313,7 +312,6 @@ class Multiplier extends Container
 	{
 		$this->createCopies();
 
-		/** @var array<int|string,Container> $containers */
 		$containers = array_filter($this->getComponents(), fn ($component) => $component instanceof Container);
 
 		return $containers;
