@@ -1,6 +1,7 @@
 {
   "name": "contributte/forms-multiplier",
   "type": "library",
+  "license": "MIT",
   "description": "Multiplier for nette forms",
   "keywords": [
     "nette",
