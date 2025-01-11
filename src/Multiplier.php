@@ -110,6 +110,9 @@ class Multiplier extends Container
 		});
 	}
 
+	/**
+	 * @return ($throw is true ? Form : ?Form)
+	 */
 	public function getForm(bool $throw = true): ?Form
 	{
 		if ($this->form) {
@@ -378,7 +381,7 @@ class Multiplier extends Container
 
 	protected function isFormSubmitted(): bool
 	{
-		return $this->getForm() !== null && $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
+		return $this->getForm(false) !== null && $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
 	}
 
 	protected function loadHttpData(): void
