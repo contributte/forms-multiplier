@@ -16,3 +16,11 @@ parameters:
 	paths:
 		- src
 		- .docs
+
+	ignoreErrors:
+		# https://github.com/phpstan/phpstan-nette/issues/141
+		-
+			message: '#^Parameter \#1 \$array of function array_filter expects array, Iterator\<int\|string, Nette\\ComponentModel\\IComponent\> given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Multiplier.php
