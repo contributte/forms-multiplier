@@ -232,11 +232,9 @@ class Multiplier extends Container
 			$this->attachCreateButtons();
 		}
 
-		if ($this->form !== null && $resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
-			/** @var RemoveButton $removeButton */
-			$removeButton = $this->removeButton;
-			$this->form->setSubmittedBy($removeButton->create($this));
+		if ($this->form !== null && $this->removeButton !== null && $resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
 
+			$this->form->setSubmittedBy($this->removeButton->create($this));
 			$this->resetFormEvents();
 
 			$this->onRemoveEvent();

@@ -107,6 +107,25 @@ class RemoveButtonTest extends UnitTest
 		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
 	}
 
+	public function testSendRemoveWithoutButton()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(2)
+				->setMinCopies(1)
+				->addCreateButton()
+				->createForm()
+		)->setPost([
+			'm' => [
+				['bar' => ''],
+				['bar' => '', 'multiplier_remover' => ''],
+			],
+		])->send();
+
+		$dom = $response->toDomQuery();
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
+	}
+
 	public function testSendRemoveBelowMinCopies()
 	{
 		$response = $this->services->form->createRequest(
