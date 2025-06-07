@@ -107,6 +107,31 @@ class RemoveButtonTest extends UnitTest
 		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
 	}
 
+	/** Regression test for https://github.com/contributte/forms-multiplier/pull/51 */
+	public function testSendRemoveShouldNotValidate()
+	{
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(2)
+				->setMinCopies(1)
+				->beforeFormModifier(function (Form $form) {
+					$form->addInteger('num');
+				})
+				->addRemoveButton()
+				->createForm()
+		)->setPost([
+			'num' => '5+1',
+			'm' => [
+				['bar' => ''],
+				['bar' => '', 'multiplier_remover' => ''],
+			],
+		])->send();
+
+		$dom = $response->toDomQuery();
+		$this->assertFalse($response->hasErrors());
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomNotHas($dom, 'input[name="m[1][bar]"]');
+	}
+
 	public function testSendRemoveWithoutButton()
 	{
 		$response = $this->services->form->createRequest(

@@ -234,7 +234,11 @@ class Multiplier extends Container
 
 		if ($this->form !== null && $this->removeButton !== null && $resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
 
+			// Create dummy remove button. Without this, Nette will validate,
+			// even though the original button has empty validation scope,
+			// since the button has actually been removed.
 			$this->form->setSubmittedBy($this->removeButton->create($this));
+
 			$this->resetFormEvents();
 
 			$this->onRemoveEvent();
