@@ -37,6 +37,28 @@ class CreateButtonTest extends UnitTest
 		$this->assertDomHas($dom, 'input[name="m[2][bar]"]');
 	}
 
+	public function testSendCreateWithoutButton()
+	{
+		$this->markTestIncomplete("New containers are added even without a button");
+
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create()
+				->createForm()
+		)->setPost([
+			'm' => [
+				['bar' => ''],
+				['bar' => ''],
+				'multiplier_creator' => '',
+			],
+		])->send();
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m[0][bar]"]');
+		$this->assertDomHas($dom, 'input[name="m[1][bar]"]');
+		$this->assertDomNotHas($dom, 'input[name="m[2][bar]"]');
+	}
+
 	public function testSendCreateOverMaxCopies()
 	{
 		$response = $this->services->form->createRequest(
