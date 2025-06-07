@@ -170,4 +170,54 @@ class CreateButtonTest extends UnitTest
 		$this->assertCount(2, $dom->find('fieldset'), 'After adding a container, there should be two fieldsets.');
 	}
 
+	/**
+	 * Ensure filters (e.g. integer) work on submit,
+	 * since they are dependent on properly set validation scope.
+	 */
+	public function testSendCreateFilter()
+	{
+		$this->markTestIncomplete(
+			'`getValues()` omits `num` field, even though it works '
+			. 'just fine when sending without the button.'
+		);
+
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create()
+				->fields([])
+				->beforeFormModifier(function (Form $form) {
+					$form->addInteger('num');
+				})
+				->multiplierModifier(function (Multiplier $multiplier) {
+					$multiplier->onCreate[] = function (Container $container) {
+						$container->addInteger('mnum')->setDefaultValue(47);
+					};
+				})
+				->addCreateButton()
+				->createForm()
+		)
+			->setPost([
+				'num' => '11',
+				'm' => [
+					['mnum' => '49'],
+					'multiplier_creator' => '',
+				],
+			])->send();
+
+		$this->assertTrue($response->isSuccess());
+		$this->assertSame([
+				'num' => 11,
+				'm' => [
+					['mnum' => 49],
+					// TODO: not sure if this is correct
+					['mnum' => null],
+				],
+			], $response->getValues());
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m[0][mnum]"][value="49"]');
+		$this->assertDomHas($dom, 'input[name="m[1][mnum]"][value="47"]');
+		$this->assertDomNotHas($dom, 'input[name="m[2][mnum]"]');
+	}
+
 }

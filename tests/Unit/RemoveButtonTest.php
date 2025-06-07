@@ -257,4 +257,63 @@ class RemoveButtonTest extends UnitTest
 		$this->assertDomNotHas($dom, 'input[name="m[0][bar]"]');
 	}
 
+	/**
+	 * Ensure filters (e.g. integer) work on submit,
+	 * since they are dependent on properly set validation scope.
+	 */
+	public function testSendRemoveFilter()
+	{
+		$this->markTestIncomplete(
+			'`getValues()` returns array `["m" => [], "m2" => []]`, '
+			. 'even though it works just fine when sending without the button.'
+		);
+
+		$response = $this->services->form->createRequest(
+			MultiplierBuilder::create(2)
+				->setMinCopies(1)
+				->fields([])
+				->beforeFormModifier(function (Form $form) {
+					$form->addInteger('num');
+				})
+				->multiplierModifier(function (Multiplier $multiplier) {
+					$multiplier->onCreate[] = function (Container $container) {
+						$container->addInteger('mnum')->setDefaultValue(47);
+					};
+					$multiplier->addRemoveButton();
+				})
+				->formModifier(function (Form $form) {
+					$form['m2'] = new Multiplier(function (Container $container) {
+						$container->addInteger('m2num')->setDefaultValue(72);
+					});
+				})
+				->createForm()
+		)
+			->setPost([
+				'num' => '11',
+				'm' => [
+					['mnum' => '49'],
+					['mnum' => '47', 'multiplier_remover' => ''],
+				],
+				'm2' => [
+					['m2num' => '72'],
+				],
+			])->send();
+
+		$this->assertTrue($response->isSuccess());
+		$this->assertSame([
+				'num' => 11,
+				'm' => [
+					['mnum' => 49],
+				],
+				'm2' => [
+					['m2num' => 72],
+				],
+			], $response->getValues());
+
+		$dom = $response->toDomQuery();
+
+		$this->assertDomHas($dom, 'input[name="m[0][mnum]"][value="49"]');
+		$this->assertDomNotHas($dom, 'input[name="m[1][mnum]"]');
+	}
+
 }
