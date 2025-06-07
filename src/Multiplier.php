@@ -418,7 +418,7 @@ class Multiplier extends Container
 	protected function createContainer(): Container
 	{
 		$control = new Container();
-		$control->currentGroup = $this->currentGroup;
+		$control->setCurrentGroup($this->currentGroup);
 		$this->fillContainer($control);
 
 		return $control;
