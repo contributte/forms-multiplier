@@ -1,40 +1,42 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Support\Helper;
+namespace Tests\Helpers;
 
+use Contributte\FormMultiplier\Multiplier;
 use Nette\Application\UI\Form;
 use Nette\Forms\Container;
-use Nette\SmartObject;
-use Contributte\FormMultiplier\Multiplier;
 
 class MultiplierBuilder
 {
 
-	use SmartObject;
-
-	/** @var array */
-	public $fields = [
+	/** @var array<string, string> */
+	public array $fields = [
 		'bar' => '',
 	];
 
 	/** @var callable[] */
-	protected $formModifiers = [];
+	protected array $formModifiers = [];
 
 	/** @var callable[] */
-	protected $beforeFormModifiers = [];
+	protected array $beforeFormModifiers = [];
 
 	/** @var callable[] */
-	protected $multiplierModifiers = [];
+	protected array $multiplierModifiers = [];
 
 	/** @var callable[] */
-	protected $containerModifiers = [];
+	protected array $containerModifiers = [];
 
-	/** @var array */
-	protected $multiplierArgs = [];
+	/** @var array<int, mixed> */
+	protected array $multiplierArgs = [];
 
 	public function __construct(int $copyNumber = 1, ?int $maxCopies = null)
 	{
 		$this->multiplierArgs = [$copyNumber, $maxCopies];
+	}
+
+	public static function create(int $copyNumber = 1, ?int $maxCopies = null): self
+	{
+		return new self($copyNumber, $maxCopies);
 	}
 
 	public function factory(Container $container): void
@@ -49,6 +51,9 @@ class MultiplierBuilder
 		}
 	}
 
+	/**
+	 * @param array<string, string> $fields
+	 */
 	public function fields(array $fields): self
 	{
 		$this->fields = $fields;
@@ -58,9 +63,9 @@ class MultiplierBuilder
 
 	public function addRemoveButton(?callable $onCreate = null): self
 	{
-		$this->multiplierModifiers[] = function (Multiplier $multiplier) use ($onCreate) {
+		$this->multiplierModifiers[] = function (Multiplier $multiplier) use ($onCreate): void {
 			$btn = $multiplier->addRemoveButton('add');
-			if ($onCreate) {
+			if ($onCreate !== null) {
 				$btn->addOnCreateCallback($onCreate);
 			}
 		};
@@ -70,9 +75,9 @@ class MultiplierBuilder
 
 	public function addCreateButton(int $copyCount = 1, ?callable $onCreate = null): self
 	{
-		$this->multiplierModifiers[] = function (Multiplier $multiplier) use ($copyCount, $onCreate) {
+		$this->multiplierModifiers[] = function (Multiplier $multiplier) use ($copyCount, $onCreate): void {
 			$btn = $multiplier->addCreateButton('add', $copyCount);
-			if ($onCreate) {
+			if ($onCreate !== null) {
 				$btn->addOnCreateCallback($onCreate);
 			}
 		};
@@ -80,14 +85,9 @@ class MultiplierBuilder
 		return $this;
 	}
 
-	public static function create(int $copyNumber = 1, ?int $maxCopies = null): self
-	{
-		return new self($copyNumber, $maxCopies);
-	}
-
 	public function setMinCopies(int $minCopies): self
 	{
-		$this->multiplierModifiers[] = function (Multiplier $multiplier) use ($minCopies) {
+		$this->multiplierModifiers[] = function (Multiplier $multiplier) use ($minCopies): void {
 			$multiplier->setMinCopies($minCopies);
 		};
 
@@ -114,7 +114,8 @@ class MultiplierBuilder
 
 		$form->addSubmit('send');
 
-		$form->onSuccess[] = function(Form $form) {};
+		$form->onSuccess[] = function (Form $form): void {
+		};
 
 		return $form;
 	}
@@ -147,9 +148,12 @@ class MultiplierBuilder
 		return $this;
 	}
 
+	/**
+	 * @param array<string, mixed> $defaults
+	 */
 	public function setFormDefaults(array $defaults): self
 	{
-		$this->formModifiers[] = function (Form $form) use ($defaults) {
+		$this->formModifiers[] = function (Form $form) use ($defaults): void {
 			$form->setDefaults($defaults);
 		};
 
