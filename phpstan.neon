@@ -1,11 +1,9 @@
 includes:
-	- vendor/phpstan/phpstan-deprecation-rules/rules.neon
-	- vendor/phpstan/phpstan-nette/extension.neon
-	- vendor/phpstan/phpstan-nette/rules.neon
+	- vendor/contributte/phpstan/phpstan.neon
 
 parameters:
 	level: 8
-	phpVersion: 80100
+	phpVersion: 80200
 
 	scanDirectories:
 		- src
@@ -23,4 +21,41 @@ parameters:
 			message: '#^Parameter \#1 \$array of function array_filter expects array, Iterator\<int\|string, Nette\\ComponentModel\\IComponent\> given\.$#'
 			identifier: argument.type
 			count: 4
+			path: src/Multiplier.php
+
+		# Strict rules - boolean conditions
+		-
+			identifier: if.condNotBoolean
+			path: src/ComponentResolver.php
+		-
+			identifier: if.condNotBoolean
+			path: src/Multiplier.php
+		-
+			identifier: booleanAnd.leftNotBoolean
+			path: src/Latte/Extension/Node/MultiplierAddNode.php
+		-
+			identifier: booleanAnd.leftNotBoolean
+			path: src/Multiplier.php
+		-
+			identifier: booleanAnd.rightNotBoolean
+			path: src/Multiplier.php
+		-
+			identifier: booleanNot.exprNotBoolean
+			path: src/Latte/Extension/Node/MultiplierRemoveNode.php
+		-
+			identifier: booleanNot.exprNotBoolean
+			path: src/Multiplier.php
+		-
+			identifier: ternary.condNotBoolean
+			path: src/Latte/Extension/Node/MultiplierAddNode.php
+		-
+			identifier: ternary.condNotBoolean
+			path: src/Latte/Extension/Node/MultiplierRemoveNode.php
+
+		# Strict rules - covariance/contravariance
+		-
+			identifier: method.childReturnType
+			path: src/Latte/Extension/MultiplierExtension.php
+		-
+			identifier: method.childParameterType
 			path: src/Multiplier.php
