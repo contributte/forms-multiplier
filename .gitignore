@@ -6,6 +6,9 @@
 /composer.lock
 
 # Tests
-/tests/_output
-/tests/Support/_generated
-/coverage.xml
+/tests/tmp
+/coverage.*
+/tests/**/*.log
+/tests/**/*.html
+/tests/**/*.expected
+/tests/**/*.actual
