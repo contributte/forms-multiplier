@@ -10,7 +10,7 @@ use Nette\Application\UI\Form as NetteForm;
 use Nette\Bridges\FormsLatte\FormsExtension;
 use Nette\Forms\Container;
 use Tester\Assert;
-use Tests\Helpers\FooPresenter;
+use Tests\Mocks\FooPresenter;
 
 require __DIR__ . '/../../bootstrap.php';
 

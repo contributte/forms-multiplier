@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Helpers;
+namespace Tests\Mocks;
 
 use Nette\Application\UI\Presenter;
 
