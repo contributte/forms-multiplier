@@ -4,6 +4,7 @@ namespace Tests\Cases\Unit;
 
 use Contributte\FormMultiplier\Multiplier;
 use Contributte\Tester\Toolkit;
+use Iterator;
 use Nette\Application\UI\Form;
 use Nette\Forms\Container;
 use Tester\Assert;
@@ -14,6 +15,13 @@ use WebChemistry\Testing\Services;
 require __DIR__ . '/../../bootstrap.php';
 
 $services = new Services();
+
+// testGetControlsReturnsIterator
+Toolkit::test(function (): void {
+	$form = MultiplierBuilder::create()->createForm();
+
+	Assert::type(Iterator::class, $form['m']->getControls());
+});
 
 // testRenderBase
 Toolkit::test(function () use ($services): void {

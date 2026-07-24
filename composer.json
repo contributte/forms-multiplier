@@ -25,9 +25,9 @@
     "contributte/qa": "~0.4.0",
     "contributte/tester": "~0.4.0",
     "latte/latte": "^3.0.0",
-    "nette/application": "^3.2.0",
+    "nette/application": ">=3.2.0 <3.3.0",
     "nette/di": "^3.2.0",
-    "webchemistry/testing-helpers": "^4.0.0"
+    "webchemistry/testing-helpers": "^4.1.1"
   },
   "conflict": {
     "latte/latte": "<3.0.0",
