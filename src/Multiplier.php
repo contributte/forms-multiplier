@@ -4,6 +4,7 @@ namespace Contributte\FormMultiplier;
 
 use Contributte\FormMultiplier\Buttons\CreateButton;
 use Contributte\FormMultiplier\Buttons\RemoveButton;
+use Generator;
 use Iterator;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\Container;
@@ -306,8 +307,11 @@ class Multiplier extends Container
 	public function getControls(): Iterator
 	{
 		$this->createCopies();
+		$controls = parent::getControls();
 
-		return parent::getControls();
+		return (static function () use ($controls): Generator {
+			yield from $controls;
+		})();
 	}
 
 	/**
