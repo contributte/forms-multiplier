@@ -4,6 +4,7 @@ namespace Contributte\FormMultiplier;
 
 use Contributte\FormMultiplier\Buttons\CreateButton;
 use Contributte\FormMultiplier\Buttons\RemoveButton;
+use Generator;
 use Iterator;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\Container;
@@ -11,8 +12,10 @@ use Nette\Forms\Control;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Form;
+use Nette\InvalidStateException;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\Arrays;
+use Nette\Utils\Html;
 use Traversable;
 
 class Multiplier extends Container
@@ -108,6 +111,9 @@ class Multiplier extends Container
 		});
 	}
 
+	/**
+	 * @return ($throw is true ? Form : ?Form)
+	 */
 	public function getForm(bool $throw = true): ?Form
 	{
 		if ($this->form) {
@@ -153,7 +159,7 @@ class Multiplier extends Container
 		return $this->copyNumber;
 	}
 
-	public function addRemoveButton(?string $caption = null): RemoveButton
+	public function addRemoveButton(Html|string|null $caption = null): RemoveButton
 	{
 		return $this->removeButton = new RemoveButton($caption);
 	}
@@ -168,8 +174,7 @@ class Multiplier extends Container
 	 */
 	public function validate(?array $controls = null): void
 	{
-		/** @var Control[] $components */
-		$components = $controls ?? iterator_to_array($this->getComponents());
+		$components = $controls ?? array_filter($this->getComponents(), fn ($component) => $component instanceof Control || $component instanceof Container);
 
 		foreach ($components as $index => $control) {
 			foreach ($this->noValidate as $item) {
@@ -228,10 +233,12 @@ class Multiplier extends Container
 			$this->attachCreateButtons();
 		}
 
-		if ($this->form !== null && $resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
-			/** @var RemoveButton $removeButton */
-			$removeButton = $this->removeButton;
-			$this->form->setSubmittedBy($removeButton->create($this));
+		if ($this->form !== null && $this->removeButton !== null && $resolver->isRemoveAction() && $this->totalCopies >= $this->minCopies && !$resolver->reachedMinLimit()) {
+
+			// Create dummy remove button. Without this, Nette will validate,
+			// even though the original button has empty validation scope,
+			// since the button has actually been removed.
+			$this->form->setSubmittedBy($this->removeButton->create($this));
 
 			$this->resetFormEvents();
 
@@ -272,23 +279,26 @@ class Multiplier extends Container
 	}
 
 	/**
+	 * @param  string|object|bool|null  $returnType  'array' for array
 	 * @param  Control[]|null  $controls
 	 * @return object|mixed[]
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingAnyTypeHint
 	 */
-	public function getValues($returnType = null, ?array $controls = null): object|array
+	public function getValues(string|object|bool|null $returnType = null, ?array $controls = null): object|array
 	{
 		if (!$this->resetKeys) {
 			return parent::getValues($returnType, $controls);
 		}
 
 		/** @var mixed[] $values */
-		$values = parent::getValues('array', $controls);
+		$values = parent::getValues(self::Array, $controls);
 		$values = array_values($values);
 
-		$returnType = $returnType === true ? 'array' : $returnType; // @phpstan-ignore-line nette backwards compatibility
+		if ($returnType === true) {
+			trigger_error(static::class . '::' . __FUNCTION__ . "(true) is deprecated, use getValues('array').", E_USER_DEPRECATED);
+			$returnType = self::Array;
+		}
 
-		return $returnType === 'array' ? $values : ArrayHash::from($values);
+		return $returnType === self::Array ? $values : ArrayHash::from($values);
 	}
 
 	/**
@@ -297,28 +307,30 @@ class Multiplier extends Container
 	public function getControls(): Iterator
 	{
 		$this->createCopies();
+		$controls = parent::getControls();
 
-		return parent::getControls();
+		return (static function () use ($controls): Generator {
+			yield from $controls;
+		})();
 	}
 
 	/**
-	 * @return Iterator<int|string,Container>
+	 * @return array<int|string,Container>
 	 */
-	public function getContainers(): Iterator
+	public function getContainers(): iterable
 	{
 		$this->createCopies();
 
-		/** @var Iterator<int|string,Container> $containers */
-		$containers = $this->getComponents(false, Container::class);
+		$containers = array_filter($this->getComponents(), fn ($component) => $component instanceof Container);
 
 		return $containers;
 	}
 
 	/**
 	 * @param mixed[]|object $values
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+	 * @internal
 	 */
-	public function setValues($values, bool $erase = false): self
+	public function setValues(array|object $values, bool $erase = false, bool $onlyDisabled = false): static
 	{
 		$values = $values instanceof Traversable ? iterator_to_array($values) : (array) $values;
 
@@ -373,19 +385,21 @@ class Multiplier extends Container
 
 	protected function isFormSubmitted(): bool
 	{
-		return $this->getForm() !== null && $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
+		return $this->getForm(false) !== null && $this->getForm()->isAnchored() && $this->getForm()->isSubmitted();
 	}
 
 	protected function loadHttpData(): void
 	{
 		if ($this->form !== null && $this->isFormSubmitted()) {
-			$this->httpData = (array) Arrays::get($this->form->getHttpData(), $this->getHtmlName(), []);
+			/** @var array<mixed> $httpData The other types from the union can only be returned when the htmlName argument is passed. https://github.com/nette/forms/pull/333 */
+			$httpData = $this->form->getHttpData();
+			$this->httpData = (array) Arrays::get($httpData, $this->getHtmlName(), []);
 		}
 	}
 
 	protected function createNumber(): int
 	{
-		$count = iterator_count($this->getComponents(false, Form::class));
+		$count = count(array_filter($this->getComponents(), fn ($component) => $component instanceof Form));
 		while ($this->getComponent((string) $count, false)) {
 			$count++;
 		}
@@ -400,16 +414,17 @@ class Multiplier extends Container
 
 	/**
 	 * @return string[]
+	 * @throws InvalidStateException when not attached.
 	 */
 	protected function getHtmlName(): array
 	{
-		return explode('-', $this->lookupPath(Form::class) ?? '');
+		return explode('-', $this->lookupPath(Form::class));
 	}
 
 	protected function createContainer(): Container
 	{
 		$control = new Container();
-		$control->currentGroup = $this->currentGroup;
+		$control->setCurrentGroup($this->currentGroup);
 		$this->fillContainer($control);
 
 		return $control;
@@ -420,7 +435,7 @@ class Multiplier extends Container
 	 */
 	protected function getFirstSubmit(): ?string
 	{
-		$submits = iterator_to_array($this->getComponents(false, SubmitButton::class));
+		$submits = array_filter($this->getComponents(), fn ($component) => $component instanceof SubmitButton);
 		if ($submits) {
 			return reset($submits)->getName();
 		}
@@ -481,7 +496,7 @@ class Multiplier extends Container
 			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
 				$this->noValidate[] = $containers[] = $container = $this->addCopy();
-				$container->setValues($this->createContainer()->getValues('array'));
+				$container->setValues($this->createContainer()->getValues(self::Array));
 				$count--;
 			}
 		}

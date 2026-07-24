@@ -35,6 +35,8 @@ final class MultiplierAddNode extends StatementNode
 			$node->part = new StringNode('1');
 		}
 
+		$tag->parser->stream->tryConsume(',');
+
 		$node->attributes = $tag->parser->parseArguments();
 
 		return $node;

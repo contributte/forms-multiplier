@@ -5,6 +5,7 @@ namespace Contributte\FormMultiplier\Buttons;
 use Contributte\FormMultiplier\Multiplier;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\SmartObject;
+use Nette\Utils\Html;
 
 final class RemoveButton
 {
@@ -14,12 +15,12 @@ final class RemoveButton
 	/** @var callable[] */
 	public array $onCreate = [];
 
-	private ?string $caption = null;
+	private Html|string|null $caption = null;
 
 	/** @var string[] */
 	private array $classes = [];
 
-	public function __construct(?string $caption)
+	public function __construct(Html|string|null $caption)
 	{
 		$this->caption = $caption;
 	}
