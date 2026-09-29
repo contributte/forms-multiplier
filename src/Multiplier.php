@@ -206,12 +206,7 @@ class Multiplier extends Container
 			$container->setDefaults($defaults, $this->erase);
 		}
 
-		$this->attachContainer($container, (string) $number);
-		$this->attachRemoveButton($container);
-
-		$this->totalCopies++;
-
-		return $container;
+		return $this->attachCopy($container, (string) $number);
 	}
 
 	public function createCopies(): void
@@ -491,8 +486,13 @@ class Multiplier extends Container
 		if ($this->form !== null && $resolver->isCreateAction() && $this->form->isValid()) {
 			$count = $resolver->getCreateNum();
 			while ($count > 0 && $this->isValidMaxCopies()) {
-				$this->noValidate[] = $containers[] = $container = $this->addCopy();
-				$container->setValues($this->createContainer()->getValues(self::Array));
+				// Read default values while the container is still detached (no HTTP data loaded),
+				// so that the factory is called only once per copy.
+				$number = $this->createNumber();
+				$container = $this->createContainer();
+				$defaults = $container->getValues(self::Array);
+				$this->noValidate[] = $containers[] = $this->attachCopy($container, (string) $number);
+				$container->setValues($defaults);
 				$count--;
 			}
 		}
@@ -502,6 +502,16 @@ class Multiplier extends Container
 				$this->detachRemoveButton($container);
 			}
 		}
+	}
+
+	private function attachCopy(Container $container, string $name): Container
+	{
+		$this->attachContainer($container, $name);
+		$this->attachRemoveButton($container);
+
+		$this->totalCopies++;
+
+		return $container;
 	}
 
 	private function detachCreateButtons(): void
