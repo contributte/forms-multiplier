@@ -286,6 +286,38 @@ Toolkit::test(function () use ($services): void {
 	FormAssert::domHas($dom, 'input[name="m[1][multiplier_remover]"]');
 });
 
+// testGroupInFactoryDoesNotCreateOrphanFieldset
+Toolkit::test(function () use ($services): void {
+	$i = 1;
+	$response = $services->form->createRequest(
+		MultiplierBuilder::create()
+			->multiplierModifier(function (Multiplier $multiplier) use (&$i): void {
+				$multiplier->setFactory(function (Container $container, Form $form) use (&$i): void {
+					$container->setCurrentGroup($form->addGroup('Team member #' . $i++));
+					$container->addText('bar')
+						->setDefaultValue('foo');
+				});
+				$multiplier->addCreateButton();
+			})
+			->formModifier(function (Form $form): void {
+				$form->setCurrentGroup(null);
+			})
+			->createForm()
+	)->setPost([
+		'm' => [
+			['bar' => 'baz'],
+			Multiplier::SUBMIT_CREATE_NAME => '',
+		],
+	])->send();
+
+	$dom = $response->toDomQuery();
+	Assert::count(2, $dom->find('fieldset'));
+	Assert::count(2, $dom->find('legend'));
+	FormAssert::domHas($dom, 'fieldset input[name="m[0][bar]"][value="baz"]');
+	FormAssert::domHas($dom, 'fieldset input[name="m[1][bar]"][value="foo"]');
+	FormAssert::domNotHas($dom, 'input[name="m[2][bar]"]');
+});
+
 // testOnCreateEvent
 Toolkit::test(function () use ($services): void {
 	$onCreateParams = [];
