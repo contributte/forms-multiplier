@@ -307,7 +307,7 @@ class Multiplier extends Container
 	{
 		$this->createCopies();
 
-		return parent::getControls();
+		yield from parent::getControls();
 	}
 
 	/**
